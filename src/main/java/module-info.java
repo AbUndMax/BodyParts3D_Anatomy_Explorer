@@ -3,8 +3,12 @@ module explorer {
     requires javafx.fxml;
     requires javafx.graphics;
     requires java.desktop;
+    requires com.esotericsoftware.kryo;
+    requires org.objenesis;
 
     opens explorer.window to javafx.fxml;
     exports explorer;
     opens explorer.window.controller to javafx.fxml;
+    opens explorer.model to com.esotericsoftware.kryo;
+    opens explorer.model.treeBuilder to com.esotericsoftware.kryo;
 }

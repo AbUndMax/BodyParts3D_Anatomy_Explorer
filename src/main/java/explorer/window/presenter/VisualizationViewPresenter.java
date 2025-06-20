@@ -90,6 +90,11 @@ public class VisualizationViewPresenter {
         return contentGroup;
     }
 
+    /**
+     * small tripod Pane to visualize the orientation of the Human Body Model in the lower left side
+     * @param visualizationViewController
+     * @param contentGroup
+     */
     private void setupTripodPane(VisualizationViewController visualizationViewController, Group contentGroup) {
         Pane tripodPane = visualizationViewController.getTripodPane();
 
