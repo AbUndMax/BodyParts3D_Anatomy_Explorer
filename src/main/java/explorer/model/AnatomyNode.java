@@ -3,7 +3,6 @@ package explorer.model;
 import javafx.scene.shape.MeshView;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class AnatomyNode {
@@ -11,7 +10,7 @@ public class AnatomyNode {
     private String conceptID;
     private String name;
     private LinkedList<String> fileIDs;
-    private List<AnatomyNode> children;
+    private LinkedList<AnatomyNode> children;
 
     private transient LinkedList<MeshView> mesh = new LinkedList<>();
 
@@ -34,11 +33,11 @@ public class AnatomyNode {
         return name;
     }
 
-    public List<String> getFileIDs() {
+    public LinkedList<String> getFileIDs() {
         return fileIDs;
     }
 
-    public List<AnatomyNode> getChildren() {
+    public LinkedList<AnatomyNode> getChildren() {
         return children;
     }
 
@@ -54,7 +53,7 @@ public class AnatomyNode {
         this.fileIDs.add(objPath);
     }
 
-    public void setChildren(List<AnatomyNode> children) {
+    public void setChildren(LinkedList<AnatomyNode> children) {
         this.children = children;
     }
 
