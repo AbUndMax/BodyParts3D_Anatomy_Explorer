@@ -1,5 +1,6 @@
 package explorer.window.controller;
 
+import explorer.model.AnatomyNode;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -50,16 +51,16 @@ public class SelectionViewController {
     private ToggleButton selectionListToggle;
 
     @FXML
-    private ListView<?> selectionListView;
+    private ListView<String> selectionListView;
 
     @FXML
     private ToggleGroup selectionVisibility;
 
     @FXML
-    private TreeView<?> treeViewIsA;
+    private TreeView<AnatomyNode> treeViewIsA;
 
     @FXML
-    private TreeView<?> treeViewPartOf;
+    private TreeView<AnatomyNode> treeViewPartOf;
 
     @FXML
     private SplitPane treeViewSplitPane;
@@ -120,7 +121,7 @@ public class SelectionViewController {
         return selectionListToggle;
     }
 
-    public ListView<?> getSelectionListView() {
+    public ListView<String> getSelectionListView() {
         return selectionListView;
     }
 
@@ -128,11 +129,11 @@ public class SelectionViewController {
         return selectionVisibility;
     }
 
-    public TreeView<?> getTreeViewIsA() {
+    public TreeView<AnatomyNode> getTreeViewIsA() {
         return treeViewIsA;
     }
 
-    public TreeView<?> getTreeViewPartOf() {
+    public TreeView<AnatomyNode> getTreeViewPartOf() {
         return treeViewPartOf;
     }
 

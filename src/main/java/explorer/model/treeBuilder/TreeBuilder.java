@@ -1,9 +1,6 @@
 package explorer.model.treeBuilder;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
 import explorer.model.AnatomyNode;
-import org.objenesis.strategy.StdInstantiatorStrategy;
 import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +31,7 @@ class TreeBuilder {
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA62955"); // root concept == "FMA62955" (anatomical entity)
         System.out.println(tree.toNewick()); // control tree
 
-        KryoUtils.freezeTree(tree, "src/main/resources/serializedTress/isA_tree.kryo");
+        KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/isA_tree.kryo");
     }
 
     /**
@@ -48,7 +45,7 @@ class TreeBuilder {
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA20394"); // root concept == "FMA20394" (human body)
         System.out.println(tree.toNewick()); // control tree
 
-        KryoUtils.freezeTree(tree, "src/main/resources/serializedTress/partOf_tree.kryo");
+        KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/partOf_tree.kryo");
     }
 
     private record Relation(String parentID, String parentName, String childID, String childName){}

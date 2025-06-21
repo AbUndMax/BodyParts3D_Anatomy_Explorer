@@ -94,4 +94,8 @@ public class AnatomyNode {
             return "(" + childrenNewick + ")" + node.getName();
         }
     }
+
+    public String toString() {
+        return this.name;
+    }
 }

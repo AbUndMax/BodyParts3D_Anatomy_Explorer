@@ -20,7 +20,7 @@ public class KryoUtils {
      *
      * @return the deserialized AnatomyNode tree, or null if loading fails
      */
-    public static AnatomyNode loadPartOfTreeFromKryo(String kryoFilePath) {
+    public static AnatomyNode loadTreeFromKryo(String kryoFilePath) {
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 
