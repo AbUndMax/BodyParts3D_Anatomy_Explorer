@@ -4,7 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
 import explorer.model.AnatomyNode;
 import org.objenesis.strategy.StdInstantiatorStrategy;
-
 import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -35,7 +34,7 @@ class TreeBuilder {
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA62955"); // root concept == "FMA62955" (anatomical entity)
         System.out.println(tree.toNewick()); // control tree
 
-        freezeTree(tree, "src/main/resources/serializedTress/isA_tree.kryo");
+        KryoUtils.freezeTree(tree, "src/main/resources/serializedTress/isA_tree.kryo");
     }
 
     /**
@@ -49,7 +48,7 @@ class TreeBuilder {
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA20394"); // root concept == "FMA20394" (human body)
         System.out.println(tree.toNewick()); // control tree
 
-        freezeTree(tree, "src/main/resources/serializedTress/partOf_tree.kryo");
+        KryoUtils.freezeTree(tree, "src/main/resources/serializedTress/partOf_tree.kryo");
     }
 
     private record Relation(String parentID, String parentName, String childID, String childName){}
@@ -149,30 +148,5 @@ class TreeBuilder {
         }
 
         return idToNode.get(rootConceptID);
-    }
-
-    /**
-     * Serializes the given AnatomyNode tree to a file using Kryo for efficient deserialization later.
-     *
-     * @param tree the AnatomyNode tree to serialize
-     * @param saveToPath the path where the Kryo file will be saved
-     */
-    public static void freezeTree(AnatomyNode tree, String saveToPath) {
-        // Freeze the tree
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());  // Optional, wenn du final-Felder hast
-
-        // (Optional) Klassen registrieren, für bessere Performance
-        kryo.register(AnatomyNode.class);
-        kryo.register(LinkedList.class);
-        kryo.register(String.class);
-
-        // Speicherort
-        try (Output output = new Output(new FileOutputStream(saveToPath))) {
-            kryo.writeObject(output, tree);
-            System.out.println("Kryo file successfully generated!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
