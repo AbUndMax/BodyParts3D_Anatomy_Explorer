@@ -5,6 +5,7 @@ module explorer {
     requires java.desktop;
     requires com.esotericsoftware.kryo;
     requires org.objenesis;
+    requires java.prefs;
 
     opens explorer.window to javafx.fxml;
     exports explorer;

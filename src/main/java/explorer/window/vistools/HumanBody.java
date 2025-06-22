@@ -9,13 +9,18 @@ import javafx.scene.shape.TriangleMesh;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class HumanBody extends Group{
 
     // connects fileID to a MeshView instance loaded from that fileID
-    private final HashMap<String, MeshView> meshViews = new HashMap<>();
+    private final ConcurrentHashMap<String, MeshView> meshViews = new ConcurrentHashMap<>();
 
     /**
      * Retrieves the MeshView associated with the given file ID.
@@ -37,37 +42,43 @@ public class HumanBody extends Group{
     public void loadMeshes(String wavefrontFolder, BiConsumer<Integer, Integer> progressCallback) {
         File folder = new File(wavefrontFolder);
         File[] objFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".obj"));
+        if (objFiles == null || objFiles.length == 0) return;
 
-        if (objFiles == null) return;
+        PhongMaterial sharedMaterial = new PhongMaterial();
+        sharedMaterial.setSpecularColor(Color.BLACK);
+        sharedMaterial.setDiffuseColor(Color.DARKGREY);
 
+        AtomicInteger counter = new AtomicInteger();
         int total = objFiles.length;
-        for (int i = 0; i < total; i++) {
-            File objFile = objFiles[i];
+
+        // collect all meshes in a list and append them with addAll after all Meshes are parsed
+        List<MeshView> collectedMeshes = Collections.synchronizedList(new ArrayList<>());
+
+        // Parallel loading of meshes to speed up initial load up
+        Arrays.stream(objFiles).parallel().forEach(objFile -> {
             String fileName = objFile.getName();
             String id = fileName.substring(0, fileName.lastIndexOf('.'));
 
-            TriangleMesh mesh = null;
+            TriangleMesh mesh;
             try {
                 mesh = ObjParser.load(objFile.getPath());
             } catch (IOException e) {
-                System.err.println("Error loading " + objFile.getPath());
+                e.printStackTrace();
+                return;
             }
 
-            // set materials
             MeshView meshView = new MeshView(mesh);
-            PhongMaterial material = new PhongMaterial();
-            material.setSpecularColor(Color.BLACK);
-            material.setDiffuseColor(Color.DARKGREY);
-            meshView.setMaterial(material);
+            meshView.setMaterial(sharedMaterial);
 
             meshViews.put(id, meshView);
-            this.getChildren().add(meshView);
 
-            // report the progress of currently loaded files back
-            int current = i + 1;
+            collectedMeshes.add(meshView);
+
             if (progressCallback != null) {
-                Platform.runLater(() -> progressCallback.accept(current, total));
+                Platform.runLater(() -> progressCallback.accept(counter.incrementAndGet(), total));
             }
-        }
+        });
+
+        Platform.runLater(() -> this.getChildren().addAll(collectedMeshes));
     }
 }
