@@ -3,6 +3,7 @@ package explorer.window.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 
 public class VisualizationViewController {
     @FXML
@@ -58,6 +59,9 @@ public class VisualizationViewController {
 
     @FXML
     private ToggleGroup threeDControl;
+
+    @FXML
+    private StackPane visualizationStackPane;
 
     @FXML
     private Pane tripodPane;
@@ -138,6 +142,10 @@ public class VisualizationViewController {
 
     public ToggleGroup getThreeDControl() {
         return threeDControl;
+    }
+
+    public StackPane getVisualizationStackPane() {
+        return visualizationStackPane;
     }
 
     public Pane getTripodPane() {

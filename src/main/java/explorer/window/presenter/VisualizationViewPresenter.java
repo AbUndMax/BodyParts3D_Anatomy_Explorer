@@ -2,16 +2,20 @@ package explorer.window.presenter;
 
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.Axes;
+import explorer.window.vistools.HumanBody;
 import explorer.window.vistools.MyCamera;
 import explorer.window.vistools.TransformUtils;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
@@ -29,9 +33,9 @@ public class VisualizationViewPresenter {
             0.0, 1.0, 0.0, 0.0
     );
     private static final int rotationStep = 10;
-    private static final int translationStep = 5;
     private final Group contentGroup;
     private final MyCamera camera = new MyCamera();
+    private final HumanBody humanBody = new HumanBody();
 
     public VisualizationViewPresenter(VisualizationViewController visualizationViewController) {
         contentGroup = setupVisualisationPane(visualizationViewController);
@@ -55,17 +59,18 @@ public class VisualizationViewPresenter {
         var subScene = new SubScene(root3d, 600, 600, true, SceneAntialiasing.BALANCED);
         subScene.widthProperty().bind(visualizationPane.widthProperty());
         subScene.heightProperty().bind(visualizationPane.heightProperty());
-        // make subScene background lightgrey
-        subScene.setFill(Color.DARKGREY);
+        // set subScene background
+        subScene.setFill(Color.LIGHTBLUE);
 
         // add camera
         subScene.setCamera(camera);
 
         // Add PointLight
         PointLight pointLight = new PointLight(Color.DARKGREY);
-        pointLight.setTranslateX(100);
-        pointLight.setTranslateY(-100);
-        pointLight.setTranslateZ(-100);
+        // point Light is bound to camera position for always optimal scene illumination
+        pointLight.translateXProperty().bind(camera.translateXProperty());
+        pointLight.translateYProperty().bind(camera.translateYProperty());
+        pointLight.translateZProperty().bind(camera.translateZProperty());
 
         // Add AmbientLight
         AmbientLight ambientLight = new AmbientLight(Color.rgb(180, 180, 180));
@@ -84,7 +89,7 @@ public class VisualizationViewPresenter {
         camera.setFocus(contentGroup);
 
         // load the human body parts
-        contentGroup.getChildren().add(new Axes(20)); // TODO load human body into the contentPane
+        loadHumanBody(controller, contentGroup);
         contentGroup.getTransforms().setAll(initialTransform);
 
         return contentGroup;
@@ -138,35 +143,35 @@ public class VisualizationViewPresenter {
                 // Left UP
                 new DirAction(visualizationViewController.getButtonCntrlLeftUp(),
                               new Point3D(1,0,1),   -rotationStep,
-                              new Point3D(translationStep, translationStep, 0)),
+                              new Point3D(1, 1, 0)),
                 // UP
                 new DirAction(visualizationViewController.getButtonCntrlUp(),
                               new Point3D(1,0,0),   -rotationStep,
-                              new Point3D(0, translationStep, 0)),
+                              new Point3D(0, 1, 0)),
                 // Right UP
                 new DirAction(visualizationViewController.getButtonCntrlRightUp(),
                               new Point3D(1,1,0),   -rotationStep,
-                              new Point3D(-translationStep, translationStep, 0)),
+                              new Point3D(-1, 1, 0)),
                 // Left DOWN
                 new DirAction(visualizationViewController.getButtonCntrlLeftDown(),
                               new Point3D(1,1,0),    rotationStep,
-                              new Point3D(translationStep, -translationStep, 0)),
+                              new Point3D(1, -1, 0)),
                 // DOWN
                 new DirAction(visualizationViewController.getButtonCntrlDown(),
                               new Point3D(1,0,0),    rotationStep,
-                              new Point3D(0, -translationStep, 0)),
+                              new Point3D(0, -1, 0)),
                 // Right DOWN
                 new DirAction(visualizationViewController.getButtonCntrlRightDown(),
                               new Point3D(1,0,1),    rotationStep,
-                              new Point3D(-translationStep, -translationStep, 0)),
+                              new Point3D(-1, -1, 0)),
                 // LEFT
                 new DirAction(visualizationViewController.getButtonCntrlLeft(),
                               new Point3D(0,1,0),    rotationStep,
-                              new Point3D(translationStep,0, 0)),
+                              new Point3D(1,0, 0)),
                 // RIGHT
                 new DirAction(visualizationViewController.getButtonCntrlRight(),
                               new Point3D(0,1,0),   -rotationStep,
-                              new Point3D(-translationStep,0, 0))
+                              new Point3D(-1,0, 0))
         );
 
         // Alle Action-Handler in der Schleife setzen
@@ -209,6 +214,27 @@ public class VisualizationViewPresenter {
         });
 
         slider.valueProperty().bindBidirectional(sliderValue);
+    }
+
+    private void loadHumanBody(VisualizationViewController visualizationViewController, Group contentGroup) {
+        // TODO: optional setup: Try to load from last source (save last source in resources) -> if not possible, open FileChooser
+        String wavefrontPath = "/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/wavefronts";
+
+        ProgressBar progressBar = new ProgressBar(0);
+        StackPane visualizationStack = visualizationViewController.getVisualizationStackPane();
+        visualizationStack.getChildren().add(progressBar);
+
+        new Thread(() -> {
+            humanBody.loadMeshes(wavefrontPath, (current, total) -> {
+                double progress = (double) current / total;
+                Platform.runLater(() -> progressBar.setProgress(progress));
+            });
+            Platform.runLater(() -> {
+                visualizationStack.getChildren().remove(progressBar);
+                TransformUtils.centerGroupToItself(humanBody);
+                contentGroup.getChildren().add(humanBody);
+            });
+        }).start();
     }
 
     protected void rotateContentGroupUp() {

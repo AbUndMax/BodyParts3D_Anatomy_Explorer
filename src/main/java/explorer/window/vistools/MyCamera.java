@@ -23,6 +23,7 @@ public class MyCamera extends PerspectiveCamera {
     private double zoomFactor = 1;
     private final int maxZoomIn = 0;
     private final DoubleProperty maxZoomOut = new SimpleDoubleProperty(-400);
+    private double translationValue = 5;
 
     public DoubleProperty getMaxZoomOut() {
         return maxZoomOut;
@@ -101,14 +102,14 @@ public class MyCamera extends PerspectiveCamera {
         requiredDistance *= 1.5; // add some free space to the FOV
 
         this.resetPositionInZ = -requiredDistance;
-        this.zoomFactor = Math.max(1, longestEdge * 0.03);
-        this.maxZoomOut.set(-longestEdge * 50);
+        this.zoomFactor = Math.max(1, longestEdge * 0.1);
+        this.maxZoomOut.set(-longestEdge * 10);
+        this.translationValue = longestEdge * 0.1;
         this.resetView();
     }
 
     public void zoomIn() {
         double newPosition = this.getTranslateZ() + zoomFactor * 10;
-        System.out.println(newPosition);
         this.setTranslateZ(Math.min(newPosition, maxZoomIn));
     }
 
@@ -118,8 +119,7 @@ public class MyCamera extends PerspectiveCamera {
     }
 
     public void zoom(double zoom) {
-        double newPosition = this.getTranslateZ() + zoom * zoomFactor;
-        System.out.println(maxZoomOut);
+        double newPosition = zoom > 0 ? this.getTranslateZ() + zoomFactor : this.getTranslateZ() - zoomFactor;
         this.setTranslateZ(Math.min(Math.max(newPosition, maxZoomOut.getValue()), maxZoomIn));
     }
 
@@ -132,16 +132,32 @@ public class MyCamera extends PerspectiveCamera {
      *              scroll distance, and modifier keys that are pressed.
      */
     public void zoomAndPanScrolling(ScrollEvent event) {
-        double deltaY = event.getDeltaY();
-        double deltaX = event.getDeltaX();
+        double deltaY = translate(event.getDeltaY()) * 0.9;
+        double deltaX = translate(event.getDeltaX()) * 0.9;
         if (event.isShiftDown()) { // if shift is pressed, instead if zooming, we pan the camera
             this.pan(deltaX, deltaY);
         }
         else this.zoom(deltaY);
     }
 
+    /**
+     * calculates a translation value based on the current zoom level to ensure that translation is equal
+     * for all distances!
+     * @param value
+     * @return translation step
+     */
+    private double translate(double value) {
+        if (value > 0) {
+            return translationValue * this.getTranslateZ() / maxZoomOut.getValue();
+        } else if (value < 0) {
+            return -translationValue * this.getTranslateZ() / maxZoomOut.getValue();
+        } else {
+            return 0;
+        }
+    }
+
     public void pan(double x, double y) {
-        this.setTranslateX(this.getTranslateX() + x);
-        this.setTranslateY(this.getTranslateY() + y);
+        this.setTranslateX(this.getTranslateX() + translate(x));
+        this.setTranslateY(this.getTranslateY() + translate(y));
     }
 }
