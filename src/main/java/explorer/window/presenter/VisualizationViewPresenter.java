@@ -242,9 +242,8 @@ public class VisualizationViewPresenter {
     private void loadHumanBody(VisualizationViewController visualizationViewController, Group contentGroup) {
         AtomicReference<String> wavefrontPath = new AtomicReference<>(AppConfig.loadLastPath());
 
-        if (wavefrontPath.get() == null
-                || wavefrontPath.get().isEmpty()
-                || !new File(wavefrontPath.get()).isDirectory()) {
+        // if the path is invalid overlay the visualization pane with a load button
+        if (wavefrontPath.get() == null || !new File(wavefrontPath.get()).isDirectory()) {
             BorderPane overlay = new BorderPane();
             overlay.setStyle("-fx-background-color: rgba(255,255,255,0.8);");
 
@@ -265,6 +264,7 @@ public class VisualizationViewPresenter {
         StackPane visualizationStack = visualizationViewController.getVisualizationStackPane();
         visualizationStack.getChildren().add(progressBar);
 
+        // use a task for save load handling -> visualize progress via progressBar
         String finalWavefrontPath = wavefrontPath.get();
         Task<Void> loadTask = new Task<>() {
             @Override
