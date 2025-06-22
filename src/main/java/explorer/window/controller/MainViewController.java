@@ -3,6 +3,7 @@ package explorer.window.controller;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
@@ -33,6 +34,9 @@ public class MainViewController {
 
     @FXML
     private MenuItem menuButtonClose;
+
+    @FXML
+    private MenuItem menuButtonOpen;
 
     @FXML
     private MenuItem menuButtonExpandIsA;
@@ -97,6 +101,10 @@ public class MainViewController {
 
     public MenuItem getMenuButtonClose() {
         return menuButtonClose;
+    }
+
+    public MenuItem getMenuButtonOpen() {
+        return menuButtonOpen;
     }
 
     public MenuItem getMenuButtonExpandIsA() {
