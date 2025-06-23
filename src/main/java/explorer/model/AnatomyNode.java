@@ -12,7 +12,7 @@ public class AnatomyNode {
     private LinkedList<String> fileIDs;
     private LinkedList<AnatomyNode> children;
 
-    private transient LinkedList<MeshView> mesh = new LinkedList<>();
+    private transient LinkedList<MeshView> mesh;
 
     public AnatomyNode(String conceptId, String name, LinkedList<AnatomyNode> children, LinkedList<String> fileIds) {
         this.conceptID = conceptId;
@@ -62,7 +62,12 @@ public class AnatomyNode {
     }
 
     public void addMesh(MeshView mesh) {
+        if (this.mesh == null) this.mesh = new LinkedList<>();
         this.mesh.add(mesh);
+    }
+
+    public void setMeshes(LinkedList<MeshView> meshes) {
+        this.mesh = meshes;
     }
 
     /**

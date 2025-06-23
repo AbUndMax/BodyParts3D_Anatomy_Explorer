@@ -1,10 +1,13 @@
 package explorer.window.vistools;
 
+import explorer.model.AnatomyNode;
+import explorer.model.treetools.TreeUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -15,6 +18,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import static javafx.collections.FXCollections.observableSet;
 
 public class HumanBody extends Group{
@@ -126,5 +130,24 @@ public class HumanBody extends Group{
         });
 
         Platform.runLater(() -> this.getChildren().addAll(collectedMeshes));
+    }
+
+    public void setTreeAndMeshFields(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
+        TreeUtils.postOrderTraversal(partOfTreeRoot, this::assignMeshesToNode);
+        TreeUtils.postOrderTraversal(isATreeRoot, this::assignMeshesToNode);
+    }
+
+    private void assignMeshesToNode(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
+        if (anatomyNodeTreeItem.isLeaf()) {
+            AnatomyNode anatomyNode = anatomyNodeTreeItem.getValue();
+            LinkedList<MeshView> meshes = new LinkedList<>();
+
+            for (String fileID : anatomyNode.getFileIDs()) {
+                MeshView mesh = meshViews.get(fileID);
+                meshes.add(mesh);
+                mesh.setUserData(anatomyNode);
+            }
+            anatomyNode.setMeshes(meshes);
+        }
     }
 }

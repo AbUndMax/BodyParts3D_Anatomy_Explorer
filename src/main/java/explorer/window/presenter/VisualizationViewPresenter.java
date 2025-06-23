@@ -1,7 +1,10 @@
 package explorer.window.presenter;
 
+import explorer.AnatomyExplorer;
+import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
+import explorer.window.ControllerRegistry;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.Axes;
 import explorer.window.vistools.HumanBody;
@@ -17,6 +20,7 @@ import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -32,6 +36,9 @@ import static explorer.window.vistools.TransformUtils.applyGlobalRotation;
 
 public class VisualizationViewPresenter {
 
+    private final ControllerRegistry registry;
+    private final VisualizationViewController visController;
+
     // constants copied from assignment06
     // initial view on the tripod is saved as Affine. It is also used as reset position.
     private static final Affine INITIAL_TRANSFORM = new Affine(
@@ -40,31 +47,33 @@ public class VisualizationViewPresenter {
             0.0, 1.0, 0.0, 0.0
     );
     private static final int ROTATION_STEP = 10;
-    private final Group contentGroup;
+
     private final MyCamera camera = new MyCamera();
     private final HumanBody humanBody = new HumanBody();
+    private final Group contentGroup;
 
     /**
      * Initializes the visualization view presenter by setting up the 3D visualization,
      * tripod pane, and user interaction buttons.
      *
-     * @param visualizationViewController The controller providing access to UI elements.
+     * @param registry the ControllerRegistry that holds all Controller instances.
      */
-    public VisualizationViewPresenter(VisualizationViewController visualizationViewController) {
-        contentGroup = setupVisualisationPane(visualizationViewController);
-        setupTripodPane(visualizationViewController, contentGroup);
-        setupVisualizationViewButtons(visualizationViewController, contentGroup);
+    public VisualizationViewPresenter(ControllerRegistry registry) {
+        this.registry = registry;
+        this.visController = registry.getVisualizationViewController();
+
+        contentGroup = setupVisualisationPane();
+        setupTripodPane();
+        setupVisualizationViewButtons();
     }
 
     /**
      * Sets up a 3D sub-pane for rendering 3D objects within the application.
      * Creates and configures a 3D scene with lighting, camera, and background color.
      * Adds the configured subscene to the application's 3D drawing pane.
-     *
-     * @param controller The WindowController instance containing the 3D drawing pane
      */
-    private Group setupVisualisationPane(VisualizationViewController controller) {
-        Pane visualizationPane = controller.getVisualizationPane();
+    private Group setupVisualisationPane() {
+        Pane visualizationPane = visController.getVisualizationPane();
         Group contentGroup = new Group();
         Group root3d = new Group(contentGroup);
 
@@ -101,7 +110,7 @@ public class VisualizationViewPresenter {
         camera.setFocus(contentGroup);
 
         // load the human body parts after the GUI is rendered
-        Platform.runLater(() -> loadHumanBody(controller, contentGroup));
+        Platform.runLater(this::loadHumanBody);
         contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
 
         return contentGroup;
@@ -110,12 +119,9 @@ public class VisualizationViewPresenter {
     /**
      * Initializes a miniature tripod scene that reflects the orientation of the main model.
      * Displays the tripod in the lower left corner of the visualization view.
-     *
-     * @param visualizationViewController The controller providing access to the tripod pane.
-     * @param contentGroup The main content group whose transforms are mirrored.
      */
-    private void setupTripodPane(VisualizationViewController visualizationViewController, Group contentGroup) {
-        Pane tripodPane = visualizationViewController.getTripodPane();
+    private void setupTripodPane() {
+        Pane tripodPane = visController.getTripodPane();
 
         Group tripodGroup = new Group();
         tripodGroup.getChildren().add(new Axes(10));
@@ -145,11 +151,8 @@ public class VisualizationViewPresenter {
 
     /**
      * Configures directional movement buttons and zoom controls for the 3D view.
-     *
-     * @param visualizationViewController The controller containing the button UI elements.
-     * @param contentGroup The group to which transformations are applied.
      */
-    private void setupVisualizationViewButtons(VisualizationViewController visualizationViewController, Group contentGroup) {
+    private void setupVisualizationViewButtons() {
         // Record-Type for keeping the actions better together
         // with a small pun ... DirAction... DIRAction ... DIRECTION ... got it? ☚(ﾟヮﾟ☚)
         record DirAction(Button btn, Point3D rotAxis, double rotAngle, Point3D trans) {}
@@ -157,35 +160,35 @@ public class VisualizationViewPresenter {
         // All directions and its corresponding buttons
         List<DirAction> actions = List.of(
                 // Left UP
-                new DirAction(visualizationViewController.getButtonCntrlLeftUp(),
+                new DirAction(visController.getButtonCntrlLeftUp(),
                               new Point3D(1,0,1),   -ROTATION_STEP,
                               new Point3D(1, 1, 0)),
                 // UP
-                new DirAction(visualizationViewController.getButtonCntrlUp(),
+                new DirAction(visController.getButtonCntrlUp(),
                               new Point3D(1,0,0),   -ROTATION_STEP,
                               new Point3D(0, 1, 0)),
                 // Right UP
-                new DirAction(visualizationViewController.getButtonCntrlRightUp(),
+                new DirAction(visController.getButtonCntrlRightUp(),
                               new Point3D(1,1,0),   -ROTATION_STEP,
                               new Point3D(-1, 1, 0)),
                 // Left DOWN
-                new DirAction(visualizationViewController.getButtonCntrlLeftDown(),
+                new DirAction(visController.getButtonCntrlLeftDown(),
                               new Point3D(1,1,0), ROTATION_STEP,
                               new Point3D(1, -1, 0)),
                 // DOWN
-                new DirAction(visualizationViewController.getButtonCntrlDown(),
+                new DirAction(visController.getButtonCntrlDown(),
                               new Point3D(1,0,0), ROTATION_STEP,
                               new Point3D(0, -1, 0)),
                 // Right DOWN
-                new DirAction(visualizationViewController.getButtonCntrlRightDown(),
+                new DirAction(visController.getButtonCntrlRightDown(),
                               new Point3D(1,0,1), ROTATION_STEP,
                               new Point3D(-1, -1, 0)),
                 // LEFT
-                new DirAction(visualizationViewController.getButtonCntrlLeft(),
+                new DirAction(visController.getButtonCntrlLeft(),
                               new Point3D(0,1,0), ROTATION_STEP,
                               new Point3D(1,0, 0)),
                 // RIGHT
-                new DirAction(visualizationViewController.getButtonCntrlRight(),
+                new DirAction(visController.getButtonCntrlRight(),
                               new Point3D(0,1,0),   -ROTATION_STEP,
                               new Point3D(-1,0, 0))
         );
@@ -193,7 +196,7 @@ public class VisualizationViewPresenter {
         // Alle Action-Handler in der Schleife setzen
         for (DirAction a : actions) {
             a.btn().setOnAction(e -> {
-                if (visualizationViewController.getRadioRotation().isSelected()) {
+                if (visController.getRadioRotation().isSelected()) {
                     applyGlobalRotation(contentGroup, a.rotAxis(), a.rotAngle());
                 } else {
                     Point3D v = a.trans();
@@ -203,16 +206,15 @@ public class VisualizationViewPresenter {
         }
 
         // set zoom functions
-        visualizationViewController.getButtonCntrlReset().setOnAction(e -> resetView(contentGroup));
-        setupZoomSlider(visualizationViewController);
+        visController.getButtonCntrlReset().setOnAction(e -> resetView());
+        setupZoomSlider();
     }
 
     /**
      * sets up the zoom slider and its bidirectional binding of the camera position
-     * @param visualizationViewController that provides access to the slider
      */
-    private void setupZoomSlider(VisualizationViewController visualizationViewController) {
-        Slider slider = visualizationViewController.getZoomSlider();
+    private void setupZoomSlider() {
+        Slider slider = visController.getZoomSlider();
 
         DoubleProperty sliderValue = new SimpleDoubleProperty();
 
@@ -235,11 +237,8 @@ public class VisualizationViewPresenter {
     /**
      * Loads the human body model asynchronously from the saved path. Displays a progress bar while loading.
      * If the path is missing or invalid, prompts the user to select the correct model directory.
-     *
-     * @param visualizationViewController The controller used to access the UI stack pane.
-     * @param contentGroup The group into which the human body is inserted after loading.
      */
-    private void loadHumanBody(VisualizationViewController visualizationViewController, Group contentGroup) {
+    private void loadHumanBody() {
         AtomicReference<String> wavefrontPath = new AtomicReference<>(AppConfig.loadLastPath());
 
         // if the path is invalid overlay the visualization pane with a load button
@@ -251,17 +250,18 @@ public class VisualizationViewPresenter {
             openButton.setOnAction(e -> {
                 File path = ObjIO.openDirectoryChooser();
                 AppConfig.saveLastPath(path.getAbsolutePath());
-                visualizationViewController.getVisualizationStackPane().getChildren().remove(overlay);
-                loadHumanBody(visualizationViewController, contentGroup);
+                visController.getVisualizationStackPane().getChildren().remove(overlay);
+                loadHumanBody();
             });
+            // TODO: eventually add "download" button that allows to fetch the files
 
             overlay.setCenter(openButton);
-            visualizationViewController.getVisualizationStackPane().getChildren().add(overlay);
+            visController.getVisualizationStackPane().getChildren().add(overlay);
             return;
         }
 
         ProgressBar progressBar = new ProgressBar(0);
-        StackPane visualizationStack = visualizationViewController.getVisualizationStackPane();
+        StackPane visualizationStack = visController.getVisualizationStackPane();
         visualizationStack.getChildren().add(progressBar);
 
         // use a task for save load handling -> visualize progress via progressBar
@@ -279,6 +279,9 @@ public class VisualizationViewPresenter {
                 visualizationStack.getChildren().remove(progressBar);
                 TransformUtils.centerGroupToItself(humanBody);
                 contentGroup.getChildren().add(humanBody);
+                TreeItem<AnatomyNode> isATreeRoot = registry.getSelectionViewController().getTreeViewIsA().getRoot();
+                TreeItem<AnatomyNode> partOfTreeRoot = registry.getSelectionViewController().getTreeViewPartOf().getRoot();
+                humanBody.setTreeAndMeshFields(isATreeRoot, partOfTreeRoot);
             }
 
             @Override
@@ -338,10 +341,8 @@ public class VisualizationViewPresenter {
     /**
      * Resets the view of the 3D scene to its initial state by adjusting
      * the camera position and resetting the transformations of the content group.
-     *
-     * @param contentGroup The group of 3D content whose transformations will be reset.
      */
-    protected void resetView(Group contentGroup) {
+    protected void resetView() {
         camera.resetView();
         contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
     }

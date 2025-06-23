@@ -2,7 +2,8 @@ package explorer.window.presenter;
 
 import explorer.model.AnatomyNode;
 import explorer.model.SharedMultiSelectionModel;
-import explorer.model.treeBuilder.KryoUtils;
+import explorer.model.treetools.KryoUtils;
+import explorer.window.ControllerRegistry;
 import explorer.window.controller.SelectionViewController;
 import javafx.scene.control.*;
 import javafx.collections.SetChangeListener;
@@ -13,7 +14,8 @@ public class SelectionViewPresenter {
     private static final SharedMultiSelectionModel sharedMultiSelectionModel = new SharedMultiSelectionModel();
     private TreeView<AnatomyNode> lastFocusedTreeView = null;
 
-    public SelectionViewPresenter(SelectionViewController selectionViewController) {
+    public SelectionViewPresenter(ControllerRegistry registry) {
+        SelectionViewController selectionViewController = registry.getSelectionViewController();
         setupTreeViews(selectionViewController);
         setupButtons(selectionViewController);
     }
@@ -30,7 +32,15 @@ public class SelectionViewPresenter {
         TreeItem<AnatomyNode> partOfTreeItemRoot = createTreeItemsRec(partOfTree);
         treeViewPartOf.setRoot(partOfTreeItemRoot);
 
-        setupSelectionModel(treeViewIsA, treeViewPartOf, selectionViewController.getSelectionListView());
+        //DEBUG: remove
+        treeViewPartOf.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                System.out.println("Selected node: " + newSelection.getValue().getName());
+                System.out.println("Selected node: " + newSelection.getValue().getMesh());
+            }
+        });
+
+        //setupSelectionModel(treeViewIsA, treeViewPartOf, selectionViewController.getSelectionListView());
     }
 
     /**

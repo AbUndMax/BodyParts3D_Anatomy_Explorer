@@ -1,4 +1,4 @@
-package explorer.model.treeBuilder;
+package explorer.model.treetools;
 
 import explorer.model.AnatomyNode;
 import java.io.*;
