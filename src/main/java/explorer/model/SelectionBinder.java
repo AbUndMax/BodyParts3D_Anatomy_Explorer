@@ -3,13 +3,13 @@ package explorer.model;
 import javafx.collections.*;
 import javafx.collections.FXCollections;
 
-public class SharedMultiSelectionModel {
+public class SelectionBinder {
 
     private final ObservableSet<AnatomyNode> selectedAnatomyNodes = FXCollections.observableSet();
     private final ObservableSet<String> selectedConceptIDs = FXCollections.observableSet();
     private final ObservableList<String> selectedNames = FXCollections.observableArrayList();
 
-    public SharedMultiSelectionModel() {
+    public SelectionBinder() {
         selectedAnatomyNodes.addListener((SetChangeListener<AnatomyNode>) change -> {
             if (change.wasAdded()) {
                 selectedNames.add(change.getElementAdded().getName());

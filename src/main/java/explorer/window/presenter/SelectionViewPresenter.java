@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AnatomyNode;
-import explorer.model.SharedMultiSelectionModel;
+import explorer.model.SelectionBinder;
 import explorer.model.treetools.KryoUtils;
 import explorer.window.ControllerRegistry;
 import explorer.window.controller.SelectionViewController;
@@ -11,7 +11,7 @@ import javafx.collections.ListChangeListener;
 
 public class SelectionViewPresenter {
 
-    private static final SharedMultiSelectionModel sharedMultiSelectionModel = new SharedMultiSelectionModel();
+    private static final SelectionBinder SELECTION_BINDER = new SelectionBinder();
     private TreeView<AnatomyNode> lastFocusedTreeView = null;
 
     public SelectionViewPresenter(ControllerRegistry registry) {
@@ -25,6 +25,9 @@ public class SelectionViewPresenter {
         AnatomyNode isATree = KryoUtils.loadTreeFromKryo("src/main/resources/serializedTrees/isA_tree.kryo");
         TreeItem<AnatomyNode> isATreeItemRoot = createTreeItemsRec(isATree);
         treeViewIsA.setRoot(isATreeItemRoot);
+
+        //TODO: connect TreeViews and HumanBody in selectionModel
+        //TODO: Handle automatic expand for search -> expand all parents to the found entry
 
 
         TreeView<AnatomyNode> treeViewPartOf = selectionViewController.getTreeViewPartOf();
@@ -94,7 +97,7 @@ public class SelectionViewPresenter {
         treeViewPartOf.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         // instantiate a new SelectionModel
-        SharedMultiSelectionModel sharedSelection = new SharedMultiSelectionModel();
+        SelectionBinder sharedSelection = new SelectionBinder();
 
         // bind the ListView to the live ObservableList of selected names
         selectionList.setItems(sharedSelection.getSelectedNames());
