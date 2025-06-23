@@ -21,7 +21,7 @@ public class MyCamera extends PerspectiveCamera {
     // reset Position the camera returns to after pressing the reset button
     private double resetPositionInZ = -200;
     private double zoomFactor = 1;
-    private final int maxZoomIn = 0;
+    private final int MAX_ZOOM_IN = 0;
     private final DoubleProperty maxZoomOut = new SimpleDoubleProperty(-400);
     private double translationValue = 5;
 
@@ -110,7 +110,7 @@ public class MyCamera extends PerspectiveCamera {
 
     public void zoomIn() {
         double newPosition = this.getTranslateZ() + zoomFactor * 10;
-        this.setTranslateZ(Math.min(newPosition, maxZoomIn));
+        this.setTranslateZ(Math.min(newPosition, MAX_ZOOM_IN));
     }
 
     public void zoomOut() {
@@ -120,7 +120,7 @@ public class MyCamera extends PerspectiveCamera {
 
     public void zoom(double zoom) {
         double newPosition = zoom > 0 ? this.getTranslateZ() + zoomFactor : this.getTranslateZ() - zoomFactor;
-        this.setTranslateZ(Math.min(Math.max(newPosition, maxZoomOut.getValue()), maxZoomIn));
+        this.setTranslateZ(Math.min(Math.max(newPosition, maxZoomOut.getValue()), MAX_ZOOM_IN));
     }
 
     /**

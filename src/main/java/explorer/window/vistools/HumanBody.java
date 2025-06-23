@@ -1,26 +1,68 @@
 package explorer.window.vistools;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
+import static javafx.collections.FXCollections.observableSet;
 
 public class HumanBody extends Group{
 
     // connects fileID to a MeshView instance loaded from that fileID
     private final ConcurrentHashMap<String, MeshView> meshViews = new ConcurrentHashMap<>();
+
+    private final ObservableSet<Node> currentSelection = observableSet();
+
+    public static final PhongMaterial SHARED_DEFAULT_MATERIAL;
+    static {
+        SHARED_DEFAULT_MATERIAL = new PhongMaterial();
+        SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
+        SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
+    }
+
+    public HumanBody() {
+        // Initialize MouseClick Listener that registers if a mesh gets added to the selection or removed
+        this.setOnMouseClicked(event -> {
+            Node clickedNode = event.getPickResult().getIntersectedNode();
+            if (clickedNode instanceof MeshView meshView) {
+
+                if (currentSelection.contains(meshView)) {
+                    currentSelection.remove(meshView);
+                } else {
+                    currentSelection.add(meshView);
+                }
+            }
+        });
+
+        // add a listener to the currentSelection list to make sure all selected nodes get colored
+        // and all deselcted nodes get the default coloring back
+        currentSelection.addListener((SetChangeListener<Node>) change -> {
+            if (change.wasAdded()) {
+                Node addedNode = change.getElementAdded();
+                if (addedNode instanceof MeshView meshView) {
+                    PhongMaterial selectedMaterial = new PhongMaterial(Color.YELLOW);
+                    selectedMaterial.setSpecularColor(Color.BLACK);
+                    meshView.setMaterial(selectedMaterial);
+                }
+            } else if (change.wasRemoved()) {
+                Node removedNode = change.getElementRemoved();
+                if (removedNode instanceof MeshView meshView) {
+                    meshView.setMaterial(SHARED_DEFAULT_MATERIAL);
+                }
+            }
+        });
+    }
 
     /**
      * Retrieves the MeshView associated with the given file ID.
@@ -30,6 +72,13 @@ public class HumanBody extends Group{
      */
     public MeshView getMeshOfFile(String fileID) {
         return meshViews.get(fileID);
+    }
+
+    /**
+     * @return the observable list of currently selected nodes
+     */
+    public ObservableSet<Node> getCurrentSelection() {
+        return currentSelection;
     }
 
     /**
@@ -44,10 +93,6 @@ public class HumanBody extends Group{
         File[] objFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".obj"));
         if (objFiles == null || objFiles.length == 0) return;
 
-        PhongMaterial sharedMaterial = new PhongMaterial();
-        sharedMaterial.setSpecularColor(Color.BLACK);
-        sharedMaterial.setDiffuseColor(Color.DARKGREY);
-
         AtomicInteger counter = new AtomicInteger();
         int total = objFiles.length;
 
@@ -57,7 +102,7 @@ public class HumanBody extends Group{
         // Parallel loading of meshes to speed up initial load up
         Arrays.stream(objFiles).parallel().forEach(objFile -> {
             String fileName = objFile.getName();
-            String id = fileName.substring(0, fileName.lastIndexOf('.'));
+            String id = fileName.replace(".obj", "");
 
             TriangleMesh mesh;
             try {
@@ -68,7 +113,8 @@ public class HumanBody extends Group{
             }
 
             MeshView meshView = new MeshView(mesh);
-            meshView.setMaterial(sharedMaterial);
+            meshView.setMaterial(SHARED_DEFAULT_MATERIAL);
+            meshView.setId(id);
 
             meshViews.put(id, meshView);
 

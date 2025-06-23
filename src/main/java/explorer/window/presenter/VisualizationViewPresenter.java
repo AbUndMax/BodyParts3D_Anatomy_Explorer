@@ -34,12 +34,12 @@ public class VisualizationViewPresenter {
 
     // constants copied from assignment06
     // initial view on the tripod is saved as Affine. It is also used as reset position.
-    private static final Affine initialTransform = new Affine(
+    private static final Affine INITIAL_TRANSFORM = new Affine(
             1.0, 0.0, 0.0, 0.0,
             0.0, 0.0, -1.0, 0.0,
             0.0, 1.0, 0.0, 0.0
     );
-    private static final int rotationStep = 10;
+    private static final int ROTATION_STEP = 10;
     private final Group contentGroup;
     private final MyCamera camera = new MyCamera();
     private final HumanBody humanBody = new HumanBody();
@@ -102,7 +102,7 @@ public class VisualizationViewPresenter {
 
         // load the human body parts after the GUI is rendered
         Platform.runLater(() -> loadHumanBody(controller, contentGroup));
-        contentGroup.getTransforms().setAll(initialTransform);
+        contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
 
         return contentGroup;
     }
@@ -158,35 +158,35 @@ public class VisualizationViewPresenter {
         List<DirAction> actions = List.of(
                 // Left UP
                 new DirAction(visualizationViewController.getButtonCntrlLeftUp(),
-                              new Point3D(1,0,1),   -rotationStep,
+                              new Point3D(1,0,1),   -ROTATION_STEP,
                               new Point3D(1, 1, 0)),
                 // UP
                 new DirAction(visualizationViewController.getButtonCntrlUp(),
-                              new Point3D(1,0,0),   -rotationStep,
+                              new Point3D(1,0,0),   -ROTATION_STEP,
                               new Point3D(0, 1, 0)),
                 // Right UP
                 new DirAction(visualizationViewController.getButtonCntrlRightUp(),
-                              new Point3D(1,1,0),   -rotationStep,
+                              new Point3D(1,1,0),   -ROTATION_STEP,
                               new Point3D(-1, 1, 0)),
                 // Left DOWN
                 new DirAction(visualizationViewController.getButtonCntrlLeftDown(),
-                              new Point3D(1,1,0),    rotationStep,
+                              new Point3D(1,1,0), ROTATION_STEP,
                               new Point3D(1, -1, 0)),
                 // DOWN
                 new DirAction(visualizationViewController.getButtonCntrlDown(),
-                              new Point3D(1,0,0),    rotationStep,
+                              new Point3D(1,0,0), ROTATION_STEP,
                               new Point3D(0, -1, 0)),
                 // Right DOWN
                 new DirAction(visualizationViewController.getButtonCntrlRightDown(),
-                              new Point3D(1,0,1),    rotationStep,
+                              new Point3D(1,0,1), ROTATION_STEP,
                               new Point3D(-1, -1, 0)),
                 // LEFT
                 new DirAction(visualizationViewController.getButtonCntrlLeft(),
-                              new Point3D(0,1,0),    rotationStep,
+                              new Point3D(0,1,0), ROTATION_STEP,
                               new Point3D(1,0, 0)),
                 // RIGHT
                 new DirAction(visualizationViewController.getButtonCntrlRight(),
-                              new Point3D(0,1,0),   -rotationStep,
+                              new Point3D(0,1,0),   -ROTATION_STEP,
                               new Point3D(-1,0, 0))
         );
 
@@ -297,28 +297,28 @@ public class VisualizationViewPresenter {
      * Rotates the 3D content group upward along the X-axis.
      */
     protected void rotateContentGroupUp() {
-        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), -rotationStep);
+        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), -ROTATION_STEP);
     }
 
     /**
      * Rotates the 3D content group downward along the X-axis.
      */
     protected void rotateContentGroupDown() {
-        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), rotationStep);
+        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), ROTATION_STEP);
     }
 
     /**
      * Rotates the 3D content group to the left along the Y-axis.
      */
     protected void rotateContentGroupLeft() {
-        applyGlobalRotation(contentGroup, new Point3D(0, 1, 0), rotationStep);
+        applyGlobalRotation(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP);
     }
 
     /**
      * Rotates the 3D content group to the right along the Y-axis.
      */
     protected void rotateContentGroupRight() {
-        applyGlobalRotation(contentGroup, new Point3D(0,1, 0), -rotationStep);
+        applyGlobalRotation(contentGroup, new Point3D(0,1, 0), -ROTATION_STEP);
     }
 
     /**
@@ -343,6 +343,6 @@ public class VisualizationViewPresenter {
      */
     protected void resetView(Group contentGroup) {
         camera.resetView();
-        contentGroup.getTransforms().setAll(initialTransform);
+        contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
     }
 }

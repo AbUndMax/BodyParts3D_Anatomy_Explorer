@@ -1,7 +1,6 @@
 package explorer.model;
 
 import javafx.collections.*;
-import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 
 public class SharedMultiSelectionModel {
