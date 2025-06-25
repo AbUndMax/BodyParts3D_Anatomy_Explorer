@@ -1,6 +1,6 @@
 package explorer.model.treetools;
 
-import javafx.scene.control.TreeItem;
+import explorer.model.AnatomyNode;
 
 import java.util.function.Consumer;
 
@@ -15,8 +15,8 @@ public class TreeUtils {
      *
      * SOURCE: refactored after assignment03
      */
-    public static <T> void postOrderTraversal(TreeItem<T> node, Consumer<TreeItem<T>> function) {
-        for (TreeItem<T> child : node.getChildren()) {
+    public static void postOrderTraversal(AnatomyNode node, Consumer<AnatomyNode> function) {
+        for (AnatomyNode child : node.getChildren()) {
             postOrderTraversal(child, function);
         }
         function.accept(node);

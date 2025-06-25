@@ -1,49 +1,41 @@
 package explorer.window.presenter;
 
 import explorer.model.AnatomyNode;
-import explorer.model.SelectionBinder;
+import explorer.window.vistools.MeshSelection;
 import explorer.model.treetools.KryoUtils;
 import explorer.window.ControllerRegistry;
 import explorer.window.controller.SelectionViewController;
-import javafx.scene.control.*;
-import javafx.collections.SetChangeListener;
 import javafx.collections.ListChangeListener;
+import javafx.scene.control.*;
 
 public class SelectionViewPresenter {
 
-    private static final SelectionBinder SELECTION_BINDER = new SelectionBinder();
     private TreeView<AnatomyNode> lastFocusedTreeView = null;
 
     public SelectionViewPresenter(ControllerRegistry registry) {
         SelectionViewController selectionViewController = registry.getSelectionViewController();
-        setupTreeViews(selectionViewController);
+        setupTreeViews(registry);
         setupButtons(selectionViewController);
     }
 
-    private void setupTreeViews(SelectionViewController selectionViewController) {
-        TreeView<AnatomyNode> treeViewIsA = selectionViewController.getTreeViewIsA();
+    private void setupTreeViews(ControllerRegistry registry) {
+        TreeView<AnatomyNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
         AnatomyNode isATree = KryoUtils.loadTreeFromKryo("src/main/resources/serializedTrees/isA_tree.kryo");
         TreeItem<AnatomyNode> isATreeItemRoot = createTreeItemsRec(isATree);
         treeViewIsA.setRoot(isATreeItemRoot);
+        treeViewIsA.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         //TODO: connect TreeViews and HumanBody in selectionModel
         //TODO: Handle automatic expand for search -> expand all parents to the found entry
 
 
-        TreeView<AnatomyNode> treeViewPartOf = selectionViewController.getTreeViewPartOf();
+        TreeView<AnatomyNode> treeViewPartOf = registry.getSelectionViewController().getTreeViewPartOf();
         AnatomyNode partOfTree = KryoUtils.loadTreeFromKryo("src/main/resources/serializedTrees/partOf_tree.kryo");
         TreeItem<AnatomyNode> partOfTreeItemRoot = createTreeItemsRec(partOfTree);
         treeViewPartOf.setRoot(partOfTreeItemRoot);
+        treeViewPartOf.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        //DEBUG: remove
-        treeViewPartOf.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                System.out.println("Selected node: " + newSelection.getValue().getName());
-                System.out.println("Selected node: " + newSelection.getValue().getMesh());
-            }
-        });
-
-        //setupSelectionModel(treeViewIsA, treeViewPartOf, selectionViewController.getSelectionListView());
+        setupSelectionModel(treeViewIsA, treeViewPartOf, registry.getSelectionViewController().getSelectionListView());
     }
 
     /**
@@ -93,54 +85,8 @@ public class SelectionViewPresenter {
         selectionList.setFocusTraversable(false);
 
         // multiple selection in each treeView allowed
-        treeViewIsA.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        treeViewPartOf.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        // instantiate a new SelectionModel
-        SelectionBinder sharedSelection = new SelectionBinder();
 
-        // bind the ListView to the live ObservableList of selected names
-        selectionList.setItems(sharedSelection.getSelectedNames());
-
-        // bind treeViewIsA to the selection model
-        treeViewIsA.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<AnatomyNode>>) change -> {
-            while (change.next()) {
-                for (TreeItem<AnatomyNode> added : change.getAddedSubList()) {
-                    sharedSelection.select(added.getValue());
-                }
-                for (TreeItem<AnatomyNode> removed : change.getRemoved()) {
-                    sharedSelection.deselect(removed.getValue());
-                }
-            }
-        });
-
-        // bind treeViewPartOf to the selection model
-        treeViewPartOf.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<AnatomyNode>>) change -> {
-            while (change.next()) {
-                for (TreeItem<AnatomyNode> added : change.getAddedSubList()) {
-                    sharedSelection.select(added.getValue());
-                }
-                for (TreeItem<AnatomyNode> removed : change.getRemoved()) {
-                    sharedSelection.deselect(removed.getValue());
-                }
-            }
-        });
-
-        // connect both treeViews to synchronize their selection
-        sharedSelection.getSelectedConceptIDs().addListener((SetChangeListener<String>) change -> {
-            if (change.wasAdded()) {
-                TreeItem<AnatomyNode> matchA = findNodeByConceptID(treeViewIsA.getRoot(), change.getElementAdded());
-                TreeItem<AnatomyNode> matchP = findNodeByConceptID(treeViewPartOf.getRoot(), change.getElementAdded());
-                if (matchA != null) treeViewIsA.getSelectionModel().select(matchA);
-                if (matchP != null) treeViewPartOf.getSelectionModel().select(matchP);
-            }
-            if (change.wasRemoved()) {
-                TreeItem<AnatomyNode> matchA = findNodeByConceptID(treeViewIsA.getRoot(), change.getElementRemoved());
-                TreeItem<AnatomyNode> matchP = findNodeByConceptID(treeViewPartOf.getRoot(), change.getElementRemoved());
-                if (matchA != null) treeViewIsA.getSelectionModel().clearSelection(treeViewIsA.getRow(matchA));
-                if (matchP != null) treeViewPartOf.getSelectionModel().clearSelection(treeViewPartOf.getRow(matchP));
-            }
-        });
     }
 
     private TreeItem<AnatomyNode> findNodeByConceptID(TreeItem<AnatomyNode> current, String conceptID) {

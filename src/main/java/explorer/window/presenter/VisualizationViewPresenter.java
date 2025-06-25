@@ -1,6 +1,5 @@
 package explorer.window.presenter;
 
-import explorer.AnatomyExplorer;
 import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
@@ -17,17 +16,13 @@ import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TreeItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
-
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -278,10 +273,15 @@ public class VisualizationViewPresenter {
                 super.succeeded();
                 visualizationStack.getChildren().remove(progressBar);
                 TransformUtils.centerGroupToItself(humanBody);
+
+                // add humanBody to the contentGroup
                 contentGroup.getChildren().add(humanBody);
-                TreeItem<AnatomyNode> isATreeRoot = registry.getSelectionViewController().getTreeViewIsA().getRoot();
-                TreeItem<AnatomyNode> partOfTreeRoot = registry.getSelectionViewController().getTreeViewPartOf().getRoot();
-                humanBody.setTreeAndMeshFields(isATreeRoot, partOfTreeRoot);
+
+                // bind the TreeViews to the MeshSelection
+                TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
+                TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
+                humanBody.getMeshSelection().bindTreeView(isATreeView);
+                humanBody.getMeshSelection().bindTreeView(partOfTreeView);
             }
 
             @Override

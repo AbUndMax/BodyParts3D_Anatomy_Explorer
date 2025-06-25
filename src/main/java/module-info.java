@@ -13,4 +13,5 @@ module explorer {
     opens explorer.window.controller to javafx.fxml;
     opens explorer.model to com.esotericsoftware.kryo;
     opens explorer.model.treetools to com.esotericsoftware.kryo, javafx.fxml;
+    opens explorer.window.vistools to com.esotericsoftware.kryo;
 }

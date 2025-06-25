@@ -28,11 +28,16 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializeIsATree() {
-        LinkedList<Relation> relations = loadRelationsFile("isa_inclusion_relation_list.txt");
-        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("isa_element_parts.txt");
+        LinkedList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_inclusion_relation_list.txt");
+        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_element_parts.txt");
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA62955"); // root concept == "FMA62955" (anatomical entity)
         System.out.println(tree.toNewick()); // control tree
 
+        TreeUtils.postOrderTraversal(tree, node -> {
+            if (!node.isLeaf()) {
+                node.setFileIDs(null);
+            }
+        });
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/isA_tree.kryo");
     }
 
@@ -42,11 +47,16 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializePartOfTree() {
-        LinkedList<Relation> relations = loadRelationsFile("partof_inclusion_relation_list.txt");
-        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("partof_element_parts.txt");
+        LinkedList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_inclusion_relation_list.txt");
+        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_element_parts.txt");
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA20394"); // root concept == "FMA20394" (human body)
         System.out.println(tree.toNewick()); // control tree
 
+        TreeUtils.postOrderTraversal(tree, node -> {
+            if (!node.isLeaf()) {
+                node.setFileIDs(null);
+            }
+        });
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/partOf_tree.kryo");
     }
 

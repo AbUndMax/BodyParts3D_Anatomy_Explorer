@@ -1,13 +1,10 @@
 package explorer.window.vistools;
 
-import explorer.model.AnatomyNode;
-import explorer.model.treetools.TreeUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -15,84 +12,93 @@ import javafx.scene.shape.TriangleMesh;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static javafx.collections.FXCollections.observableSet;
 
 public class HumanBody extends Group{
 
+    // meshSelection is like a SelectionModel for a humanBody instance
+    private final MeshSelection meshSelection = new MeshSelection(this);
+    private final ObservableSet<MeshView> selection = meshSelection.getSourceOfTruth();
+
     // connects fileID to a MeshView instance loaded from that fileID
-    private final ConcurrentHashMap<String, MeshView> meshViews = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap = new ConcurrentHashMap<>();
 
-    private final ObservableSet<Node> currentSelection = observableSet();
-
-    public static final PhongMaterial SHARED_DEFAULT_MATERIAL;
+    // Shared default material for all MeshViews
+    public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
     static {
-        SHARED_DEFAULT_MATERIAL = new PhongMaterial();
+        // setup default Material
         SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
         SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
     }
 
+    /**
+     * Constructs a HumanBody object, initializes the mouse click selection behavior,
+     * and sets up listeners to update the material of selected and deselected MeshView objects.
+     */
     public HumanBody() {
         // Initialize MouseClick Listener that registers if a mesh gets added to the selection or removed
         this.setOnMouseClicked(event -> {
             Node clickedNode = event.getPickResult().getIntersectedNode();
             if (clickedNode instanceof MeshView meshView) {
 
-                if (currentSelection.contains(meshView)) {
-                    currentSelection.remove(meshView);
+                if (selection.contains(meshView)) {
+                    selection.remove(meshView);
                 } else {
-                    currentSelection.add(meshView);
+                    selection.add(meshView);
                 }
             }
         });
 
         // add a listener to the currentSelection list to make sure all selected nodes get colored
         // and all deselcted nodes get the default coloring back
-        currentSelection.addListener((SetChangeListener<Node>) change -> {
+        // TODO: eventually move this to the VisViewPresenter when a colorPicker is added to use choosen color!
+        selection.addListener((SetChangeListener<Node>) change -> {
             if (change.wasAdded()) {
                 Node addedNode = change.getElementAdded();
                 if (addedNode instanceof MeshView meshView) {
                     PhongMaterial selectedMaterial = new PhongMaterial(Color.YELLOW);
                     selectedMaterial.setSpecularColor(Color.BLACK);
-                    meshView.setMaterial(selectedMaterial);
+                    Platform.runLater(() -> meshView.setMaterial(selectedMaterial));
                 }
             } else if (change.wasRemoved()) {
                 Node removedNode = change.getElementRemoved();
                 if (removedNode instanceof MeshView meshView) {
-                    meshView.setMaterial(SHARED_DEFAULT_MATERIAL);
+                    Platform.runLater(() -> meshView.setMaterial(SHARED_DEFAULT_MATERIAL));
                 }
             }
         });
     }
 
     /**
-     * Retrieves the MeshView associated with the given file ID.
+     * Returns the mapping from file IDs to their corresponding MeshView objects.
      *
-     * @param fileID the identifier corresponding to the .obj file
-     * @return the MeshView for the given file ID, or null if not found
+     * @return a ConcurrentHashMap mapping file IDs to MeshView instances.
      */
-    public MeshView getMeshOfFile(String fileID) {
-        return meshViews.get(fileID);
+    public ConcurrentHashMap<String, MeshView> getFileIdToMeshMap() {
+        return fileIdToMeshMap;
     }
 
     /**
-     * @return the observable list of currently selected nodes
+     * Returns the MeshSelection object that manages the selection state of MeshView objects.
+     *
+     * @return the MeshSelection object used for selection management.
      */
-    public ObservableSet<Node> getCurrentSelection() {
-        return currentSelection;
+    public MeshSelection getMeshSelection() {
+        return meshSelection;
     }
 
     /**
      * Loads all .obj mesh files from the specified folder, creates corresponding MeshView objects,
-     * applies default material, and adds them to this group. Reports progress via the provided callback.
+     * applies the default material, and adds them to this group. Mesh loading progress is reported
+     * via the provided callback.
      *
-     * @param wavefrontFolder the path to the directory containing .obj files
-     * @param progressCallback a callback receiving the current and total number of loaded files (used for progress updates)
+     * @param wavefrontFolder the path to the directory containing .obj files.
+     * @param progressCallback a callback that receives the current progress and the total number of files to load.
      */
     public void loadMeshes(String wavefrontFolder, BiConsumer<Integer, Integer> progressCallback) {
+        //TODO move .obj files in resources and apply grouping
         File folder = new File(wavefrontFolder);
         File[] objFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".obj"));
         if (objFiles == null || objFiles.length == 0) return;
@@ -120,7 +126,7 @@ public class HumanBody extends Group{
             meshView.setMaterial(SHARED_DEFAULT_MATERIAL);
             meshView.setId(id);
 
-            meshViews.put(id, meshView);
+            fileIdToMeshMap.put(id, meshView);
 
             collectedMeshes.add(meshView);
 
@@ -130,24 +136,5 @@ public class HumanBody extends Group{
         });
 
         Platform.runLater(() -> this.getChildren().addAll(collectedMeshes));
-    }
-
-    public void setTreeAndMeshFields(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
-        TreeUtils.postOrderTraversal(partOfTreeRoot, this::assignMeshesToNode);
-        TreeUtils.postOrderTraversal(isATreeRoot, this::assignMeshesToNode);
-    }
-
-    private void assignMeshesToNode(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
-        if (anatomyNodeTreeItem.isLeaf()) {
-            AnatomyNode anatomyNode = anatomyNodeTreeItem.getValue();
-            LinkedList<MeshView> meshes = new LinkedList<>();
-
-            for (String fileID : anatomyNode.getFileIDs()) {
-                MeshView mesh = meshViews.get(fileID);
-                meshes.add(mesh);
-                mesh.setUserData(anatomyNode);
-            }
-            anatomyNode.setMeshes(meshes);
-        }
     }
 }
