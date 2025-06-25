@@ -99,11 +99,11 @@ public class MyCamera extends PerspectiveCamera {
         double fovY = this.getFieldOfView();
 
         double requiredDistance = (longestEdge) / Math.tan(Math.toRadians(fovY / 2));
-        requiredDistance *= 1.5; // add some free space to the FOV
+        requiredDistance *= 1.3; // add some free space to the FOV
 
         this.resetPositionInZ = -requiredDistance;
         this.zoomFactor = Math.max(1, longestEdge * 0.1);
-        this.maxZoomOut.set(-longestEdge * 10);
+        this.maxZoomOut.set(resetPositionInZ * 1.4);
         this.translationValue = longestEdge * 0.1;
         this.resetView();
     }
