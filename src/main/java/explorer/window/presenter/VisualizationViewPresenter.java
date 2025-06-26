@@ -60,6 +60,7 @@ public class VisualizationViewPresenter {
         contentGroup = setupVisualisationPane();
         setupTripodPane();
         setupVisualizationViewButtons();
+        setupClearSelectionButton();
     }
 
     /**
@@ -297,6 +298,18 @@ public class VisualizationViewPresenter {
 
         progressBar.progressProperty().bind(loadTask.progressProperty());
         new Thread(loadTask, "HumanBody-Loader").start();
+    }
+
+    /**
+     * clears all selections
+     */
+    private void setupClearSelectionButton() {
+        registry.getSelectionViewController().getClearSelectionButton().setOnAction(e -> {
+            humanBody.getMeshSelection().getSourceOfTruth().clear();
+            registry.getSelectionViewController().getTreeViewPartOf().getSelectionModel().clearSelection();
+            registry.getSelectionViewController().getTreeViewIsA().getSelectionModel().clearSelection();
+            visController.getTextFieldSearchBar().clear();
+        });
     }
 
     /**

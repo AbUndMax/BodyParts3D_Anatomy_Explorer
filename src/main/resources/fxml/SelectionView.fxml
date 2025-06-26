@@ -5,11 +5,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -22,20 +22,25 @@
    <top>
       <ToolBar BorderPane.alignment="CENTER">
         <items>
-            <Button fx:id="buttonExpandAtTreeNode" mnemonicParsing="false" text="Expand" />
-            <Button fx:id="buttonCollapseAtTreeNode" mnemonicParsing="false" text="Collapse" />
+            <Button fx:id="buttonExpandAtTreeNode" mnemonicParsing="false" text="Expand">
+               <tooltip>
+                  <Tooltip text="Expand all children below selected node" />
+               </tooltip></Button>
+            <Button fx:id="buttonCollapseAtTreeNode" mnemonicParsing="false" text="Collapse">
+               <tooltip>
+                  <Tooltip text="Collapse up to selected node" />
+               </tooltip></Button>
             <Region HBox.hgrow="ALWAYS" />
-            <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection List" />
+            <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select All Below">
+               <tooltip>
+                  <Tooltip text="Selects all Nodes below the selected one" />
+               </tooltip></Button>
         </items>
       </ToolBar>
    </top>
    <bottom>
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
-            <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select" />
-            <Button fx:id="buttonInvertSelection" mnemonicParsing="false" text="Invert Select" />
-            <Button fx:id="buttonDeselect" mnemonicParsing="false" text="Deselect" />
-            <Separator orientation="VERTICAL" />
             <VBox spacing="2.0">
                <children>
                   <RadioButton fx:id="radioShowSelection" mnemonicParsing="false" selected="true" text="Show Selection">
@@ -53,6 +58,12 @@
                   </RadioButton>
                </children>
             </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="clearSelectionButton" mnemonicParsing="false" text="Clear Selection" />
+            <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection List">
+               <tooltip>
+                  <Tooltip text="Opens a window that shows all concepts associated with the selected meshes" />
+               </tooltip></ToggleButton>
         </items>
       </ToolBar>
    </bottom>
@@ -137,7 +148,7 @@
             </SplitPane>
             <BorderPane fx:id="selectionListPane" minHeight="200.0" minWidth="150.0" prefWidth="150.0" SplitPane.resizableWithParent="false">
                <center>
-                  <ListView fx:id="selectionListView" minHeight="150.0" minWidth="175.0" />
+                  <ListView fx:id="selectionListView" />
                </center>
                <top>
                   <Label text="Selected Parts" BorderPane.alignment="CENTER">

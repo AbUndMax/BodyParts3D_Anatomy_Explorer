@@ -18,9 +18,6 @@ public class SelectionViewController {
     private Button buttonExpandAtTreeNode;
 
     @FXML
-    private Button buttonInvertSelection;
-
-    @FXML
     private Button buttonSelectAtTreeNode;
 
     @FXML
@@ -40,6 +37,9 @@ public class SelectionViewController {
 
     @FXML
     private RadioButton radioShowSelection;
+
+    @FXML
+    private Button clearSelectionButton;
 
     @FXML
     private BorderPane selectionListPane;
@@ -77,10 +77,6 @@ public class SelectionViewController {
         return buttonExpandAtTreeNode;
     }
 
-    public Button getButtonInvertSelection() {
-        return buttonInvertSelection;
-    }
-
     public Button getButtonSelectAtTreeNode() {
         return buttonSelectAtTreeNode;
     }
@@ -107,6 +103,10 @@ public class SelectionViewController {
 
     public RadioButton getRadioShowSelection() {
         return radioShowSelection;
+    }
+
+    public Button getClearSelectionButton() {
+        return clearSelectionButton;
     }
 
     public BorderPane getSelectionListPane() {
