@@ -8,13 +8,8 @@ import explorer.window.controller.SelectionViewController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
 import javafx.scene.control.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SelectionViewPresenter {
 
@@ -97,7 +92,7 @@ public class SelectionViewPresenter {
                 if (search.getNumberOfHits() > 0) {
                     nextButton.setDisable(false);
                     firstButton.setDisable(false);
-                    allButton.setDisable(search.getNumberOfHits() <= 100);
+                    allButton.setDisable(false);
                 } else {
                     nextButton.setDisable(true);
                     firstButton.setDisable(true);

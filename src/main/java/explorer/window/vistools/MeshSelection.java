@@ -13,10 +13,17 @@ import javafx.scene.shape.MeshView;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static javafx.collections.FXCollections.observableSet;
 
 public class MeshSelection {
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> pendingSelection;
 
     // Observable list of currently selected Meshes -> SourceOfTruth FOR ALL SELECTIONS
     private final ObservableSet<MeshView> sourceOfTruth = observableSet();
@@ -35,8 +42,6 @@ public class MeshSelection {
      */
     public MeshSelection(HumanBody humanBody) {
         fileIdToMeshMap = humanBody.getFileIdToMeshMap();
-
-        activateDebug();
     }
 
     public void activateDebug() {
@@ -103,12 +108,12 @@ public class MeshSelection {
                     for (TreeItem<AnatomyNode> item : change.getAddedSubList()) {
                         LinkedList<String> fileIDs = item.getValue().getFileIDs();
                         //DEBUG
-                        System.out.println("processing:" + item.getValue().getName());
-                        System.out.println("fileIDs:" + fileIDs);
+                        //System.out.println("processing:" + item.getValue().getName());
+                        //System.out.println("fileIDs:" + fileIDs);
                         if (fileIDs != null) {
-                            System.out.println("fileID not null");
+                            //System.out.println("fileID not null");
                             for (String fileID : item.getValue().getFileIDs()) {
-                                System.out.println("try to add:" + fileID);
+                                //System.out.println("try to add:" + fileID);
                                 sourceOfTruth.add(fileIdToMeshMap.get(fileID));
 
                                 // Select all TreeItems associated with this fileID
@@ -116,7 +121,7 @@ public class MeshSelection {
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            Platform.runLater(() -> multipleSelectionModel.select(associatedItem));
+                                            scheduleSelection(() -> multipleSelectionModel.select(associatedItem));
                                         }
                                     }
                                 }
@@ -158,7 +163,7 @@ public class MeshSelection {
         Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
         if (itemsToSelect != null) {
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                selectionModel.select(item);
+                scheduleSelection(() -> selectionModel.select(item));
             }
         }
     }
@@ -189,8 +194,8 @@ public class MeshSelection {
         // Listen to changes in the sourceOfTruth and update the ListView accordingly
         sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
             //DEBUG
-            System.out.println("added:" + change.getElementAdded());
-            System.out.println("removed:" + change.getElementRemoved());
+            //System.out.println("added:" + change.getElementAdded());
+            //System.out.println("removed:" + change.getElementRemoved());
             if (change.wasAdded()) {
                 @SuppressWarnings("unchecked")
                 HashSet<String> names = (HashSet<String>) change.getElementAdded().getUserData();
@@ -213,7 +218,12 @@ public class MeshSelection {
         selectionList.setFocusTraversable(false);
     }
 
-
+    public void scheduleSelection(Runnable selectionTask) {
+        if (pendingSelection != null && !pendingSelection.isDone()) {
+            pendingSelection.cancel(false);
+        }
+        pendingSelection = scheduler.schedule(() -> Platform.runLater(selectionTask), 200, TimeUnit.MILLISECONDS);
+    }
 
     private static class TreeViewBinding {
         TreeView<AnatomyNode> treeView;
