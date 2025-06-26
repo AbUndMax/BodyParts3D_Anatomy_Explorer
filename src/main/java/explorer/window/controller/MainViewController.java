@@ -8,6 +8,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 
+import java.util.Arrays;
+
 public class MainViewController {
 
     // Root-Node for SelectionView.fxml
@@ -173,6 +175,7 @@ public class MainViewController {
      */
     @FXML
     public void initialize() {
+        Platform.runLater(() -> mainSplitPane.setDividerPositions(0.4));
         fixDividerOnResize(mainSplitPane);
         setupAboutMessage();
         menuButtonClose.setOnAction(e -> Platform.exit());

@@ -4,6 +4,7 @@ import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
 import explorer.window.ControllerRegistry;
+import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.Axes;
 import explorer.window.vistools.HumanBody;
@@ -13,7 +14,6 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
-import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -26,6 +26,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
+
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -286,10 +287,11 @@ public class VisualizationViewPresenter {
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
                 TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
                 ListView<String> listView = registry.getSelectionViewController().getSelectionListView();
-                humanBody.getMeshSelection().bindTreeView(isATreeView);
-                humanBody.getMeshSelection().bindTreeView(partOfTreeView);
-                humanBody.getMeshSelection().bindListView(listView);
                 humanBody.assignNames(isATreeView.getRoot(), partOfTreeView.getRoot());
+                SelectionBinder binder = new SelectionBinder(humanBody);
+                binder.bindTreeView(isATreeView);
+                binder.bindTreeView(partOfTreeView);
+                binder.bindListView(listView);
             }
 
             @Override
@@ -309,7 +311,7 @@ public class VisualizationViewPresenter {
      */
     private void setupClearSelectionButton() {
         registry.getSelectionViewController().getClearSelectionButton().setOnAction(e -> {
-            humanBody.getMeshSelection().getSelectedMeshes().clear();
+            humanBody.getSelectionModel().clearSelection();
             registry.getSelectionViewController().getTreeViewPartOf().getSelectionModel().clearSelection();
             registry.getSelectionViewController().getTreeViewIsA().getSelectionModel().clearSelection();
             visController.getTextFieldSearchBar().clear();
@@ -328,17 +330,17 @@ public class VisualizationViewPresenter {
         });
 
         // add a listener to the currentSelection list to make sure all selected nodes get colored
-        // and all deselcted nodes get the default coloring back
-        humanBody.getMeshSelection().getSelectedMeshes().addListener((SetChangeListener<Node>) change -> {
-            if (change.wasAdded()) {
-                Node addedNode = change.getElementAdded();
-                if (addedNode instanceof MeshView meshView) {
-                    Platform.runLater(() -> meshView.setMaterial(selectedMaterial));
-                }
-            } else if (change.wasRemoved()) {
-                Node removedNode = change.getElementRemoved();
-                if (removedNode instanceof MeshView meshView) {
-                    Platform.runLater(() -> meshView.setMaterial(humanBody.getDefaultMaterial()));
+        // and all deselected nodes get the default coloring back
+        humanBody.getSelectionModel().addListener(change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (MeshView meshView : change.getAddedSubList()) {
+                        Platform.runLater(() -> meshView.setMaterial(selectedMaterial));
+                    }
+                } else if (change.wasRemoved()) {
+                    for (MeshView meshView : change.getRemoved()) {
+                        Platform.runLater(() -> meshView.setMaterial(humanBody.getDefaultMaterial()));
+                    }
                 }
             }
         });

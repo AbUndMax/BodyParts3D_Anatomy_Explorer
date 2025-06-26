@@ -1,36 +1,27 @@
-package explorer.window.vistools;
+package explorer.window.selection;
 
 import explorer.model.AnatomyNode;
+import explorer.window.vistools.HumanBody;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.*;
+import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.shape.MeshView;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import static javafx.collections.FXCollections.observableSet;
+import java.util.concurrent.*;
 
 /**
- * A MeshSelection is the SelectionModel for a HumanBody instance
- */
-public class MeshSelection {
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> pendingSelection;
+ * Binds a MeshSelection to TreeView and ListViews
+  */
+public class SelectionBinder {
 
     // Observable list of currently selected Meshes -> SourceOfTruth FOR ALL SELECTIONS
-    private final ObservableSet<MeshView> selectedMeshes = observableSet();
+    MultipleMeshSelectionModel meshSelectionModel;
 
     // connects fileID to a MeshView instance loaded from that fileID
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap;
@@ -39,57 +30,27 @@ public class MeshSelection {
     private final Map<TreeView<AnatomyNode>, TreeViewBinding> treeViewBindings = new HashMap<>();
 
     /**
-     * Constructs a MeshSelection object that manages bidirectional selection synchronization
+     * Constructs a SlectionBinder object that manages bidirectional selection synchronization
      * between a HumanBody and multiple TreeViews.
      *
      * @param humanBody the HumanBody instance containing the MeshView mappings.
      */
-    public MeshSelection(HumanBody humanBody) {
+    public SelectionBinder(HumanBody humanBody) {
         fileIdToMeshMap = humanBody.getFileIdToMeshMap();
+        meshSelectionModel = humanBody.getSelectionModel();
 
         // Initialize MouseClick Listener that registers if a mesh gets added to the selection or removed
         humanBody.setOnMouseClicked(event -> {
             Node clickedNode = event.getPickResult().getIntersectedNode();
             if (clickedNode instanceof MeshView meshView) {
 
-                if (selectedMeshes.contains(meshView)) {
-                    selectedMeshes.remove(meshView);
+                if (meshSelectionModel.contains(meshView)) {
+                    meshSelectionModel.clearSelection(meshView);
                 } else {
-                    selectedMeshes.add(meshView);
+                    meshSelectionModel.select(meshView);
                 }
             }
         });
-    }
-
-    public void activateDebug() {
-        //DEBUG
-        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
-            System.out.println("\n" + "----------".repeat(10));
-            if (change.wasAdded()) System.out.println("added" + change.getElementAdded().getId());
-            else if (change.wasRemoved()) System.out.println("removed" + change.getElementRemoved().getId());
-            System.out.println("Current sourceOfTruth content:");
-            selectedMeshes.forEach(mesh -> System.out.println(mesh.getId()));
-            System.out.println("----------".repeat(10) + "\n");
-        });
-    }
-
-    /**
-     * Returns the observable set representing the source of truth for all MeshView selections.
-     *
-     * @return the observable set of currently selected MeshView objects.
-     */
-    public ObservableSet<MeshView> getSelectedMeshes() {
-        return selectedMeshes;
-    }
-
-    /**
-     * Maps the provided file ID to the given MeshView object.
-     *
-     * @param fileId the identifier corresponding to the mesh file.
-     * @param meshView the MeshView instance associated with the file ID.
-     */
-    protected void putFileIdToMesh(String fileId, MeshView meshView) {
-        fileIdToMeshMap.put(fileId, meshView);
     }
 
     /**
@@ -116,7 +77,7 @@ public class MeshSelection {
                         LinkedList<String> fileIDs = item.getValue().getFileIDs();
                         if (fileIDs != null) {
                             for (String fileID : item.getValue().getFileIDs()) {
-                                selectedMeshes.remove(fileIdToMeshMap.get(fileID));
+                                meshSelectionModel.clearSelection(fileIdToMeshMap.get(fileID));
                             }
                         }
                     }
@@ -131,14 +92,14 @@ public class MeshSelection {
                             //System.out.println("fileID not null");
                             for (String fileID : item.getValue().getFileIDs()) {
                                 //System.out.println("try to add:" + fileID);
-                                selectedMeshes.add(fileIdToMeshMap.get(fileID));
+                                meshSelectionModel.select(fileIdToMeshMap.get(fileID));
 
                                 // Select all TreeItems associated with this fileID
                                 Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            scheduleSelection(() -> multipleSelectionModel.select(associatedItem));
+                                            binding.scheduleSelection(() -> multipleSelectionModel.select(associatedItem));
                                         }
                                     }
                                 }
@@ -152,14 +113,22 @@ public class MeshSelection {
         });
 
         // get changes from the SourceOfTruth
-        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
+        meshSelectionModel.addListener(change -> {
             if (isSyncing.get()) return;
             isSyncing.set(true);
 
-            if (change.wasAdded()) {
-                selectNodeInTree(treeView, change.getElementAdded().getId());
-            } else if (change.wasRemoved()) {
-                deselectNodeInTree(treeView, change.getElementRemoved().getId());
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (MeshView addedMesh : change.getAddedSubList()) {
+                        TreeViewBinding b = treeViewBindings.get(treeView);
+                        b.scheduleSelection(() -> selectNodeInTree(treeView, addedMesh.getId()));
+                    }
+                }
+                if (change.wasRemoved()) {
+                    for (MeshView removedMesh : change.getRemoved()) {
+                        deselectNodeInTree(treeView, removedMesh.getId());
+                    }
+                }
             }
 
             isSyncing.set(false);
@@ -179,8 +148,9 @@ public class MeshSelection {
 
         Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
         if (itemsToSelect != null) {
+            TreeViewBinding binding = treeViewBindings.get(treeView);
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                scheduleSelection(() -> selectionModel.select(item));
+                binding.scheduleSelection(() -> selectionModel.select(item));
             }
         }
     }
@@ -209,23 +179,30 @@ public class MeshSelection {
         if (selectionList == null) return;
 
         // Listen to changes in the sourceOfTruth and update the ListView accordingly
-        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
-            //DEBUG
-            //System.out.println("added:" + change.getElementAdded());
-            //System.out.println("removed:" + change.getElementRemoved());
-            if (change.wasAdded()) {
-                @SuppressWarnings("unchecked")
-                HashSet<String> names = (HashSet<String>) change.getElementAdded().getUserData();
-                for (String name : names) {
-                    if (!selectionList.getItems().contains(name)) {
-                        selectionList.getItems().add(name);
+        meshSelectionModel.addListener(change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (MeshView addedMesh : change.getAddedSubList()) {
+                        //DEBUG
+                        //System.out.println("added:" + addedMesh.getId());
+                        @SuppressWarnings("unchecked")
+                        HashSet<String> names = (HashSet<String>) addedMesh.getUserData();
+                        for (String name : names) {
+                            if (!selectionList.getItems().contains(name)) {
+                                selectionList.getItems().add(name);
+                            }
+                        }
                     }
-                }
-            } else if (change.wasRemoved()) {
-                @SuppressWarnings("unchecked")
-                HashSet<String> names = (HashSet<String>) change.getElementRemoved().getUserData();
-                for (String name : names) {
-                    selectionList.getItems().remove(name);
+                } else if (change.wasRemoved()) {
+                    for (MeshView removedMesh : change.getRemoved()) {
+                        //DEBUG
+                        //System.out.println("removed:" + removedMesh.getId());
+                        @SuppressWarnings("unchecked")
+                        HashSet<String> names = (HashSet<String>) removedMesh.getUserData();
+                        for (String name : names) {
+                            selectionList.getItems().remove(name);
+                        }
+                    }
                 }
             }
         });
@@ -235,14 +212,25 @@ public class MeshSelection {
         selectionList.setFocusTraversable(false);
     }
 
-    public void scheduleSelection(Runnable selectionTask) {
-        if (pendingSelection != null && !pendingSelection.isDone()) {
-            pendingSelection.cancel(false);
-        }
-        pendingSelection = scheduler.schedule(() -> Platform.runLater(selectionTask), 200, TimeUnit.MILLISECONDS);
-    }
+
 
     private static class TreeViewBinding {
+        // Per-TreeView scheduler for debouncing selection updates
+        private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        private ScheduledFuture<?> pendingSelection;
+
+        /**
+         * Debounced execution of the given task on the JavaFX Application Thread.
+         *
+         * @param task the selection task to run.
+         */
+        void scheduleSelection(Runnable task) {
+            if (pendingSelection != null && !pendingSelection.isDone()) {
+                pendingSelection.cancel(false);
+            }
+            pendingSelection = scheduler.schedule(() -> Platform.runLater(task), 200, TimeUnit.MILLISECONDS);
+        }
+
         TreeView<AnatomyNode> treeView;
         // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
         Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();

@@ -171,6 +171,5 @@ public class VisualizationViewController {
     @FXML
     public void initialize() {
         searchChoice.setValue("part-of");
-        selectionColorPicker.setValue(Color.YELLOW);
     }
 }

@@ -2,6 +2,7 @@ package explorer.window.vistools;
 
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
+import explorer.window.selection.MultipleMeshSelectionModel;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.control.TreeItem;
@@ -18,11 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HumanBody extends Group{
 
+    // collect all meshes in a list and append them with addAll after all Meshes are parsed
+    private final List<MeshView> collectedMeshes = Collections.synchronizedList(new ArrayList<>());
+
     // connects fileID to a MeshView instance loaded from that fileID
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap = new ConcurrentHashMap<>();
 
     // meshSelection is interpreted as a SelectionModel for a humanBody instance
-    private final MeshSelection meshSelection = new MeshSelection(this);
+    private final MultipleMeshSelectionModel multipleMeshSelectionModel = new MultipleMeshSelectionModel(collectedMeshes);
 
     // Shared default material for all MeshViews
     public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
@@ -46,12 +50,16 @@ public class HumanBody extends Group{
      *
      * @return the MeshSelection object used for selection management.
      */
-    public MeshSelection getMeshSelection() {
-        return meshSelection;
+    public MultipleMeshSelectionModel getSelectionModel() {
+        return multipleMeshSelectionModel;
     }
 
     public PhongMaterial getDefaultMaterial() {
         return SHARED_DEFAULT_MATERIAL;
+    }
+
+    public List<MeshView> getMeshes() {
+        return collectedMeshes;
     }
 
     /**
@@ -70,9 +78,6 @@ public class HumanBody extends Group{
 
         AtomicInteger counter = new AtomicInteger();
         int total = objFiles.length;
-
-        // collect all meshes in a list and append them with addAll after all Meshes are parsed
-        List<MeshView> collectedMeshes = Collections.synchronizedList(new ArrayList<>());
 
         // Parallel loading of meshes to speed up initial load up
         Arrays.stream(objFiles).parallel().forEach(objFile -> {

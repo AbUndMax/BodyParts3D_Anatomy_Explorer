@@ -35,6 +35,9 @@ public class SelectionViewPresenter {
         setupTreeView(treeViewIsA, "src/main/resources/serializedTrees/isA_tree.kryo");
         setupTreeView(treeViewPartOf, "src/main/resources/serializedTrees/partOf_tree.kryo");
 
+        // default is partOf tree
+        lastFocusedTreeView = treeViewPartOf;
+
         setupButtons();
 
         setupSearchBar(registry);
@@ -281,25 +284,5 @@ public class SelectionViewPresenter {
 
         private final ObservableList<TreeItem<AnatomyNode>> searchResults = javafx.collections.FXCollections.observableArrayList();
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);
-    }
-
-    /**
-     * Recursively searches for a TreeItem with the specified concept ID within the given tree structure.
-     *
-     * @param current The current TreeItem being searched.
-     * @param conceptID The concept ID to search for.
-     * @return The matching TreeItem if found, otherwise null.
-     */
-    private TreeItem<AnatomyNode> findNodeByConceptID(TreeItem<AnatomyNode> current, String conceptID) {
-        if (current.getValue().getConceptID().equals(conceptID)) {
-            return current;
-        }
-        for (TreeItem<AnatomyNode> child : current.getChildren()) {
-            TreeItem<AnatomyNode> hit = findNodeByConceptID(child, conceptID);
-            if (hit != null) {
-                return hit;
-            }
-        }
-        return null;
     }
 }
