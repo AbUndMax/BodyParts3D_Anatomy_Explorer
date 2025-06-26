@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.collections.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.VisualizationViewController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.VisualizationViewController">
    <top>
       <ToolBar BorderPane.alignment="CENTER">
          <items>
@@ -35,9 +50,9 @@
                <center>
                   <GridPane BorderPane.alignment="CENTER">
                     <columnConstraints>
-                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="40.0" prefWidth="40.0" />
                       <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="40.0" prefWidth="40.0" />
                     </columnConstraints>
                     <rowConstraints>
                       <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="BOTTOM" vgrow="SOMETIMES" />
@@ -94,7 +109,11 @@
                   </GridPane>
                </center>
                <right>
-                  <Slider fx:id="zoomSlider" maxHeight="100.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" rotate="180.0" BorderPane.alignment="CENTER" />
+                  <Slider fx:id="zoomSlider" orientation="VERTICAL" rotate="180.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </BorderPane.margin>
+                  </Slider>
                </right>
                <bottom>
                   <VBox spacing="4.0">
@@ -104,7 +123,7 @@
                               <ToggleGroup fx:id="threeDControl" />
                            </toggleGroup>
                            <VBox.margin>
-                              <Insets left="10.0" />
+                              <Insets />
                            </VBox.margin>
                            <font>
                               <Font size="12.0" />
@@ -112,12 +131,18 @@
                         </RadioButton>
                         <RadioButton fx:id="radioTranslation" mnemonicParsing="false" text="Translation" toggleGroup="$threeDControl">
                            <VBox.margin>
-                              <Insets left="10.0" />
+                              <Insets />
                            </VBox.margin>
                            <font>
                               <Font size="12.0" />
                            </font>
                         </RadioButton>
+                        <Separator prefWidth="200.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Separator>
+                        <ColorPicker fx:id="selectionColorPicker" />
                      </children>
                      <BorderPane.margin>
                         <Insets top="10.0" />
@@ -125,7 +150,7 @@
                   </VBox>
                </bottom>
                <StackPane.margin>
-                  <Insets left="5.0" top="10.0" />
+                  <Insets left="20.0" top="20.0" />
                </StackPane.margin>
             </BorderPane>
             <Pane fx:id="tripodPane" disable="true" maxHeight="75.0" maxWidth="75.0" prefHeight="75.0" prefWidth="75.0" StackPane.alignment="BOTTOM_LEFT">

@@ -72,6 +72,9 @@ public class VisualizationViewController {
     @FXML
     private Slider zoomSlider;
 
+    @FXML
+    private ColorPicker selectionColorPicker;
+
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
     }
@@ -158,6 +161,10 @@ public class VisualizationViewController {
 
     public Slider getZoomSlider() {
         return zoomSlider;
+    }
+
+    public ColorPicker getSelectionColorPicker() {
+        return selectionColorPicker;
     }
 
     @FXML
