@@ -4,14 +4,13 @@ import explorer.model.AnatomyNode;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.*;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.shape.MeshView;
 
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static javafx.collections.FXCollections.observableSet;
@@ -35,6 +34,20 @@ public class MeshSelection {
      */
     public MeshSelection(HumanBody humanBody) {
         fileIdToMeshMap = humanBody.getFileIdToMeshMap();
+
+        activateDebug();
+    }
+
+    public void activateDebug() {
+        //DEBUG
+        sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
+            System.out.println("\n" + "----------".repeat(10));
+            if (change.wasAdded()) System.out.println("added" + change.getElementAdded().getId());
+            else if (change.wasRemoved()) System.out.println("removed" + change.getElementRemoved().getId());
+            System.out.println("Current sourceOfTruth content:");
+            sourceOfTruth.forEach(mesh -> System.out.println(mesh.getId()));
+            System.out.println("----------".repeat(10) + "\n");
+        });
     }
 
     /**
@@ -63,7 +76,6 @@ public class MeshSelection {
      * @param treeView the TreeView to bind to the selection model.
      */
     public void bindTreeView(TreeView<AnatomyNode> treeView) {
-
         TreeViewBinding binding = new TreeViewBinding(treeView);
         treeViewBindings.put(treeView, binding);
 
@@ -76,22 +88,37 @@ public class MeshSelection {
             isSyncing.set(true);
 
             while (change.next()) {
-                if (change.wasAdded()) {
-                    for (TreeItem<AnatomyNode> item : change.getAddedSubList()) {
-                        LinkedList<String> fileIDs = item.getValue().getFileIDs();
-                        if (fileIDs != null) {
-                            for (String fileID : item.getValue().getFileIDs()) {
-                                sourceOfTruth.add(fileIdToMeshMap.get(fileID));
-                            }
-                        }
-                    }
-                }
                 if (change.wasRemoved()) {
                     for (TreeItem<AnatomyNode> item : change.getRemoved()) {
                         LinkedList<String> fileIDs = item.getValue().getFileIDs();
                         if (fileIDs != null) {
                             for (String fileID : item.getValue().getFileIDs()) {
                                 sourceOfTruth.remove(fileIdToMeshMap.get(fileID));
+                            }
+                        }
+                    }
+                }
+                if (change.wasAdded()) {
+                    for (TreeItem<AnatomyNode> item : change.getAddedSubList()) {
+                        LinkedList<String> fileIDs = item.getValue().getFileIDs();
+                        //DEBUG
+                        System.out.println("processing:" + item.getValue().getName());
+                        System.out.println("fileIDs:" + fileIDs);
+                        if (fileIDs != null) {
+                            System.out.println("fileID not null");
+                            for (String fileID : item.getValue().getFileIDs()) {
+                                System.out.println("try to add:" + fileID);
+                                sourceOfTruth.add(fileIdToMeshMap.get(fileID));
+
+                                // Select all TreeItems associated with this fileID
+                                Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+                                if (associatedItems != null) {
+                                    for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
+                                        if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
+                                            multipleSelectionModel.select(associatedItem);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -127,9 +154,11 @@ public class MeshSelection {
         TreeItem<AnatomyNode> root = treeView.getRoot();
         if (root == null) return;
 
-        TreeItem<AnatomyNode> itemToSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
-        if (itemToSelect != null) {
-            selectionModel.select(itemToSelect);
+        Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+        if (itemsToSelect != null) {
+            for (TreeItem<AnatomyNode> item : itemsToSelect) {
+                selectionModel.select(item);
+            }
         }
     }
 
@@ -144,17 +173,51 @@ public class MeshSelection {
         TreeItem<AnatomyNode> root = treeView.getRoot();
         if (root == null) return;
 
-        TreeItem<AnatomyNode> itemToDeselect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
-        if (itemToDeselect != null) {
-            int index = treeView.getRow(itemToDeselect);
-            selectionModel.clearSelection(index);
+        Set<TreeItem<AnatomyNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+        if (itemsToDeSelect != null) {
+            for (TreeItem<AnatomyNode> item : itemsToDeSelect) {
+                int index = treeView.getRow(item);
+                selectionModel.clearSelection(index);
+            }
         }
     }
 
+    public void bindListView(ListView<String> selectionList) {
+        if (selectionList == null) return;
+
+        // Listen to changes in the sourceOfTruth and update the ListView accordingly
+        sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
+            //DEBUG
+            System.out.println("added:" + change.getElementAdded());
+            System.out.println("removed:" + change.getElementRemoved());
+            if (change.wasAdded()) {
+                @SuppressWarnings("unchecked")
+                HashSet<String> names = (HashSet<String>) change.getElementAdded().getUserData();
+                for (String name : names) {
+                    if (!selectionList.getItems().contains(name)) {
+                        selectionList.getItems().add(name);
+                    }
+                }
+            } else if (change.wasRemoved()) {
+                @SuppressWarnings("unchecked")
+                HashSet<String> names = (HashSet<String>) change.getElementRemoved().getUserData();
+                for (String name : names) {
+                    selectionList.getItems().remove(name);
+                }
+            }
+        });
+
+        // Disable interaction
+        selectionList.setSelectionModel(null);
+        selectionList.setFocusTraversable(false);
+    }
+
+
+
     private static class TreeViewBinding {
         TreeView<AnatomyNode> treeView;
-        // map fileID to AnatomyNode
-        Map<String, TreeItem<AnatomyNode>> fileIdToNode = new HashMap<>();
+        // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
+        Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
         BooleanProperty isSyncing = new SimpleBooleanProperty(false);
 
         /**
@@ -177,7 +240,9 @@ public class MeshSelection {
             LinkedList<String> fileIDs = current.getValue().getFileIDs();
             if (fileIDs != null) {
                 for (String fileID : fileIDs){
-                    fileIdToNode.put(fileID, current);
+                    Set<TreeItem<AnatomyNode>> set = fileIdToNode.getOrDefault(fileID, new HashSet<>());
+                    set.add(current);
+                    fileIdToNode.putIfAbsent(fileID, set);
                 }
             }
             for (TreeItem<AnatomyNode> child : current.getChildren()) {

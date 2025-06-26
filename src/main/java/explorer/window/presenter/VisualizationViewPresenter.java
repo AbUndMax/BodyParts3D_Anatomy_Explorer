@@ -280,8 +280,11 @@ public class VisualizationViewPresenter {
                 // bind the TreeViews to the MeshSelection
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
                 TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
+                ListView<String> listView = registry.getSelectionViewController().getSelectionListView();
                 humanBody.getMeshSelection().bindTreeView(isATreeView);
                 humanBody.getMeshSelection().bindTreeView(partOfTreeView);
+                humanBody.getMeshSelection().bindListView(listView);
+                humanBody.assignNames(isATreeView.getRoot(), partOfTreeView.getRoot());
             }
 
             @Override

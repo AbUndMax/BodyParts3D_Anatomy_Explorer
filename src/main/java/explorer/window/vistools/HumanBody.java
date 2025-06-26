@@ -1,10 +1,13 @@
 package explorer.window.vistools;
 
+import explorer.model.AnatomyNode;
+import explorer.model.treetools.TreeUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -18,12 +21,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HumanBody extends Group{
 
+    // connects fileID to a MeshView instance loaded from that fileID
+    private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap = new ConcurrentHashMap<>();
+
     // meshSelection is like a SelectionModel for a humanBody instance
     private final MeshSelection meshSelection = new MeshSelection(this);
     private final ObservableSet<MeshView> selection = meshSelection.getSourceOfTruth();
-
-    // connects fileID to a MeshView instance loaded from that fileID
-    private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap = new ConcurrentHashMap<>();
 
     // Shared default material for all MeshViews
     public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
@@ -125,9 +128,10 @@ public class HumanBody extends Group{
             MeshView meshView = new MeshView(mesh);
             meshView.setMaterial(SHARED_DEFAULT_MATERIAL);
             meshView.setId(id);
+            // this Set will hold all names of AnatomyNodes that are associated with that Mesh
+            meshView.setUserData(new HashSet<String>());
 
             fileIdToMeshMap.put(id, meshView);
-
             collectedMeshes.add(meshView);
 
             if (progressCallback != null) {
@@ -136,5 +140,24 @@ public class HumanBody extends Group{
         });
 
         Platform.runLater(() -> this.getChildren().addAll(collectedMeshes));
+    }
+
+    public void assignNames(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
+        TreeUtils.preOrderTreeViewTraversal(partOfTreeRoot, this::assignNamesToMeshes);
+        TreeUtils.preOrderTreeViewTraversal(isATreeRoot, this::assignNamesToMeshes);
+    }
+
+    private void assignNamesToMeshes(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
+        if (anatomyNodeTreeItem.isLeaf()) {
+            AnatomyNode anatomyNode = anatomyNodeTreeItem.getValue();
+            for (String fileID : anatomyNode.getFileIDs()) {
+                MeshView mesh = fileIdToMeshMap.get(fileID);
+                if (mesh.getUserData() instanceof HashSet<?> userData) {
+                    @SuppressWarnings("unchecked")
+                    HashSet<String> names = (HashSet<String>) userData;
+                    names.add(anatomyNode.getName());
+                }
+            }
+        }
     }
 }

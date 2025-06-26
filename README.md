@@ -1,41 +1,33 @@
 # Advanced Java Repository of Niklas M. Gerbes
-Group: Luis Reimer, Niklas Gerbes
 
-## NOTE:
-The whole project structure was rebuild to better manage the final project itself!
+## Closing Project: Anatomy Explorer
+![Bildschirmfoto 2025-06-26 um 01.23.30.png](img/Bildschirmfoto%202025-06-26%20um%2001.23.30.png)
 
-- ALL ASSIGNMENTS ARE NOW FOUND IN THE MODULE: `assignmnets`
-- THE PROJECT IS FOUND IN THE MODULE: `project`
+### Behind the project: BodyParts3D Database
+The Project is based on a Database for 3D anatomy visualizations by Fujieda et al.
 
-Additional information can be found in the READMES of these modules!
+>Mitsuhashi N, Fujieda K, Tamura T, Kawamoto S, Takagi T, Okubo K.
+BodyParts3D: 3D structure database for anatomical concepts.
+Nucleic Acids Res. 2008 Oct 3.
+PMID: 18835852
 
 
-## Project:
 
+### problems I encountered:
+There is one big Problem overall: Connect both Trees (isA and partOf relations) that use fundamental different
+concepts. The following properties made it hard to synchronize the selection over all three: both TreeViews and the visualization Pane:
+- One FileID can be associated with multiple concepts WITHIN one tree 
+  - A selection in the 3D pane can lead to multiple selection in either TreeView.
+  - The most prominent example is "skin" and "integumentary system" from the partOf tree. Both concepts share the fileID FJ2810.
+  If we interpret the fileIDs as SourceOfTruth for Our selection. Then selecting "skin" has to lead to a selection of "integumentary system".
+  Or the other way around: selecting the mesh FJ2810 has to lead to the selection of "skin" and "integumentary system" in partOf and the associated Nodes in the isA tree.
+- One Concept can have multiple FileIDs associated with it (Selecting a node in a TreeView can lead to a selection of multiple MeshView in the 3D pane).
+- Concepts that have the same conceptID usually do not share the same Meshes (or fileIDs).
+- Leaves of partOf and isA are not fully contained within each other (partOf has 869 leafes, isA has 1651 leafes and 770 leafes in total are common).
 
-## Assignment implementations:
+So it was quite some work to figure out how exactly to parse selections between the trees and visPane.
 
-### assignment01: ShowRelationsTree
-Simple CLI tool to process the [partof_inclusion_relation_list.txt](assignments/src/main/resources/asgmt01_res/partof_inclusion_relation_list.txt) file.
-Goal was to print the full path of each relation to the console.
-
-### assignment02: AnatomyDataExplorer
-![AnatomyDataExplorer.png](img/AnatomyDataExplorer.png)
-This tool lists all body parts in a treeView and shows the corresponding file names on the right side
-of a splitPane.
-
-### assignemnt03: WordExplorer
-![WordExplorer.png](img/WordExplorer.png)
-Here we build a wordCloud based on the selected parts.
-
-### assignment04: TreeDrawer
-![TreeDrawer.png](img/TreeDrawer.png)
-With this UI we visualized the relations in a tree.
-
-### assignment05: ObjectViewer
-![ObjectViewer.png](img/ObjectViewer.png)
-Assignment05 was the first steps towards 3D modeling and presentation of .obj files in a three-dimensional space.
-
-### assignment06: ObjectViewer6
-![ObjectViewer6.png](img/ObjectViewer6.png)
-The 3D model viewer was expanded to allow mouse controls, and the option to load multiple .obj files into one ThreeDPane.
+**This deep dive into the connections between FileIDs and ConceptIDs leads to the reason why it can happen that selecting one Node in 
+a tree view might induce the selection of other nodes that share the selected FileIDs. I implemented it that way,
+because I interpreted my selected Meshes (or FileIDs) as SourceOfTruth. Meaning selecting a Mesh leads to the selection of
+ALL ASSOCIATED AnatomyNodes / treeItems.**
