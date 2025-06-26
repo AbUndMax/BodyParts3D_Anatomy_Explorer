@@ -1,6 +1,7 @@
 package explorer.window.vistools;
 
 import explorer.model.AnatomyNode;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.*;
@@ -115,7 +116,7 @@ public class MeshSelection {
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            multipleSelectionModel.select(associatedItem);
+                                            Platform.runLater(() -> multipleSelectionModel.select(associatedItem));
                                         }
                                     }
                                 }

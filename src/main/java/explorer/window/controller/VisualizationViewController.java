@@ -162,6 +162,6 @@ public class VisualizationViewController {
 
     @FXML
     public void initialize() {
-        searchChoice.setValue("3D viewer");
+        searchChoice.setValue("part-of");
     }
 }

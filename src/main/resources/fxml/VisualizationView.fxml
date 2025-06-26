@@ -12,10 +12,9 @@
       <ToolBar BorderPane.alignment="CENTER">
          <items>
             <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts" />
-            <ChoiceBox fx:id="searchChoice" prefWidth="100.0">
+            <ChoiceBox fx:id="searchChoice" prefWidth="80.0">
                <items>
                   <FXCollections fx:factory="observableArrayList">
-                     <String fx:value="3D viewer" />
                      <String fx:value="part-of" />
                      <String fx:value="is-a" />
                   </FXCollections>
