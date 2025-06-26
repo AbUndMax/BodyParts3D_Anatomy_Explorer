@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.*;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TreeItem;
@@ -20,13 +21,16 @@ import java.util.concurrent.TimeUnit;
 
 import static javafx.collections.FXCollections.observableSet;
 
+/**
+ * A MeshSelection is the SelectionModel for a HumanBody instance
+ */
 public class MeshSelection {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> pendingSelection;
 
     // Observable list of currently selected Meshes -> SourceOfTruth FOR ALL SELECTIONS
-    private final ObservableSet<MeshView> sourceOfTruth = observableSet();
+    private final ObservableSet<MeshView> selectedMeshes = observableSet();
 
     // connects fileID to a MeshView instance loaded from that fileID
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap;
@@ -42,16 +46,29 @@ public class MeshSelection {
      */
     public MeshSelection(HumanBody humanBody) {
         fileIdToMeshMap = humanBody.getFileIdToMeshMap();
+
+        // Initialize MouseClick Listener that registers if a mesh gets added to the selection or removed
+        humanBody.setOnMouseClicked(event -> {
+            Node clickedNode = event.getPickResult().getIntersectedNode();
+            if (clickedNode instanceof MeshView meshView) {
+
+                if (selectedMeshes.contains(meshView)) {
+                    selectedMeshes.remove(meshView);
+                } else {
+                    selectedMeshes.add(meshView);
+                }
+            }
+        });
     }
 
     public void activateDebug() {
         //DEBUG
-        sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
+        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
             System.out.println("\n" + "----------".repeat(10));
             if (change.wasAdded()) System.out.println("added" + change.getElementAdded().getId());
             else if (change.wasRemoved()) System.out.println("removed" + change.getElementRemoved().getId());
             System.out.println("Current sourceOfTruth content:");
-            sourceOfTruth.forEach(mesh -> System.out.println(mesh.getId()));
+            selectedMeshes.forEach(mesh -> System.out.println(mesh.getId()));
             System.out.println("----------".repeat(10) + "\n");
         });
     }
@@ -61,8 +78,8 @@ public class MeshSelection {
      *
      * @return the observable set of currently selected MeshView objects.
      */
-    public ObservableSet<MeshView> getSourceOfTruth() {
-        return sourceOfTruth;
+    public ObservableSet<MeshView> getSelectedMeshes() {
+        return selectedMeshes;
     }
 
     /**
@@ -99,7 +116,7 @@ public class MeshSelection {
                         LinkedList<String> fileIDs = item.getValue().getFileIDs();
                         if (fileIDs != null) {
                             for (String fileID : item.getValue().getFileIDs()) {
-                                sourceOfTruth.remove(fileIdToMeshMap.get(fileID));
+                                selectedMeshes.remove(fileIdToMeshMap.get(fileID));
                             }
                         }
                     }
@@ -114,7 +131,7 @@ public class MeshSelection {
                             //System.out.println("fileID not null");
                             for (String fileID : item.getValue().getFileIDs()) {
                                 //System.out.println("try to add:" + fileID);
-                                sourceOfTruth.add(fileIdToMeshMap.get(fileID));
+                                selectedMeshes.add(fileIdToMeshMap.get(fileID));
 
                                 // Select all TreeItems associated with this fileID
                                 Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
@@ -135,7 +152,7 @@ public class MeshSelection {
         });
 
         // get changes from the SourceOfTruth
-        sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
+        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
             if (isSyncing.get()) return;
             isSyncing.set(true);
 
@@ -192,7 +209,7 @@ public class MeshSelection {
         if (selectionList == null) return;
 
         // Listen to changes in the sourceOfTruth and update the ListView accordingly
-        sourceOfTruth.addListener((SetChangeListener<MeshView>) change -> {
+        selectedMeshes.addListener((SetChangeListener<MeshView>) change -> {
             //DEBUG
             //System.out.println("added:" + change.getElementAdded());
             //System.out.println("removed:" + change.getElementRemoved());

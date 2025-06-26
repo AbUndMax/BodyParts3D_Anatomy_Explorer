@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
 public class VisualizationViewController {
     @FXML
@@ -170,5 +171,6 @@ public class VisualizationViewController {
     @FXML
     public void initialize() {
         searchChoice.setValue("part-of");
+        selectionColorPicker.setValue(Color.YELLOW);
     }
 }

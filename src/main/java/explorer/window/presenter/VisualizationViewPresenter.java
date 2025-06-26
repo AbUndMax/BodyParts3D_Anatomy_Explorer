@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
+import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -21,6 +22,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import java.io.File;
@@ -61,6 +64,7 @@ public class VisualizationViewPresenter {
         setupTripodPane();
         setupVisualizationViewButtons();
         setupClearSelectionButton();
+        setupColorPicker();
     }
 
     /**
@@ -305,10 +309,38 @@ public class VisualizationViewPresenter {
      */
     private void setupClearSelectionButton() {
         registry.getSelectionViewController().getClearSelectionButton().setOnAction(e -> {
-            humanBody.getMeshSelection().getSourceOfTruth().clear();
+            humanBody.getMeshSelection().getSelectedMeshes().clear();
             registry.getSelectionViewController().getTreeViewPartOf().getSelectionModel().clearSelection();
             registry.getSelectionViewController().getTreeViewIsA().getSelectionModel().clearSelection();
             visController.getTextFieldSearchBar().clear();
+        });
+    }
+
+    private void setupColorPicker() {
+        ColorPicker colorPicker = visController.getSelectionColorPicker();
+
+        PhongMaterial selectedMaterial = new PhongMaterial(Color.YELLOW);
+        selectedMaterial.setSpecularColor(Color.BLACK);
+
+        // react on colorPicker selections
+        colorPicker.valueProperty().addListener((obs, oldColor, newColor) -> {
+            selectedMaterial.setDiffuseColor(newColor);
+        });
+
+        // add a listener to the currentSelection list to make sure all selected nodes get colored
+        // and all deselcted nodes get the default coloring back
+        humanBody.getMeshSelection().getSelectedMeshes().addListener((SetChangeListener<Node>) change -> {
+            if (change.wasAdded()) {
+                Node addedNode = change.getElementAdded();
+                if (addedNode instanceof MeshView meshView) {
+                    Platform.runLater(() -> meshView.setMaterial(selectedMaterial));
+                }
+            } else if (change.wasRemoved()) {
+                Node removedNode = change.getElementRemoved();
+                if (removedNode instanceof MeshView meshView) {
+                    Platform.runLater(() -> meshView.setMaterial(humanBody.getDefaultMaterial()));
+                }
+            }
         });
     }
 
