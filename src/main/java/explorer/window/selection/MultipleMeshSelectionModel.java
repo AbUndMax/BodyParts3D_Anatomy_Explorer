@@ -4,9 +4,11 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.*;
 import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -28,8 +30,6 @@ public class MultipleMeshSelectionModel extends MultipleSelectionModel<MeshView>
 
     public MultipleMeshSelectionModel(List<MeshView> allMeshes) {
         this.allMeshes = allMeshes;
-
-        activateDebug();
     }
 
     public void activateDebug() {
@@ -138,6 +138,11 @@ public class MultipleMeshSelectionModel extends MultipleSelectionModel<MeshView>
         return index >= 0 && index < selectedMeshes.size();
     }
 
+    public boolean isSelected(MeshView meshView) {
+        if (meshView == null) return false;
+        return meshSet.contains(meshView);
+    }
+
     @Override
     public boolean isEmpty() {
         return selectedMeshes.isEmpty();
@@ -202,5 +207,12 @@ public class MultipleMeshSelectionModel extends MultipleSelectionModel<MeshView>
         int idx = currentSelectionIndex.get();
         idx = (idx + 1) % allMeshes.size();
         clearAndSelect(idx);
+    }
+
+    public void traverseUnselectedMeshes(Consumer<MeshView> function) {
+        for (MeshView mesh : allMeshes) {
+            if (meshSet.contains(mesh)) continue;
+            function.accept(mesh);
+        }
     }
 }

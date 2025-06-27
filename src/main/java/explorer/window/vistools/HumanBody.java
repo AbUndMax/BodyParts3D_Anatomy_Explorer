@@ -5,9 +5,13 @@ import explorer.model.treetools.TreeUtils;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 import java.io.File;
@@ -34,6 +38,54 @@ public class HumanBody extends Group{
         // setup default Material
         SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
         SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
+    }
+
+    // saves current mouseClicked positions
+    private double mousePressX;
+    private double mousePressY;
+
+    public void activateSelection(ToggleButton hideMode, Button resetHide) {
+
+        LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
+
+        // save the position
+        this.setOnMousePressed(event -> {
+            mousePressX = event.getScreenX();
+            mousePressY = event.getScreenY();
+        });
+
+        // check release position
+        this.setOnMouseReleased(event -> {
+            double mouseReleaseX = event.getScreenX();
+            double mouseReleaseY = event.getScreenY();
+
+            double distance = Math.hypot(mouseReleaseX - mousePressX, mouseReleaseY - mousePressY);
+
+            // if distance is small, its a klick and not a drag event!
+            // drag events are reserved for rotation / translation
+            if (distance < 5) {
+                Node clickedNode = event.getPickResult().getIntersectedNode();
+                if (clickedNode instanceof MeshView meshView) {
+                    if (hideMode.isSelected()) {
+                        meshView.setVisible(false);
+                        hiddenMeshes.add(meshView);
+                    }
+                    else if (multipleMeshSelectionModel.contains(meshView)){
+                        multipleMeshSelectionModel.clearSelection(meshView);
+                    }
+                    else {
+                        multipleMeshSelectionModel.select(meshView);
+                    }
+                }
+            }
+        });
+
+        // button to reset the hidden meshes
+        resetHide.setOnAction(event -> {
+            for (MeshView mesh : hiddenMeshes) {
+                mesh.setVisible(true);
+            }
+        });
     }
 
     /**
@@ -120,7 +172,7 @@ public class HumanBody extends Group{
             for (String fileID : anatomyNode.getFileIDs()) {
                 MeshView mesh = fileIdToMeshMap.get(fileID);
                 if (mesh.getUserData() instanceof HashSet<?> userData) {
-                    @SuppressWarnings("unchecked")
+                    @SuppressWarnings("unchecked") // not ideal, but since we wonÄt reuse the userData it suffices
                     HashSet<String> names = (HashSet<String>) userData;
                     names.add(anatomyNode.getName());
                 }

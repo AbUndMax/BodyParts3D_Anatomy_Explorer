@@ -38,19 +38,6 @@ public class SelectionBinder {
     public SelectionBinder(HumanBody humanBody) {
         fileIdToMeshMap = humanBody.getFileIdToMeshMap();
         meshSelectionModel = humanBody.getSelectionModel();
-
-        // Initialize MouseClick Listener that registers if a mesh gets added to the selection or removed
-        humanBody.setOnMouseClicked(event -> {
-            Node clickedNode = event.getPickResult().getIntersectedNode();
-            if (clickedNode instanceof MeshView meshView) {
-
-                if (meshSelectionModel.contains(meshView)) {
-                    meshSelectionModel.clearSelection(meshView);
-                } else {
-                    meshSelectionModel.select(meshView);
-                }
-            }
-        });
     }
 
     /**

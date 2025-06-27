@@ -4,6 +4,7 @@ import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
 import explorer.window.ControllerRegistry;
+import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.Axes;
@@ -23,11 +24,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,7 +68,7 @@ public class VisualizationViewPresenter {
         setupTripodPane();
         setupVisualizationViewButtons();
         setupClearSelectionButton();
-        setupColorPicker();
+        setupMeshRenderControls();
     }
 
     /**
@@ -318,16 +321,14 @@ public class VisualizationViewPresenter {
         });
     }
 
-    private void setupColorPicker() {
+    private void setupMeshRenderControls() {
         ColorPicker colorPicker = visController.getSelectionColorPicker();
+        RadioButton line = visController.getRadioLines();
+        ToggleGroup drawMode = visController.getDrawMode();
+        ToggleButton hideMode = visController.getHideModeToggle();
+        Button resetHide = visController.getResetHideButton();
 
-        PhongMaterial selectedMaterial = new PhongMaterial(Color.YELLOW);
-        selectedMaterial.setSpecularColor(Color.BLACK);
-
-        // react on colorPicker selections
-        colorPicker.valueProperty().addListener((obs, oldColor, newColor) -> {
-            selectedMaterial.setDiffuseColor(newColor);
-        });
+        MultipleMeshSelectionModel meshSelectionModel = humanBody.getSelectionModel();
 
         // add a listener to the currentSelection list to make sure all selected nodes get colored
         // and all deselected nodes get the default coloring back
@@ -335,15 +336,35 @@ public class VisualizationViewPresenter {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView meshView : change.getAddedSubList()) {
-                        Platform.runLater(() -> meshView.setMaterial(selectedMaterial));
+                        PhongMaterial selectedMaterial = new PhongMaterial(colorPicker.getValue());
+                        selectedMaterial.setSpecularColor(Color.BLACK);
+
+                        Platform.runLater(() -> {
+                            meshView.setDrawMode(DrawMode.FILL);
+                            meshView.setMaterial(selectedMaterial);
+                        });
                     }
                 } else if (change.wasRemoved()) {
                     for (MeshView meshView : change.getRemoved()) {
-                        Platform.runLater(() -> meshView.setMaterial(humanBody.getDefaultMaterial()));
+                        Platform.runLater(() -> {
+                            meshView.setDrawMode(line.isSelected() ? DrawMode.LINE : DrawMode.FILL);
+                            meshView.setMaterial(humanBody.getDefaultMaterial());
+                        });
                     }
                 }
             }
         });
+
+        // Add Listener to the DrawMode RadioButtons to change DrawMode accordingly!
+        drawMode.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+                RadioButton selected = (RadioButton) newToggle;
+
+                meshSelectionModel.traverseUnselectedMeshes(mesh -> mesh.setDrawMode((DrawMode) selected.getUserData()));
+            }
+        });
+
+        humanBody.activateSelection(hideMode, resetHide);
     }
 
     /**

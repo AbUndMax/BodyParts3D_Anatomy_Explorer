@@ -12,9 +12,6 @@ public class SelectionViewController {
     private Button buttonCollapseAtTreeNode;
 
     @FXML
-    private Button buttonDeselect;
-
-    @FXML
     private Button buttonExpandAtTreeNode;
 
     @FXML
@@ -27,19 +24,13 @@ public class SelectionViewController {
     private Button centerDivider2;
 
     @FXML
+    private Button clearSelectionButton;
+
+    @FXML
     private Button expandIsAView;
 
     @FXML
     private Button expandPartOfView;
-
-    @FXML
-    private RadioButton radioHideSelection;
-
-    @FXML
-    private RadioButton radioShowSelection;
-
-    @FXML
-    private Button clearSelectionButton;
 
     @FXML
     private BorderPane selectionListPane;
@@ -54,9 +45,6 @@ public class SelectionViewController {
     private ListView<String> selectionListView;
 
     @FXML
-    private ToggleGroup selectionVisibility;
-
-    @FXML
     private TreeView<AnatomyNode> treeViewIsA;
 
     @FXML
@@ -67,10 +55,6 @@ public class SelectionViewController {
 
     public Button getButtonCollapseAtTreeNode() {
         return buttonCollapseAtTreeNode;
-    }
-
-    public Button getButtonDeselect() {
-        return buttonDeselect;
     }
 
     public Button getButtonExpandAtTreeNode() {
@@ -97,14 +81,6 @@ public class SelectionViewController {
         return expandPartOfView;
     }
 
-    public RadioButton getRadioHideSelection() {
-        return radioHideSelection;
-    }
-
-    public RadioButton getRadioShowSelection() {
-        return radioShowSelection;
-    }
-
     public Button getClearSelectionButton() {
         return clearSelectionButton;
     }
@@ -123,10 +99,6 @@ public class SelectionViewController {
 
     public ListView<String> getSelectionListView() {
         return selectionListView;
-    }
-
-    public ToggleGroup getSelectionVisibility() {
-        return selectionVisibility;
     }
 
     public TreeView<AnatomyNode> getTreeViewIsA() {

@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
+import javafx.scene.shape.DrawMode;
 
 public class VisualizationViewController {
     @FXML
@@ -44,10 +44,25 @@ public class VisualizationViewController {
     private Button buttonFindNext;
 
     @FXML
+    private ToggleGroup drawMode;
+
+    @FXML
+    private ToggleButton hideModeToggle;
+
+    @FXML
+    private RadioButton radioFill;
+
+    @FXML
+    private RadioButton radioLines;
+
+    @FXML
     private RadioButton radioRotation;
 
     @FXML
     private RadioButton radioTranslation;
+
+    @FXML
+    private Button resetHideButton;
 
     @FXML
     private ChoiceBox<String> searchChoice;
@@ -56,13 +71,13 @@ public class VisualizationViewController {
     private Label searchHitLabel;
 
     @FXML
+    private ColorPicker selectionColorPicker;
+
+    @FXML
     private TextField textFieldSearchBar;
 
     @FXML
     private ToggleGroup threeDControl;
-
-    @FXML
-    private StackPane visualizationStackPane;
 
     @FXML
     private Pane tripodPane;
@@ -71,10 +86,10 @@ public class VisualizationViewController {
     private Pane visualizationPane;
 
     @FXML
-    private Slider zoomSlider;
+    private StackPane visualizationStackPane;
 
     @FXML
-    private ColorPicker selectionColorPicker;
+    private Slider zoomSlider;
 
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
@@ -132,10 +147,6 @@ public class VisualizationViewController {
         return radioTranslation;
     }
 
-    public ChoiceBox<String> getSearchChoice() {
-        return searchChoice;
-    }
-
     public Label getSearchHitLabel() {
         return searchHitLabel;
     }
@@ -168,8 +179,34 @@ public class VisualizationViewController {
         return selectionColorPicker;
     }
 
+    public ToggleButton getHideModeToggle() {
+        return hideModeToggle;
+    }
+
+    public Button getResetHideButton() {
+        return resetHideButton;
+    }
+
+    public ChoiceBox<String> getSearchChoice() {
+        return searchChoice;
+    }
+
+    public RadioButton getRadioFill() {
+        return radioFill;
+    }
+
+    public RadioButton getRadioLines() {
+        return radioLines;
+    }
+
+    public ToggleGroup getDrawMode() {
+        return drawMode;
+    }
+
     @FXML
     public void initialize() {
         searchChoice.setValue("part-of");
+        radioLines.setUserData(DrawMode.LINE);
+        radioFill.setUserData(DrawMode.FILL);
     }
 }
