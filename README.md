@@ -1,7 +1,7 @@
 # Advanced Java Repository of Niklas M. Gerbes
 
 ## Closing Project: Anatomy Explorer
-![Bildschirmfoto 2025-06-26 um 01.23.30.png](img/Bildschirmfoto%202025-06-26%20um%2001.23.30.png)
+![Milestone_1_Release.png](img/Milestone_1_Release.png)
 
 ### Behind the project: BodyParts3D Database
 The Project is based on a Database for 3D anatomy visualizations by Fujieda et al.

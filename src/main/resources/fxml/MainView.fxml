@@ -38,7 +38,7 @@
                      </accelerator></MenuItem>
                   <MenuItem fx:id="menuButtonCollapseIsA" mnemonicParsing="false" text="Collapse is-a" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Show Selection List">
+                  <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Toggle Selection List">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                      </accelerator></MenuItem>
