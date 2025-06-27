@@ -44,7 +44,13 @@ public class MainViewController {
     private MenuItem menuButtonExpandIsA;
 
     @FXML
+    private MenuItem menuButtonCollapseIsA;
+
+    @FXML
     private MenuItem menuButtonExpandPartOf;
+
+    @FXML
+    private MenuItem menuButtonCollapsePartOf;
 
     @FXML
     private MenuItem menuButtonResetPosition;
@@ -113,8 +119,16 @@ public class MainViewController {
         return menuButtonExpandIsA;
     }
 
+    public MenuItem getMenuButtonCollapseIsA() {
+        return menuButtonCollapseIsA;
+    }
+
     public MenuItem getMenuButtonExpandPartOf() {
         return menuButtonExpandPartOf;
+    }
+
+    public MenuItem getMenuButtonCollapsePartOf() {
+        return menuButtonCollapsePartOf;
     }
 
     public MenuItem getMenuButtonResetPosition() {

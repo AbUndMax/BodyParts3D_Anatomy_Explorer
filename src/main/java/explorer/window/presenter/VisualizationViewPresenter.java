@@ -3,7 +3,7 @@ package explorer.window.presenter;
 import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
-import explorer.window.ControllerRegistry;
+import explorer.window.GuiRegistry;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
@@ -28,9 +28,7 @@ import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
-
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,7 +36,7 @@ import static explorer.window.vistools.TransformUtils.applyGlobalRotation;
 
 public class VisualizationViewPresenter {
 
-    private final ControllerRegistry registry;
+    private final GuiRegistry registry;
     private final VisualizationViewController visController;
 
     // constants copied from assignment06
@@ -51,7 +49,7 @@ public class VisualizationViewPresenter {
     private static final int ROTATION_STEP = 10;
 
     private final MyCamera camera = new MyCamera();
-    private final HumanBody humanBody = new HumanBody();
+    private HumanBody humanBody = new HumanBody();
     private final Group contentGroup;
 
     /**
@@ -60,7 +58,7 @@ public class VisualizationViewPresenter {
      *
      * @param registry the ControllerRegistry that holds all Controller instances.
      */
-    public VisualizationViewPresenter(ControllerRegistry registry) {
+    public VisualizationViewPresenter(GuiRegistry registry) {
         this.registry = registry;
         this.visController = registry.getVisualizationViewController();
 
@@ -242,7 +240,7 @@ public class VisualizationViewPresenter {
      * Loads the human body model asynchronously from the saved path. Displays a progress bar while loading.
      * If the path is missing or invalid, prompts the user to select the correct model directory.
      */
-    private void loadHumanBody() {
+    public void loadHumanBody() {
         AtomicReference<String> wavefrontPath = new AtomicReference<>(AppConfig.loadLastPath());
 
         // if the path is invalid overlay the visualization pane with a load button
@@ -393,6 +391,22 @@ public class VisualizationViewPresenter {
      */
     protected void rotateContentGroupRight() {
         applyGlobalRotation(contentGroup, new Point3D(0,1, 0), -ROTATION_STEP);
+    }
+
+    protected void translateContentGroupUp() {
+        camera.pan(0, 1);
+    }
+
+    protected void translateContentGroupDown() {
+        camera.pan(0, -1);
+    }
+
+    protected void translateContentGroupLeft() {
+        camera.pan(1, 0);
+    }
+
+    protected void translateContentGroupRight() {
+        camera.pan(-1, 0);
     }
 
     /**

@@ -3,7 +3,7 @@ package explorer.window.presenter;
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.model.treetools.KryoUtils;
-import explorer.window.ControllerRegistry;
+import explorer.window.GuiRegistry;
 import explorer.window.controller.SelectionViewController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
@@ -26,7 +26,7 @@ public class SelectionViewPresenter {
 
     private final SelectionViewController controller;
 
-    public SelectionViewPresenter(ControllerRegistry registry) {
+    public SelectionViewPresenter(GuiRegistry registry) {
         controller = registry.getSelectionViewController();
 
         TreeView<AnatomyNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
@@ -96,7 +96,7 @@ public class SelectionViewPresenter {
      *
      * @param registry The ControllerRegistry containing references to UI elements.
      */
-    private void setupSearchBar(ControllerRegistry registry) {
+    private void setupSearchBar(GuiRegistry registry) {
         TextField searchBar = registry.getVisualizationViewController().getTextFieldSearchBar();
         Button nextButton = registry.getVisualizationViewController().getButtonFindNext();
         Button firstButton = registry.getVisualizationViewController().getButtonFindFirst();
@@ -146,7 +146,7 @@ public class SelectionViewPresenter {
      * @param registry The ControllerRegistry providing access to the TreeViews.
      * @return The selected TreeView (either isA or partOf).
      */
-    private TreeView<AnatomyNode> treeOfChoice(ControllerRegistry registry) {
+    private TreeView<AnatomyNode> treeOfChoice(GuiRegistry registry) {
         ChoiceBox<String> choiceBox = registry.getVisualizationViewController().getSearchChoice();
 
         TreeView<AnatomyNode> isATree = registry.getSelectionViewController().getTreeViewIsA();
@@ -284,5 +284,21 @@ public class SelectionViewPresenter {
 
         private final ObservableList<TreeItem<AnatomyNode>> searchResults = javafx.collections.FXCollections.observableArrayList();
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);
+    }
+
+    public void expandIsATree() {
+        TreeUtils.expandAllBelowGivenNode(controller.getTreeViewIsA().getRoot());
+    }
+
+    public void collapseIsATree() {
+        TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewIsA().getRoot());
+    }
+
+    public void expandPartOfTree() {
+        TreeUtils.expandAllBelowGivenNode(controller.getTreeViewPartOf().getRoot());
+    }
+
+    public void collapsePartOfTree() {
+        TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewPartOf().getRoot());
     }
 }
