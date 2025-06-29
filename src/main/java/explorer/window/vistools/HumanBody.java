@@ -84,6 +84,8 @@ public class HumanBody extends Group{
             for (MeshView mesh : hiddenMeshes) {
                 mesh.setVisible(true);
             }
+
+            hiddenMeshes.clear();
         });
     }
 

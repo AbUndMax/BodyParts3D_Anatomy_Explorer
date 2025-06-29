@@ -4,7 +4,6 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.*;
 import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 
 import java.util.List;

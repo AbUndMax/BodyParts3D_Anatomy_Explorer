@@ -3,7 +3,6 @@ package explorer.model.treetools;
 import explorer.model.AnatomyNode;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TreeItem;
-
 import java.util.function.Consumer;
 
 public class TreeUtils {
