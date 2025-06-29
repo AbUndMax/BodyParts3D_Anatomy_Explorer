@@ -19,4 +19,8 @@ public class AppConfig {
     public static String loadLastPath() {
         return PREFS.get(KEY_LAST_PATH, "");
     }
+
+    public static void invalidateLastPath() {
+        saveLastPath("");
+    }
 }

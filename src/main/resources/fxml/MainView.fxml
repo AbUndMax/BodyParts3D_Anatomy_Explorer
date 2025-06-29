@@ -10,6 +10,8 @@
         <menus>
           <Menu mnemonicParsing="false" text="Explorer">
             <items>
+                  <MenuItem fx:id="menuButtonInvalidConfig" mnemonicParsing="false" text="Invalidate Configs" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="menuButtonClose" mnemonicParsing="false" text="Close">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
@@ -24,19 +26,25 @@
                      </accelerator></MenuItem>
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="View">
+            <Menu mnemonicParsing="false" text="TreeView">
               <items>
                   <MenuItem fx:id="menuButtonExpandPartOf" mnemonicParsing="false" text="Expand part-of">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                      </accelerator></MenuItem>
-                  <MenuItem fx:id="menuButtonCollapsePartOf" mnemonicParsing="false" text="Collapse part-of" />
+                  <MenuItem fx:id="menuButtonCollapsePartOf" mnemonicParsing="false" text="Collapse part-of">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="menuButtonExpandIsA" mnemonicParsing="false" text="Expand is-a">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                      </accelerator></MenuItem>
-                  <MenuItem fx:id="menuButtonCollapseIsA" mnemonicParsing="false" text="Collapse is-a" />
+                  <MenuItem fx:id="menuButtonCollapseIsA" mnemonicParsing="false" text="Collapse is-a">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Toggle Selection List">
                      <accelerator>

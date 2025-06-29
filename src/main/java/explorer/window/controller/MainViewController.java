@@ -7,8 +7,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 
-import java.util.Arrays;
-
 public class MainViewController {
 
     // Root-Node for SelectionView.fxml
@@ -35,9 +33,6 @@ public class MainViewController {
 
     @FXML
     private MenuItem menuButtonClose;
-
-    @FXML
-    private MenuItem menuButtonOpen;
 
     @FXML
     private MenuItem menuButtonExpandIsA;
@@ -90,6 +85,9 @@ public class MainViewController {
     @FXML
     private MenuItem menuButtonZoomOut;
 
+    @FXML
+    private MenuItem menuButtonInvalidConfig;
+
     // Controller getters
     public SelectionViewController getSelectionViewController() {
         return selectionController;
@@ -108,10 +106,6 @@ public class MainViewController {
 
     public MenuItem getMenuButtonClose() {
         return menuButtonClose;
-    }
-
-    public MenuItem getMenuButtonOpen() {
-        return menuButtonOpen;
     }
 
     public MenuItem getMenuButtonExpandIsA() {
@@ -180,6 +174,10 @@ public class MainViewController {
 
     public MenuItem getMenuButtonTranslateUp() {
         return menuButtonTranslateUp;
+    }
+
+    public MenuItem getMenuButtonInvalidConfig() {
+        return menuButtonInvalidConfig;
     }
 
     /**
