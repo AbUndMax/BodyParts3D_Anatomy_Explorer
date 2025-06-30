@@ -189,7 +189,10 @@ public class MainViewController {
         Platform.runLater(() -> mainSplitPane.setDividerPositions(0.4));
         fixDividerOnResize(mainSplitPane);
         setupAboutMessage();
-        menuButtonClose.setOnAction(e -> Platform.exit());
+        menuButtonClose.setOnAction(e -> {
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     /**
