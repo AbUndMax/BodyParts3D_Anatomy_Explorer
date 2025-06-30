@@ -2,9 +2,6 @@ package explorer.window.selection;
 
 import explorer.model.AnatomyNode;
 import explorer.window.vistools.HumanBody;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
@@ -50,12 +47,11 @@ public class SelectionBinder {
         treeViewBindings.put(treeView, binding);
 
         MultipleSelectionModel<TreeItem<AnatomyNode>> multipleSelectionModel = treeView.getSelectionModel();
-        BooleanProperty isSyncing = binding.isSyncing;
 
         // Push changes to the sourceOfTruth
         multipleSelectionModel.getSelectedItems().addListener((ListChangeListener<TreeItem<AnatomyNode>>) change -> {
-            if (isSyncing.get()) return;
-            isSyncing.set(true);
+            if (binding.isSyncing) return;
+            binding.isSyncing = true;
 
             while (change.next()) {
                 if (change.wasRemoved()) {
@@ -85,9 +81,9 @@ public class SelectionBinder {
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            isSyncing.set(true);
+                                            binding.isSyncing = true;
                                             multipleSelectionModel.select(associatedItem);
-                                            isSyncing.set(false);
+                                            binding.isSyncing = false;
                                         }
                                     }
                                 }
@@ -97,20 +93,20 @@ public class SelectionBinder {
                 }
             }
 
-            isSyncing.set(false);
+            binding.isSyncing = false;
         });
 
         // get changes from the SourceOfTruth
         meshSelectionModel.addListener(change -> {
-            if (isSyncing.get()) return;
-            isSyncing.set(true);
+            if (binding.isSyncing) return;
+            binding.isSyncing = true;
 
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView addedMesh : change.getAddedSubList()) {
-                        isSyncing.set(true);
+                        binding.isSyncing = true;
                         selectNodeInTree(treeView, addedMesh.getId());
-                        isSyncing.set(false);
+                        binding.isSyncing = false;
                     }
                 }
                 if (change.wasRemoved()) {
@@ -119,8 +115,7 @@ public class SelectionBinder {
                     }
                 }
             }
-
-            isSyncing.set(false);
+            binding.isSyncing = false;
         });
     }
 
@@ -139,9 +134,9 @@ public class SelectionBinder {
         if (itemsToSelect != null) {
             TreeViewBinding binding = treeViewBindings.get(treeView);
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                binding.isSyncing.set(true);
+                binding.isSyncing = true;
                 selectionModel.select(item);
-                binding.isSyncing.set(false);
+                binding.isSyncing = false;
             }
         }
     }
@@ -209,7 +204,7 @@ public class SelectionBinder {
         private final TreeView<AnatomyNode> treeView;
         // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
         private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
-        private final BooleanProperty isSyncing = new SimpleBooleanProperty(false);
+        private boolean isSyncing = false;
 
         /**
          * Constructs a TreeViewBinding for the given TreeView and maps its TreeItems by file ID.
