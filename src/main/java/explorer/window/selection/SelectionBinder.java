@@ -85,7 +85,11 @@ public class SelectionBinder {
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            binding.scheduleSelection(() -> multipleSelectionModel.select(associatedItem));
+                                            binding.scheduleSelection(() -> {
+                                                isSyncing.set(true);
+                                                multipleSelectionModel.select(associatedItem);
+                                                isSyncing.set(false);
+                                            });
                                         }
                                     }
                                 }
@@ -106,8 +110,7 @@ public class SelectionBinder {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView addedMesh : change.getAddedSubList()) {
-                        TreeViewBinding b = treeViewBindings.get(treeView);
-                        b.scheduleSelection(() -> selectNodeInTree(treeView, addedMesh.getId()));
+                        binding.scheduleSelection(() -> selectNodeInTree(treeView, addedMesh.getId()));
                     }
                 }
                 if (change.wasRemoved()) {
@@ -217,10 +220,10 @@ public class SelectionBinder {
             pendingSelection = scheduler.schedule(() -> Platform.runLater(task), 200, TimeUnit.MILLISECONDS);
         }
 
-        TreeView<AnatomyNode> treeView;
+        private final TreeView<AnatomyNode> treeView;
         // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
-        Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
-        BooleanProperty isSyncing = new SimpleBooleanProperty(false);
+        private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
+        private final BooleanProperty isSyncing = new SimpleBooleanProperty(false);
 
         /**
          * Constructs a TreeViewBinding for the given TreeView and maps its TreeItems by file ID.
