@@ -57,8 +57,10 @@ public class SelectionBinder {
                 if (change.wasRemoved()) {
                     for (TreeItem<AnatomyNode> item : change.getRemoved()) {
                         LinkedList<String> fileIDs = item.getValue().getFileIDs();
-                        if (fileIDs != null) {
-                            for (String fileID : item.getValue().getFileIDs()) {
+
+                        // only selections on Leaves are counting as "selecting a mesh"
+                        if (fileIDs != null && item.getValue().isLeaf()) {
+                            for (String fileID : fileIDs) {
                                 meshSelectionModel.clearSelection(fileIdToMeshMap.get(fileID));
                             }
                         }
@@ -70,9 +72,11 @@ public class SelectionBinder {
                         //DEBUG
                         //System.out.println("processing:" + item.getValue().getName());
                         //System.out.println("fileIDs:" + fileIDs);
-                        if (fileIDs != null) {
+
+                        // same here: only leaves count as legitimate selection
+                        if (fileIDs != null && item.getValue().isLeaf()) {
                             //System.out.println("fileID not null");
-                            for (String fileID : item.getValue().getFileIDs()) {
+                            for (String fileID : fileIDs) {
                                 //System.out.println("try to add:" + fileID);
                                 meshSelectionModel.select(fileIdToMeshMap.get(fileID));
 
@@ -223,12 +227,15 @@ public class SelectionBinder {
          */
         private void mapTree(TreeItem<AnatomyNode> current) {
             if (current == null) return;
-            LinkedList<String> fileIDs = current.getValue().getFileIDs();
-            if (fileIDs != null) {
-                for (String fileID : fileIDs){
-                    Set<TreeItem<AnatomyNode>> set = fileIdToNode.getOrDefault(fileID, new HashSet<>());
-                    set.add(current);
-                    fileIdToNode.putIfAbsent(fileID, set);
+            // Only map leaves so parents aren't selected for child fileIDs
+            if (current.isLeaf()) {
+                List<String> fileIDs = current.getValue().getFileIDs();
+                if (fileIDs != null) {
+                    for (String fileID : fileIDs) {
+                        Set<TreeItem<AnatomyNode>> set = fileIdToNode
+                            .computeIfAbsent(fileID, k -> new HashSet<>());
+                        set.add(current);
+                    }
                 }
             }
             for (TreeItem<AnatomyNode> child : current.getChildren()) {

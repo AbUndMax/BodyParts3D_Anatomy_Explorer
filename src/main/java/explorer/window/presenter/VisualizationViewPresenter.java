@@ -255,7 +255,6 @@ public class VisualizationViewPresenter {
                 visController.getVisualizationStackPane().getChildren().remove(overlay);
                 loadHumanBody();
             });
-            // TODO: eventually add "download" button that allows to fetch the files
 
             overlay.setCenter(openButton);
             visController.getVisualizationStackPane().getChildren().add(overlay);
