@@ -107,7 +107,11 @@ public class SelectionViewPresenter {
         Search search = new Search();
 
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.isEmpty()) search.resetSearch();
+            if (newValue.isEmpty()) {
+                search.resetSearch();
+                controller.getTreeViewIsA().getSelectionModel().clearSelection();
+                controller.getTreeViewPartOf().getSelectionModel().clearSelection();
+            }
             else {
                 search.performSearch(newValue, treeOfChoice(registry));
                 if (search.getNumberOfHits() > 0) {
