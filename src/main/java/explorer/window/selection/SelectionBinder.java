@@ -12,7 +12,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.shape.MeshView;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Binds a MeshSelection to TreeView and ListViews
@@ -85,11 +85,9 @@ public class SelectionBinder {
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            binding.scheduleSelection(() -> {
-                                                isSyncing.set(true);
-                                                multipleSelectionModel.select(associatedItem);
-                                                isSyncing.set(false);
-                                            });
+                                            isSyncing.set(true);
+                                            multipleSelectionModel.select(associatedItem);
+                                            isSyncing.set(false);
                                         }
                                     }
                                 }
@@ -110,7 +108,9 @@ public class SelectionBinder {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView addedMesh : change.getAddedSubList()) {
-                        binding.scheduleSelection(() -> selectNodeInTree(treeView, addedMesh.getId()));
+                        isSyncing.set(true);
+                        selectNodeInTree(treeView, addedMesh.getId());
+                        isSyncing.set(false);
                     }
                 }
                 if (change.wasRemoved()) {
@@ -139,7 +139,9 @@ public class SelectionBinder {
         if (itemsToSelect != null) {
             TreeViewBinding binding = treeViewBindings.get(treeView);
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                binding.scheduleSelection(() -> selectionModel.select(item));
+                binding.isSyncing.set(true);
+                selectionModel.select(item);
+                binding.isSyncing.set(false);
             }
         }
     }
@@ -204,22 +206,6 @@ public class SelectionBinder {
 
 
     private static class TreeViewBinding {
-        // Per-TreeView scheduler for debouncing selection updates
-        private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        private ScheduledFuture<?> pendingSelection;
-
-        /**
-         * Debounced execution of the given task on the JavaFX Application Thread.
-         *
-         * @param task the selection task to run.
-         */
-        void scheduleSelection(Runnable task) {
-            if (pendingSelection != null && !pendingSelection.isDone()) {
-                pendingSelection.cancel(false);
-            }
-            pendingSelection = scheduler.schedule(() -> Platform.runLater(task), 200, TimeUnit.MILLISECONDS);
-        }
-
         private final TreeView<AnatomyNode> treeView;
         // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
         private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
