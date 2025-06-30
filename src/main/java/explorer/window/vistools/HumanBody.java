@@ -2,6 +2,11 @@ package explorer.window.vistools;
 
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
+import explorer.window.command.CommandManager;
+import explorer.window.command.commands.ClearSelectedMeshCommand;
+import explorer.window.command.commands.HideMeshCommand;
+import explorer.window.command.commands.ResetHideCommand;
+import explorer.window.command.commands.SelectMeshCommand;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -43,7 +48,7 @@ public class HumanBody extends Group{
     private double mousePressX;
     private double mousePressY;
 
-    public void activateSelection(ToggleButton hideMode, Button resetHide) {
+    public void activateSelection(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
 
         LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
 
@@ -66,14 +71,13 @@ public class HumanBody extends Group{
                 Node clickedNode = event.getPickResult().getIntersectedNode();
                 if (clickedNode instanceof MeshView meshView) {
                     if (hideMode.isSelected()) {
-                        meshView.setVisible(false);
-                        hiddenMeshes.add(meshView);
+                        commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
                     }
                     else if (multipleMeshSelectionModel.contains(meshView)){
-                        multipleMeshSelectionModel.clearSelection(meshView);
+                        commandManager.executeCommand(new ClearSelectedMeshCommand(multipleMeshSelectionModel, meshView));
                     }
                     else {
-                        multipleMeshSelectionModel.select(meshView);
+                        commandManager.executeCommand(new SelectMeshCommand(multipleMeshSelectionModel, meshView));
                     }
                 }
             }
@@ -81,11 +85,7 @@ public class HumanBody extends Group{
 
         // button to reset the hidden meshes
         resetHide.setOnAction(event -> {
-            for (MeshView mesh : hiddenMeshes) {
-                mesh.setVisible(true);
-            }
-
-            hiddenMeshes.clear();
+            commandManager.executeCommand(new ResetHideCommand(hiddenMeshes));
         });
     }
 

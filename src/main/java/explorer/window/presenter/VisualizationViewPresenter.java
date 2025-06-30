@@ -362,7 +362,7 @@ public class VisualizationViewPresenter {
             }
         });
 
-        humanBody.activateSelection(hideMode, resetHide);
+        humanBody.activateSelection(hideMode, resetHide, registry.getCommandManager());
     }
 
     /**

@@ -53,6 +53,12 @@ public class MainViewController {
     private MenuItem menuButtonResetSelection;
 
     @FXML
+    private MenuItem menuButtonUndo;
+
+    @FXML
+    private MenuItem menuButtonRedo;
+
+    @FXML
     private MenuItem menuButtonRotateDown;
 
     @FXML
@@ -178,6 +184,14 @@ public class MainViewController {
 
     public MenuItem getMenuButtonInvalidConfig() {
         return menuButtonInvalidConfig;
+    }
+
+    public MenuItem getMenuButtonUndo() {
+        return menuButtonUndo;
+    }
+
+    public MenuItem getMenuButtonRedo() {
+        return menuButtonRedo;
     }
 
     /**

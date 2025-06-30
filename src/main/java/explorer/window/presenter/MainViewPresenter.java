@@ -2,10 +2,14 @@ package explorer.window.presenter;
 
 import explorer.model.AppConfig;
 import explorer.window.GuiRegistry;
+import explorer.window.command.Command;
+import explorer.window.command.CommandManager;
 import explorer.window.controller.MainViewController;
+import javafx.beans.binding.Bindings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.MenuItem;
 
 import java.util.Optional;
 
@@ -50,10 +54,34 @@ public class MainViewPresenter {
             }
         });
 
+
         // EDIT
         mainController.getMenuButtonResetSelection().setOnAction(event -> {
             registry.getSelectionViewController().getClearSelectionButton().fire();
         });
+
+        MenuItem undoMenu = mainController.getMenuButtonUndo();
+        MenuItem redoMenu = mainController.getMenuButtonRedo();
+        CommandManager commandManager = registry.getCommandManager();
+
+        undoMenu.textProperty().bind(Bindings.createStringBinding(()  -> {
+            Command cmd = commandManager.getLastUndoCommand().getValue();
+            return cmd != null ? "Undo: " + cmd.name() : "Undo";
+        }, commandManager.getLastUndoCommand()));
+
+        undoMenu.setOnAction(event -> {
+            commandManager.undo();
+        });
+
+        redoMenu.textProperty().bind(Bindings.createStringBinding(() -> {
+            Command cmd = commandManager.getLastRedoCommand().getValue();
+            return cmd != null ? "Redo: " + cmd.name() : "Redo";
+        }, commandManager.getLastRedoCommand()));
+
+        redoMenu.setOnAction(event -> {
+            commandManager.redo();
+        });
+
 
         // VIEW
         mainController.getMenuButtonExpandIsA().setOnAction(event -> {
@@ -71,6 +99,7 @@ public class MainViewPresenter {
         mainController.getMenuButtonShowSelectionList().setOnAction(event -> {
             registry.getSelectionViewController().getSelectionListToggle().fire();
         });
+
 
         // TRANSFORMATIONS
         mainController.getMenuButtonRotateUp().setOnAction(event -> {

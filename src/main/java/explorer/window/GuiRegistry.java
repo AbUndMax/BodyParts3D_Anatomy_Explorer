@@ -1,5 +1,6 @@
 package explorer.window;
 
+import explorer.window.command.CommandManager;
 import explorer.window.controller.*;
 import explorer.window.presenter.MainViewPresenter;
 import explorer.window.presenter.SelectionViewPresenter;
@@ -20,6 +21,8 @@ public class GuiRegistry {
     private final MainViewPresenter mainViewPresenter;
     private final SelectionViewPresenter selectionViewPresenter;
     private final VisualizationViewPresenter visualizationViewPresenter;
+
+    private final CommandManager commandManager = new CommandManager();
 
     public GuiRegistry() throws IOException {
         URL mainFXML = getClass().getResource("/fxml/MainView.fxml");
@@ -60,5 +63,9 @@ public class GuiRegistry {
 
     public VisualizationViewPresenter getVisualizationViewPresenter() {
         return visualizationViewPresenter;
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }
