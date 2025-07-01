@@ -83,11 +83,12 @@ public class SelectionViewPresenter {
         controller.getButtonSelectAtTreeNode().setOnAction(e -> {
             TreeUtils.selectAllBelowGivenNode(selectedItem(), lastFocusedTreeView.getSelectionModel());
         });
-        // TODO: setOnActions & eventually add new button: clear selection (austauschen von "inverse selection" to "clear selection")
-        controller.getButtonExpandAtTreeNode().setOnAction(e ->
-                TreeUtils.expandAllBelowGivenNode(selectedItem()));
-        controller.getButtonCollapseAtTreeNode().setOnAction(e ->
-                TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
+
+        MenuButton toggleButton = controller.getToggleMenuButton();
+        MenuItem expandItem = toggleButton.getItems().get(0);
+        MenuItem collapseItem = toggleButton.getItems().get(1);
+        expandItem.setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));
+        collapseItem.setOnAction(e -> TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
     }
 
     /**
@@ -97,11 +98,11 @@ public class SelectionViewPresenter {
      * @param registry The ControllerRegistry containing references to UI elements.
      */
     private void setupSearchBar(GuiRegistry registry) {
-        TextField searchBar = registry.getVisualizationViewController().getTextFieldSearchBar();
-        Button nextButton = registry.getVisualizationViewController().getButtonFindNext();
-        Button firstButton = registry.getVisualizationViewController().getButtonFindFirst();
-        Button allButton = registry.getVisualizationViewController().getButtonFindAll();
-        Label hitLabel = registry.getVisualizationViewController().getSearchHitLabel();
+        TextField searchBar = controller.getTextFieldSearchBar();
+        Button nextButton = controller.getButtonFindNext();
+        Button firstButton = controller.getButtonFindFirst();
+        Button allButton = controller.getButtonFindAll();
+        Label hitLabel = controller.getSearchHitLabel();
 
 
         Search search = new Search();
@@ -151,7 +152,7 @@ public class SelectionViewPresenter {
      * @return The selected TreeView (either isA or partOf).
      */
     private TreeView<AnatomyNode> treeOfChoice(GuiRegistry registry) {
-        ChoiceBox<String> choiceBox = registry.getVisualizationViewController().getSearchChoice();
+        ChoiceBox<String> choiceBox = controller.getSearchChoice();
 
         TreeView<AnatomyNode> isATree = registry.getSelectionViewController().getTreeViewIsA();
         TreeView<AnatomyNode> partOfTree = registry.getSelectionViewController().getTreeViewPartOf();

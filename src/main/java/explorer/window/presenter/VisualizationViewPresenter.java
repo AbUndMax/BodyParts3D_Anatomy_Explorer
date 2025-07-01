@@ -142,7 +142,6 @@ public class VisualizationViewPresenter {
                 camera.pan(deltaX, deltaY);
             }
             else {
-                System.out.println(deltaY);
                 camera.zoom(deltaY);
             }
         });
@@ -262,6 +261,17 @@ public class VisualizationViewPresenter {
         // set zoom functions
         visController.getButtonCntrlReset().setOnAction(e -> resetView(commandManager));
         setupZoomSlider(commandManager);
+
+        // set undo / redo functions
+        Button undo = visController.getUndoButton();
+        undo.setOnAction(event -> commandManager.undo());
+        Button redo = visController.getRedoButton();
+        redo.setOnAction(event -> commandManager.redo());
+
+        // Bind disable properties to CommandManager's last undo/redo command
+        undo.disableProperty().bind(commandManager.getLastUndoCommand().isNull());
+        redo.disableProperty().bind(commandManager.getLastRedoCommand().isNull());
+
     }
 
     /**
@@ -376,11 +386,11 @@ public class VisualizationViewPresenter {
      * clears all selections
      */
     private void setupClearSelectionButton(CommandManager commandManager) {
-        registry.getSelectionViewController().getClearSelectionButton().setOnAction(e -> {
+        visController.getClearSelectionButton().setOnAction(e -> {
             commandManager.executeCommand(new ClearSelectionCommand(humanBody,
                                                                     registry.getSelectionViewController().getTreeViewIsA(),
                                                                     registry.getSelectionViewController().getTreeViewPartOf(),
-                                                                    visController.getTextFieldSearchBar()));
+                                                                    registry.getSelectionViewController().getTextFieldSearchBar()));
         });
     }
 

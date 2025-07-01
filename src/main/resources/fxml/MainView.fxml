@@ -25,7 +25,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
-              <MenuItem fx:id="menuButtonResetSelection" mnemonicParsing="false" text="Reset Selection">
+              <MenuItem fx:id="menuButtonResetSelection" mnemonicParsing="false" text="Clear Selection">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="BACK_SPACE" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                      </accelerator></MenuItem>

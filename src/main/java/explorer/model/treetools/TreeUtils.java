@@ -25,8 +25,10 @@ public class TreeUtils {
 
     public static void preOrderTreeViewTraversal(TreeItem<AnatomyNode> item, Consumer<TreeItem<AnatomyNode>> function) {
         function.accept(item);
-        for (TreeItem<AnatomyNode> child : item.getChildren()) {
-            preOrderTreeViewTraversal(child, function);
+        if (item != null) {
+            for (TreeItem<AnatomyNode> child : item.getChildren()) {
+                preOrderTreeViewTraversal(child, function);
+            }
         }
     }
 

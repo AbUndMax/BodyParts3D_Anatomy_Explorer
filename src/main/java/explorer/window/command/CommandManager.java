@@ -27,8 +27,16 @@ public class CommandManager {
         }
     }
 
+    public boolean canUndo(){
+        return !undoStack.isEmpty();
+    }
+
+    public boolean canRedo(){
+        return !redoStack.isEmpty();
+    }
+
     public void undo(){
-        if (!undoStack.isEmpty()) {
+        if (canUndo()) {
             Command cmd = undoStack.pop();
             lastUndoCommand.set(undoStack.peek());
             cmd.undo();
@@ -38,7 +46,7 @@ public class CommandManager {
     }
 
     public void redo(){
-        if (!redoStack.isEmpty()) {
+        if (canRedo()) {
             Command cmd = redoStack.pop();
             lastRedoCommand.set(redoStack.peek());
             cmd.execute();

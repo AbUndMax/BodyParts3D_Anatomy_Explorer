@@ -6,13 +6,26 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 public class SelectionViewController {
     @FXML
-    private Button buttonCollapseAtTreeNode;
+    private MenuItem CollapseMenuItem;
 
     @FXML
-    private Button buttonExpandAtTreeNode;
+    private ToggleButton findConceptsToggle;
+
+    @FXML
+    private VBox findBox;
+
+    @FXML
+    private Button buttonFindAll;
+
+    @FXML
+    private Button buttonFindFirst;
+
+    @FXML
+    private Button buttonFindNext;
 
     @FXML
     private Button buttonSelectAtTreeNode;
@@ -24,13 +37,19 @@ public class SelectionViewController {
     private Button centerDivider2;
 
     @FXML
-    private Button clearSelectionButton;
-
-    @FXML
     private Button expandIsAView;
 
     @FXML
+    private MenuItem expandMenuItem;
+
+    @FXML
     private Button expandPartOfView;
+
+    @FXML
+    private ChoiceBox<String> searchChoice;
+
+    @FXML
+    private Label searchHitLabel;
 
     @FXML
     private BorderPane selectionListPane;
@@ -45,6 +64,12 @@ public class SelectionViewController {
     private ListView<String> selectionListView;
 
     @FXML
+    private TextField textFieldSearchBar;
+
+    @FXML
+    private MenuButton toggleMenuButton;
+
+    @FXML
     private TreeView<AnatomyNode> treeViewIsA;
 
     @FXML
@@ -53,12 +78,28 @@ public class SelectionViewController {
     @FXML
     private SplitPane treeViewSplitPane;
 
-    public Button getButtonCollapseAtTreeNode() {
-        return buttonCollapseAtTreeNode;
+    public MenuItem getCollapseMenuItem() {
+        return CollapseMenuItem;
     }
 
-    public Button getButtonExpandAtTreeNode() {
-        return buttonExpandAtTreeNode;
+    public ToggleButton getFindConceptsToggle() {
+        return findConceptsToggle;
+    }
+
+    public VBox getFindBox() {
+        return findBox;
+    }
+
+    public Button getButtonFindAll() {
+        return buttonFindAll;
+    }
+
+    public Button getButtonFindFirst() {
+        return buttonFindFirst;
+    }
+
+    public Button getButtonFindNext() {
+        return buttonFindNext;
     }
 
     public Button getButtonSelectAtTreeNode() {
@@ -77,12 +118,20 @@ public class SelectionViewController {
         return expandIsAView;
     }
 
+    public MenuItem getExpandMenuItem() {
+        return expandMenuItem;
+    }
+
     public Button getExpandPartOfView() {
         return expandPartOfView;
     }
 
-    public Button getClearSelectionButton() {
-        return clearSelectionButton;
+    public ChoiceBox<String> getSearchChoice() {
+        return searchChoice;
+    }
+
+    public Label getSearchHitLabel() {
+        return searchHitLabel;
     }
 
     public BorderPane getSelectionListPane() {
@@ -99,6 +148,14 @@ public class SelectionViewController {
 
     public ListView<String> getSelectionListView() {
         return selectionListView;
+    }
+
+    public TextField getTextFieldSearchBar() {
+        return textFieldSearchBar;
+    }
+
+    public MenuButton getToggleMenuButton() {
+        return toggleMenuButton;
     }
 
     public TreeView<AnatomyNode> getTreeViewIsA() {
@@ -121,6 +178,8 @@ public class SelectionViewController {
     public void initialize() {
         setDividerControls();
         setSelectionListControls();
+        setupSearchPane();
+        searchChoice.setValue("part-of");
     }
 
     /**
@@ -168,6 +227,16 @@ public class SelectionViewController {
                 // if not selected, remove the selectionListPane
                 items.remove(selectionListPane);
             }
+        });
+    }
+
+    private void setupSearchPane() {
+        findBox.setVisible(false);
+        findBox.setManaged(false);
+
+        findConceptsToggle.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            findBox.setVisible(isSelected);
+            findBox.setManaged(isSelected);
         });
     }
 }

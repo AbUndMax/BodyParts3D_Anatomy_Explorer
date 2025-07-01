@@ -1,42 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane minHeight="250.0" minWidth="350.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.SelectionViewController">
+<BorderPane minHeight="250.0" minWidth="350.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.SelectionViewController">
    <top>
-      <ToolBar BorderPane.alignment="CENTER">
-        <items>
-            <Button fx:id="buttonExpandAtTreeNode" mnemonicParsing="false" text="Expand">
-               <tooltip>
-                  <Tooltip text="Expand all children below selected node" />
-               </tooltip></Button>
-            <Button fx:id="buttonCollapseAtTreeNode" mnemonicParsing="false" text="Collapse">
-               <tooltip>
-                  <Tooltip text="Collapse up to selected node" />
-               </tooltip></Button>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select All Below">
-               <tooltip>
-                  <Tooltip text="Selects all Nodes below the selected one" />
-               </tooltip></Button>
-        </items>
-      </ToolBar>
+      <BorderPane BorderPane.alignment="CENTER">
+         <center>
+            <VBox fx:id="findBox">
+               <children>
+                  <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts">
+                     <VBox.margin>
+                        <Insets left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <HBox alignment="CENTER_LEFT">
+                     <ChoiceBox fx:id="searchChoice" prefWidth="80.0">
+                        <items>
+                           <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="part-of" />
+                              <String fx:value="is-a" />
+                           </FXCollections>
+                        </items>
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </ChoiceBox>
+                     <Button fx:id="buttonFindNext" disable="true" mnemonicParsing="false" text="Next">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </Button>
+                     <Button fx:id="buttonFindFirst" disable="true" mnemonicParsing="false" text="First">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </Button>
+                     <Button fx:id="buttonFindAll" disable="true" mnemonicParsing="false" text="All">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </Button>
+                     <Label fx:id="searchHitLabel" disable="true" text="0 / 0 hits">
+                        <HBox.margin>
+                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        </HBox.margin>
+                     </Label>
+                  </HBox>
+               </children>
+            </VBox>
+         </center>
+         <top>
+            <ToolBar BorderPane.alignment="CENTER">
+              <items>
+                  <MenuButton fx:id="toggleMenuButton" mnemonicParsing="false" text="Toggle">
+                    <items>
+                      <MenuItem fx:id="expandMenuItem" mnemonicParsing="false" text="Expand" />
+                      <MenuItem fx:id="CollapseMenuItem" mnemonicParsing="false" text="Collapse" />
+                    </items>
+                     <tooltip>
+                        <Tooltip text="Expand or Collapse all Nodes below the selected one" />
+                     </tooltip>
+                  </MenuButton>
+                  <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select">
+                     <tooltip>
+                        <Tooltip text="Selects all Nodes below the selected one" />
+                     </tooltip>
+                  </Button>
+                  <Separator orientation="VERTICAL" />
+                  <ToggleButton fx:id="findConceptsToggle" mnemonicParsing="false" text="Find Concepts">
+                     <tooltip>
+                        <Tooltip text="Opens the search tools and allows to search for specific words in either tree" />
+                     </tooltip></ToggleButton>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection">
+                     <tooltip>
+                        <Tooltip text="Opens a Panel that shows all concepts associated with the selected meshes" />
+                     </tooltip>
+                  </ToggleButton>
+              </items>
+            </ToolBar>
+         </top>
+      </BorderPane>
    </top>
-   <bottom>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
-            <Button fx:id="clearSelectionButton" mnemonicParsing="false" text="Clear Selection" />
-            <Region HBox.hgrow="ALWAYS" />
-            <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection List">
-               <tooltip>
-                  <Tooltip text="Opens a window that shows all concepts associated with the selected meshes" />
-               </tooltip></ToggleButton>
-        </items>
-      </ToolBar>
-   </bottom>
    <center>
       <SplitPane fx:id="selectionListSplitPane" dividerPositions="1.0" BorderPane.alignment="CENTER">
          <items>

@@ -57,7 +57,7 @@ public class MainViewPresenter {
 
         // EDIT
         mainController.getMenuButtonResetSelection().setOnAction(event -> {
-            registry.getSelectionViewController().getClearSelectionButton().fire();
+            registry.getVisualizationViewController().getClearSelectionButton().fire();
         });
 
         MenuItem undoMenu = mainController.getMenuButtonUndo();

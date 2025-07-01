@@ -86,12 +86,24 @@ public class TransformUtils {
         pane.setOnMouseReleased(e -> {
             afterRotation[0] = new Affine(figure.getTransforms().getFirst());
             if (beforeRotation[0] != null && !beforeRotation[0].equals(afterRotation[0])) {
-                double dx = afterRotation[0].getTx() - beforeRotation[0].getTx();
-                double dy = afterRotation[0].getTy() - beforeRotation[0].getTy();
-                double dz = afterRotation[0].getTz() - beforeRotation[0].getTz();
+                double deltaMxx = Math.abs(afterRotation[0].getMxx() - beforeRotation[0].getMxx());
+                double deltaMxy = Math.abs(afterRotation[0].getMxy() - beforeRotation[0].getMxy());
+                double deltaMxz = Math.abs(afterRotation[0].getMxz() - beforeRotation[0].getMxz());
 
-                double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                if (distance > 0.5) { // Threshold to ignore micro-movements
+                double deltaMyx = Math.abs(afterRotation[0].getMyx() - beforeRotation[0].getMyx());
+                double deltaMyy = Math.abs(afterRotation[0].getMyy() - beforeRotation[0].getMyy());
+                double deltaMyz = Math.abs(afterRotation[0].getMyz() - beforeRotation[0].getMyz());
+
+                double deltaMzx = Math.abs(afterRotation[0].getMzx() - beforeRotation[0].getMzx());
+                double deltaMzy = Math.abs(afterRotation[0].getMzy() - beforeRotation[0].getMzy());
+                double deltaMzz = Math.abs(afterRotation[0].getMzz() - beforeRotation[0].getMzz());
+
+                double rotationChange = deltaMxx + deltaMxy + deltaMxz
+                        + deltaMyx + deltaMyy + deltaMyz
+                        + deltaMzx + deltaMzy + deltaMzz;
+
+                // guard the executaion of the command so that micro-rotations do not get pushed to the undo stack.
+                if (rotationChange > 0.1) {
                     commandManager.executeCommand(new RotateMemoryCommand(figure, beforeRotation[0], afterRotation[0]));
                 }
             }
