@@ -1,7 +1,6 @@
 package explorer.window.vistools;
 
 import explorer.window.command.CommandManager;
-import explorer.window.command.commands.RotateCommand;
 import explorer.window.command.commands.RotateMemoryCommand;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
@@ -86,7 +85,16 @@ public class TransformUtils {
 
         pane.setOnMouseReleased(e -> {
             afterRotation[0] = new Affine(figure.getTransforms().getFirst());
-            commandManager.executeCommand(new RotateMemoryCommand(figure, beforeRotation[0], afterRotation[0]));
+            if (beforeRotation[0] != null && !beforeRotation[0].equals(afterRotation[0])) {
+                double dx = afterRotation[0].getTx() - beforeRotation[0].getTx();
+                double dy = afterRotation[0].getTy() - beforeRotation[0].getTy();
+                double dz = afterRotation[0].getTz() - beforeRotation[0].getTz();
+
+                double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (distance > 0.5) { // Threshold to ignore micro-movements
+                    commandManager.executeCommand(new RotateMemoryCommand(figure, beforeRotation[0], afterRotation[0]));
+                }
+            }
         });
     }
 }
