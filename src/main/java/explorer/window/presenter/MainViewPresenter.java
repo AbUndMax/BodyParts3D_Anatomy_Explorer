@@ -103,39 +103,39 @@ public class MainViewPresenter {
 
         // TRANSFORMATIONS
         mainController.getMenuButtonRotateUp().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().rotateContentGroupUp();
+            registry.getVisualizationViewPresenter().rotateContentGroupUp(commandManager);
         });
         mainController.getMenuButtonRotateDown().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().rotateContentGroupDown();
+            registry.getVisualizationViewPresenter().rotateContentGroupDown(commandManager);
         });
         mainController.getMenuButtonRotateLeft().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().rotateContentGroupLeft();
+            registry.getVisualizationViewPresenter().rotateContentGroupLeft(commandManager);
         });
         mainController.getMenuButtonRotateRight().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().rotateContentGroupRight();
+            registry.getVisualizationViewPresenter().rotateContentGroupRight(commandManager);
         });
 
         mainController.getMenuButtonTranslateUp().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().translateContentGroupUp();
+            registry.getVisualizationViewPresenter().translateContentGroupUp(commandManager);
         });
         mainController.getMenuButtonTranslateDown().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().translateContentGroupDown();
+            registry.getVisualizationViewPresenter().translateContentGroupDown(commandManager);
         });
         mainController.getMenuButtonTranslateLeft().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().translateContentGroupLeft();
+            registry.getVisualizationViewPresenter().translateContentGroupLeft(commandManager);
         });
         mainController.getMenuButtonTranslateRight().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().translateContentGroupRight();
+            registry.getVisualizationViewPresenter().translateContentGroupRight(commandManager);
         });
 
         mainController.getMenuButtonResetPosition().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().resetView();
+            registry.getVisualizationViewPresenter().resetView(commandManager);
         });
         mainController.getMenuButtonZoomIn().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().zoomIntoContentGroup();
+            registry.getVisualizationViewPresenter().zoomIntoContentGroup(commandManager);
         });
         mainController.getMenuButtonZoomOut().setOnAction(event -> {
-            registry.getVisualizationViewPresenter().zoomOutContentGroup();
+            registry.getVisualizationViewPresenter().zoomOutContentGroup(commandManager);
         });
     }
 }

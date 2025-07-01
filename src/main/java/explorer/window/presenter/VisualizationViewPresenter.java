@@ -4,6 +4,9 @@ import explorer.model.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
 import explorer.window.GuiRegistry;
+import explorer.window.command.Command;
+import explorer.window.command.CommandManager;
+import explorer.window.command.commands.*;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
@@ -32,8 +35,6 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static explorer.window.vistools.TransformUtils.applyGlobalRotation;
-
 public class VisualizationViewPresenter {
 
     private final GuiRegistry registry;
@@ -41,7 +42,7 @@ public class VisualizationViewPresenter {
 
     // constants copied from assignment06
     // initial view on the tripod is saved as Affine. It is also used as reset position.
-    private static final Affine INITIAL_TRANSFORM = new Affine(
+    public static final Affine INITIAL_TRANSFORM = new Affine(
             1.0, 0.0, 0.0, 0.0,
             0.0, 0.0, -1.0, 0.0,
             0.0, 1.0, 0.0, 0.0
@@ -62,9 +63,9 @@ public class VisualizationViewPresenter {
         this.registry = registry;
         this.visController = registry.getVisualizationViewController();
 
-        contentGroup = setupVisualisationPane();
+        contentGroup = setupVisualisationPane(registry.getCommandManager());
         setupTripodPane();
-        setupVisualizationViewButtons();
+        setupVisualizationViewButtons(registry.getCommandManager());
         setupClearSelectionButton();
         setupMeshRenderControls();
     }
@@ -74,7 +75,7 @@ public class VisualizationViewPresenter {
      * Creates and configures a 3D scene with lighting, camera, and background color.
      * Adds the configured subscene to the application's 3D drawing pane.
      */
-    private Group setupVisualisationPane() {
+    private Group setupVisualisationPane(CommandManager commandManager) {
         Pane visualizationPane = visController.getVisualizationPane();
         Group contentGroup = new Group();
         Group root3d = new Group(contentGroup);
@@ -104,9 +105,10 @@ public class VisualizationViewPresenter {
         visualizationPane.getChildren().add(subScene);
 
         // setup rotation via mouse:
-        TransformUtils.setupMouseRotation(visualizationPane, contentGroup);
+        TransformUtils.setupMouseRotation(visualizationPane, contentGroup, commandManager);
+
         //add zoom functionality via scrolling
-        visualizationPane.setOnScroll(camera::zoomAndPanScrolling);
+        visPaneOnScroll(visualizationPane, commandManager);
 
         // focus on contentGroup
         camera.setFocus(contentGroup);
@@ -116,6 +118,58 @@ public class VisualizationViewPresenter {
         contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
 
         return contentGroup;
+    }
+
+    private void visPaneOnScroll(Pane visualizationPane, CommandManager commandManager) {
+
+        double[] scrollStartZoom = {0};
+        double[] scrollStartTranslateX = {0};
+        double[] scrollStartTranslateY = {0};
+
+        // Track when scroll starts
+        visualizationPane.setOnScrollStarted(event -> {
+
+            scrollStartZoom[0] = camera.getTranslateZ();
+            scrollStartTranslateX[0] = camera.getTranslateX();
+            scrollStartTranslateY[0] = camera.getTranslateY();
+        });
+
+        // Apply camera movement live
+        visualizationPane.setOnScroll(event -> {
+            double deltaY = camera.translateValue(event.getDeltaY()) * 0.9;
+            double deltaX = camera.translateValue(event.getDeltaX()) * 0.9;
+            if (event.isShiftDown()) { // if shift is pressed, instead if zooming, we pan the camera
+                camera.pan(deltaX, deltaY);
+            }
+            else {
+                System.out.println(deltaY);
+                camera.zoom(deltaY);
+            }
+        });
+
+        // When scrolling ends -> create command
+        visualizationPane.setOnScrollFinished(event -> {
+
+            if (event.isShiftDown()) {
+                double totalDeltaX = camera.getTranslateX() - scrollStartTranslateX[0];
+                double totalDeltaY = camera.getTranslateY() - scrollStartTranslateY[0];
+                if (totalDeltaX != 0 || totalDeltaY != 0) {
+                    commandManager.executeCommand(new TranslateMemoryCommand(camera,
+                                                                             scrollStartTranslateX[0],
+                                                                             scrollStartTranslateY[0],
+                                                                             camera.getTranslateX(),
+                                                                             camera.getTranslateY()));
+                }
+
+            } else {
+                double totalZoomDelta = camera.getTranslateZ() - scrollStartZoom[0];
+                if (totalZoomDelta != 0) {
+                    commandManager.executeCommand(new ZoomMemoryCommand(camera,
+                                                                        scrollStartZoom[0],
+                                                                        camera.getTranslateZ()));
+                }
+            }
+        });
     }
 
     /**
@@ -154,68 +208,66 @@ public class VisualizationViewPresenter {
     /**
      * Configures directional movement buttons and zoom controls for the 3D view.
      */
-    private void setupVisualizationViewButtons() {
+    private void setupVisualizationViewButtons(CommandManager commandManager) {
         // Record-Type for keeping the actions better together
         // with a small pun ... DirAction... DIRAction ... DIRECTION ... got it? ☚(ﾟヮﾟ☚)
-        record DirAction(Button btn, Point3D rotAxis, double rotAngle, Point3D trans) {}
+        record DirAction(Button btn, Command rotateCmd, Command translateCmd) {}
 
         // All directions and its corresponding buttons
         List<DirAction> actions = List.of(
                 // Left UP
                 new DirAction(visController.getButtonCntrlLeftUp(),
-                              new Point3D(1,0,1),   -ROTATION_STEP,
-                              new Point3D(1, 1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,0,1), -ROTATION_STEP),
+                              new TranslateCommand(camera, 1, 1)),
                 // UP
                 new DirAction(visController.getButtonCntrlUp(),
-                              new Point3D(1,0,0),   -ROTATION_STEP,
-                              new Point3D(0, 1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,0,0), -ROTATION_STEP),
+                              new TranslateCommand(camera, 0, 1)),
                 // Right UP
                 new DirAction(visController.getButtonCntrlRightUp(),
-                              new Point3D(1,1,0),   -ROTATION_STEP,
-                              new Point3D(-1, 1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,1,0), -ROTATION_STEP),
+                              new TranslateCommand(camera, -1, 1)),
                 // Left DOWN
                 new DirAction(visController.getButtonCntrlLeftDown(),
-                              new Point3D(1,1,0), ROTATION_STEP,
-                              new Point3D(1, -1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,1,0), ROTATION_STEP),
+                              new TranslateCommand(camera, 1, -1)),
                 // DOWN
                 new DirAction(visController.getButtonCntrlDown(),
-                              new Point3D(1,0,0), ROTATION_STEP,
-                              new Point3D(0, -1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,0,0), ROTATION_STEP),
+                              new TranslateCommand(camera, 0, -1)),
                 // Right DOWN
                 new DirAction(visController.getButtonCntrlRightDown(),
-                              new Point3D(1,0,1), ROTATION_STEP,
-                              new Point3D(-1, -1, 0)),
+                              new RotateCommand(contentGroup, new Point3D(1,0,1), ROTATION_STEP),
+                              new TranslateCommand(camera, -1, -1)),
                 // LEFT
                 new DirAction(visController.getButtonCntrlLeft(),
-                              new Point3D(0,1,0), ROTATION_STEP,
-                              new Point3D(1,0, 0)),
+                              new RotateCommand(contentGroup, new Point3D(0,1,0), ROTATION_STEP),
+                              new TranslateCommand(camera, -1 ,0)),
                 // RIGHT
                 new DirAction(visController.getButtonCntrlRight(),
-                              new Point3D(0,1,0),   -ROTATION_STEP,
-                              new Point3D(-1,0, 0))
+                              new RotateCommand(contentGroup, new Point3D(0,1,0), -ROTATION_STEP),
+                              new TranslateCommand(camera, -1, 0))
         );
 
         // Alle Action-Handler in der Schleife setzen
-        for (DirAction a : actions) {
-            a.btn().setOnAction(e -> {
-                if (visController.getRadioRotation().isSelected()) {
-                    applyGlobalRotation(contentGroup, a.rotAxis(), a.rotAngle());
-                } else {
-                    Point3D v = a.trans();
-                    camera.pan(v.getX(), v.getY());
-                }
+        for (DirAction action : actions) {
+            action.btn().setOnAction(e -> {
+                Command cmd = visController.getRadioRotation().isSelected()
+                        ? action.rotateCmd()
+                        : action.translateCmd();
+                commandManager.executeCommand(cmd);
             });
         }
 
         // set zoom functions
-        visController.getButtonCntrlReset().setOnAction(e -> resetView());
-        setupZoomSlider();
+        visController.getButtonCntrlReset().setOnAction(e -> resetView(commandManager));
+        setupZoomSlider(commandManager);
     }
 
     /**
      * sets up the zoom slider and its bidirectional binding of the camera position
      */
-    private void setupZoomSlider() {
+    private void setupZoomSlider(CommandManager commandManager) {
         Slider slider = visController.getZoomSlider();
 
         DoubleProperty sliderValue = new SimpleDoubleProperty();
@@ -228,9 +280,23 @@ public class VisualizationViewPresenter {
             sliderValue.set(-newVal.doubleValue());
         });
 
+        // setOnMousepressed and Released for Undo / Redo functionality
+        double[] startZoom = {0};
+
+        slider.setOnMousePressed(e -> {
+            startZoom[0] = camera.getTranslateZ();
+        });
+
+        slider.setOnMouseReleased(e -> {
+            double endZoom = camera.getTranslateZ();
+            if (startZoom[0] != endZoom) {
+                commandManager.executeCommand(new ZoomMemoryCommand(camera, startZoom[0], endZoom));
+            }
+        });
+
         // camera reacts to slider changes
-        sliderValue.addListener((obs, oldVal, newVal) -> {
-            camera.setTranslateZ(-newVal.doubleValue());
+        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            camera.setTranslateZ(-newVal.doubleValue()); // Live-Zoom without command
         });
 
         slider.valueProperty().bindBidirectional(sliderValue);
@@ -367,67 +433,66 @@ public class VisualizationViewPresenter {
     /**
      * Rotates the 3D content group upward along the X-axis.
      */
-    protected void rotateContentGroupUp() {
-        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), -ROTATION_STEP);
+    protected void rotateContentGroupUp(CommandManager commandManager) {
+        commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(1, 0, 0), -ROTATION_STEP));
     }
 
     /**
      * Rotates the 3D content group downward along the X-axis.
      */
-    protected void rotateContentGroupDown() {
-        applyGlobalRotation(contentGroup, new Point3D(1, 0, 0), ROTATION_STEP);
+    protected void rotateContentGroupDown(CommandManager commandManager) {
+        commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP));
     }
 
     /**
      * Rotates the 3D content group to the left along the Y-axis.
      */
-    protected void rotateContentGroupLeft() {
-        applyGlobalRotation(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP);
+    protected void rotateContentGroupLeft(CommandManager commandManager) {
+        commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP));
     }
 
     /**
      * Rotates the 3D content group to the right along the Y-axis.
      */
-    protected void rotateContentGroupRight() {
-        applyGlobalRotation(contentGroup, new Point3D(0,1, 0), -ROTATION_STEP);
+    protected void rotateContentGroupRight(CommandManager commandManager) {
+        commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0,1, 0), -ROTATION_STEP));
     }
 
-    protected void translateContentGroupUp() {
-        camera.pan(0, 1);
+    protected void translateContentGroupUp(CommandManager commandManager) {
+        commandManager.executeCommand(new TranslateCommand(camera, 0, 1));
     }
 
-    protected void translateContentGroupDown() {
-        camera.pan(0, -1);
+    protected void translateContentGroupDown(CommandManager commandManager) {
+        commandManager.executeCommand(new TranslateCommand(camera, 0, -1));
     }
 
-    protected void translateContentGroupLeft() {
-        camera.pan(1, 0);
+    protected void translateContentGroupLeft(CommandManager commandManager) {
+        commandManager.executeCommand(new TranslateCommand(camera, 1, 0));
     }
 
-    protected void translateContentGroupRight() {
-        camera.pan(-1, 0);
+    protected void translateContentGroupRight(CommandManager commandManager) {
+        commandManager.executeCommand(new TranslateCommand(camera, -1, 0));
     }
 
     /**
      * Zooms in the camera on the 3D content.
      */
-    protected void zoomIntoContentGroup() {
-        camera.zoomIn();
+    protected void zoomIntoContentGroup(CommandManager commandManager) {
+        commandManager.executeCommand(new ZoomCommand(camera, 1));
     }
 
     /**
      * Zooms out the camera from the 3D content.
      */
-    protected void zoomOutContentGroup() {
-        camera.zoomOut();
+    protected void zoomOutContentGroup(CommandManager commandManager) {
+        commandManager.executeCommand(new ZoomCommand(camera, -1));
     }
 
     /**
      * Resets the view of the 3D scene to its initial state by adjusting
      * the camera position and resetting the transformations of the content group.
      */
-    protected void resetView() {
-        camera.resetView();
-        contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
+    protected void resetView(CommandManager commandManager) {
+        commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
     }
 }

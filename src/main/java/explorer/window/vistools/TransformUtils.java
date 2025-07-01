@@ -1,9 +1,13 @@
 package explorer.window.vistools;
 
+import explorer.window.command.CommandManager;
+import explorer.window.command.commands.RotateCommand;
+import explorer.window.command.commands.RotateMemoryCommand;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
@@ -56,13 +60,18 @@ public class TransformUtils {
      *
      * SOURCE: modified based on assignment06 MouseRotate3D class
      */
-    public static void setupMouseRotation(Pane pane, Group figure) {
+    public static void setupMouseRotation(Pane pane, Group figure, CommandManager commandManager) {
         final double[] xPrev = new double[1];
         final double[] yPrev = new double[1];
+        final Affine[] beforeRotation = new Affine[1];
+        final Affine[] afterRotation = new Affine[1];
+
         pane.setOnMousePressed(e -> {
             xPrev[0] = e.getSceneX();
             yPrev[0] = e.getSceneY();
+            beforeRotation[0] = new Affine(figure.getTransforms().getFirst());
         });
+
         pane.setOnMouseDragged(e -> {
             var dx = e.getSceneX() - xPrev[0];
             var dy = e.getSceneY() - yPrev[0];
@@ -73,6 +82,11 @@ public class TransformUtils {
 
             xPrev[0] = e.getSceneX();
             yPrev[0] = e.getSceneY();
+        });
+
+        pane.setOnMouseReleased(e -> {
+            afterRotation[0] = new Affine(figure.getTransforms().getFirst());
+            commandManager.executeCommand(new RotateMemoryCommand(figure, beforeRotation[0], afterRotation[0]));
         });
     }
 }

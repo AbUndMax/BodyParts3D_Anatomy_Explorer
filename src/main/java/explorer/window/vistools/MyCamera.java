@@ -132,8 +132,8 @@ public class MyCamera extends PerspectiveCamera {
      *              scroll distance, and modifier keys that are pressed.
      */
     public void zoomAndPanScrolling(ScrollEvent event) {
-        double deltaY = translate(event.getDeltaY()) * 0.9;
-        double deltaX = translate(event.getDeltaX()) * 0.9;
+        double deltaY = translateValue(event.getDeltaY()) * 0.9;
+        double deltaX = translateValue(event.getDeltaX()) * 0.9;
         if (event.isShiftDown()) { // if shift is pressed, instead if zooming, we pan the camera
             this.pan(deltaX, deltaY);
         }
@@ -146,7 +146,7 @@ public class MyCamera extends PerspectiveCamera {
      * @param value
      * @return translation step
      */
-    private double translate(double value) {
+    public double translateValue(double value) {
         if (value > 0) {
             return translationValue * this.getTranslateZ() / maxZoomOut.getValue();
         } else if (value < 0) {
@@ -157,7 +157,7 @@ public class MyCamera extends PerspectiveCamera {
     }
 
     public void pan(double x, double y) {
-        this.setTranslateX(this.getTranslateX() + translate(x));
-        this.setTranslateY(this.getTranslateY() + translate(y));
+        this.setTranslateX(this.getTranslateX() + translateValue(x));
+        this.setTranslateY(this.getTranslateY() + translateValue(y));
     }
 }
