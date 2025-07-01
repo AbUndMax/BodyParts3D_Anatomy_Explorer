@@ -29,7 +29,7 @@
          <center>
             <VBox fx:id="findBox">
                <children>
-                  <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts">
+                  <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts or concepts">
                      <VBox.margin>
                         <Insets left="5.0" right="5.0" top="5.0" />
                      </VBox.margin>
@@ -45,6 +45,9 @@
                         <HBox.margin>
                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                         </HBox.margin>
+                        <tooltip>
+                           <Tooltip text="Select at tree that should be searched" />
+                        </tooltip>
                      </ChoiceBox>
                      <Button fx:id="buttonFindNext" disable="true" mnemonicParsing="false" text="Next">
                         <HBox.margin>
