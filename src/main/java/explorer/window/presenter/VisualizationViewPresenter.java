@@ -66,7 +66,7 @@ public class VisualizationViewPresenter {
         contentGroup = setupVisualisationPane(registry.getCommandManager());
         setupTripodPane();
         setupVisualizationViewButtons(registry.getCommandManager());
-        setupClearSelectionButton();
+        setupClearSelectionButton(registry.getCommandManager());
         setupMeshRenderControls();
     }
 
@@ -375,12 +375,12 @@ public class VisualizationViewPresenter {
     /**
      * clears all selections
      */
-    private void setupClearSelectionButton() {
+    private void setupClearSelectionButton(CommandManager commandManager) {
         registry.getSelectionViewController().getClearSelectionButton().setOnAction(e -> {
-            humanBody.getSelectionModel().clearSelection();
-            registry.getSelectionViewController().getTreeViewPartOf().getSelectionModel().clearSelection();
-            registry.getSelectionViewController().getTreeViewIsA().getSelectionModel().clearSelection();
-            visController.getTextFieldSearchBar().clear();
+            commandManager.executeCommand(new ClearSelectionCommand(humanBody,
+                                                                    registry.getSelectionViewController().getTreeViewIsA(),
+                                                                    registry.getSelectionViewController().getTreeViewPartOf(),
+                                                                    visController.getTextFieldSearchBar()));
         });
     }
 
