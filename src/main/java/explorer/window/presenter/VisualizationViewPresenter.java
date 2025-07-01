@@ -18,6 +18,7 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -32,6 +33,7 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -47,11 +49,17 @@ public class VisualizationViewPresenter {
             0.0, 0.0, -1.0, 0.0,
             0.0, 1.0, 0.0, 0.0
     );
+    public static final Affine INITIAL_TRANSFORM_B = new Affine(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, -1.0, 785.0,
+            0.0, 1.0, 0.0, 100.0
+    );
     private static final int ROTATION_STEP = 10;
 
     private final MyCamera camera = new MyCamera();
-    private HumanBody humanBody = new HumanBody();
+    private final HumanBody humanBody = new HumanBody();
     private final Group contentGroup;
+    private final Group anatomyGroup = new Group();
 
     /**
      * Initializes the visualization view presenter by setting up the 3D visualization,
@@ -67,6 +75,7 @@ public class VisualizationViewPresenter {
         setupTripodPane();
         setupVisualizationViewButtons(registry.getCommandManager());
         setupClearSelectionButton(registry.getCommandManager());
+        setupShowConceptButton(registry.getCommandManager());
         setupMeshRenderControls();
     }
 
@@ -110,8 +119,14 @@ public class VisualizationViewPresenter {
         //add zoom functionality via scrolling
         visPaneOnScroll(visualizationPane, commandManager);
 
-        // focus on contentGroup
-        camera.setFocus(contentGroup);
+        // focus on anatomyGroup
+        camera.setFocus(anatomyGroup);
+
+        TransformUtils.centerGroupToItself(anatomyGroup);
+
+        anatomyGroup.getChildren().addListener((ListChangeListener<Node>) change -> {
+            TransformUtils.centerGroupToItself(anatomyGroup);
+        });
 
         // load the human body parts after the GUI is rendered
         Platform.runLater(this::loadHumanBody);
@@ -354,10 +369,11 @@ public class VisualizationViewPresenter {
             protected void succeeded() {
                 super.succeeded();
                 visualizationStack.getChildren().remove(progressBar);
-                TransformUtils.centerGroupToItself(humanBody);
 
                 // add humanBody to the contentGroup
-                contentGroup.getChildren().add(humanBody);
+                anatomyGroup.getChildren().addAll(humanBody.getMeshes());
+                contentGroup.getChildren().add(anatomyGroup);
+                resetView(new CommandManager()); // dummy manager because this initial reset should not used as Command
 
                 // bind the TreeViews to the MeshSelection
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
@@ -391,6 +407,17 @@ public class VisualizationViewPresenter {
                                                                     registry.getSelectionViewController().getTreeViewIsA(),
                                                                     registry.getSelectionViewController().getTreeViewPartOf(),
                                                                     registry.getSelectionViewController().getTextFieldSearchBar()));
+        });
+    }
+
+    private void setupShowConceptButton(CommandManager commandManager) {
+        Button showConceptButton = visController.getShowConceptButton();
+
+        showConceptButton.setOnAction(e -> {
+            commandManager.executeCommand(
+                    new ShowConceptCommand(registry.getSelectionViewPresenter().getLastFocusedTreeView(),
+                                           anatomyGroup,
+                                           humanBody));
         });
     }
 
@@ -437,7 +464,50 @@ public class VisualizationViewPresenter {
             }
         });
 
-        humanBody.activateSelection(hideMode, resetHide, registry.getCommandManager());
+        setupOnClick(hideMode, resetHide, registry.getCommandManager());
+    }
+
+    private void setupOnClick(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
+        LinkedList<MeshView> hiddenMeshes = humanBody.getHiddenMeshes();
+
+        double[] mousePressX = new double[1];
+        double[] mousePressY = new double[1];
+
+        // save the position
+        contentGroup.setOnMousePressed(event -> {
+            mousePressX[0] = event.getScreenX();
+            mousePressY[0] = event.getScreenY();
+        });
+
+        // check release position
+        contentGroup.setOnMouseReleased(event -> {
+            double mouseReleaseX = event.getScreenX();
+            double mouseReleaseY = event.getScreenY();
+
+            double distance = Math.hypot(mouseReleaseX - mousePressX[0], mouseReleaseY - mousePressY[0]);
+
+            // if distance is small, its a klick and not a drag event!
+            // drag events are reserved for rotation / translation
+            if (distance < 5) {
+                Node clickedNode = event.getPickResult().getIntersectedNode();
+                if (clickedNode instanceof MeshView meshView) {
+                    if (hideMode.isSelected()) {
+                        commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
+                    }
+                    else if (humanBody.getSelectionModel().contains(meshView)){
+                        commandManager.executeCommand(new ClearSelectedMeshCommand(humanBody.getSelectionModel(), meshView));
+                    }
+                    else {
+                        commandManager.executeCommand(new SelectMeshCommand(humanBody.getSelectionModel(), meshView));
+                    }
+                }
+            }
+        });
+
+        // button to reset the hidden meshes
+        resetHide.setOnAction(event -> {
+            commandManager.executeCommand(new ResetHideCommand(hiddenMeshes));
+        });
     }
 
     /**

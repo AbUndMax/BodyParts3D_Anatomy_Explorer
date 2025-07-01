@@ -2,17 +2,8 @@ package explorer.window.vistools;
 
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
-import explorer.window.command.CommandManager;
-import explorer.window.command.commands.ClearSelectedMeshCommand;
-import explorer.window.command.commands.HideMeshCommand;
-import explorer.window.command.commands.ResetHideCommand;
-import explorer.window.command.commands.SelectMeshCommand;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import javafx.application.Platform;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -25,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HumanBody extends Group{
+public class HumanBody {
 
     // collect all meshes in a list and append them with addAll after all Meshes are parsed
     private final List<MeshView> collectedMeshes = Collections.synchronizedList(new ArrayList<>());
@@ -36,57 +27,15 @@ public class HumanBody extends Group{
     // meshSelection is interpreted as a SelectionModel for a humanBody instance
     private final MultipleMeshSelectionModel multipleMeshSelectionModel = new MultipleMeshSelectionModel(collectedMeshes);
 
+    // list of meshes that are set to visible(false)
+    private final LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
+
     // Shared default material for all MeshViews
     public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
     static {
         // setup default Material
         SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
         SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
-    }
-
-    // saves current mouseClicked positions
-    private double mousePressX;
-    private double mousePressY;
-
-    public void activateSelection(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
-
-        LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
-
-        // save the position
-        this.setOnMousePressed(event -> {
-            mousePressX = event.getScreenX();
-            mousePressY = event.getScreenY();
-        });
-
-        // check release position
-        this.setOnMouseReleased(event -> {
-            double mouseReleaseX = event.getScreenX();
-            double mouseReleaseY = event.getScreenY();
-
-            double distance = Math.hypot(mouseReleaseX - mousePressX, mouseReleaseY - mousePressY);
-
-            // if distance is small, its a klick and not a drag event!
-            // drag events are reserved for rotation / translation
-            if (distance < 5) {
-                Node clickedNode = event.getPickResult().getIntersectedNode();
-                if (clickedNode instanceof MeshView meshView) {
-                    if (hideMode.isSelected()) {
-                        commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
-                    }
-                    else if (multipleMeshSelectionModel.contains(meshView)){
-                        commandManager.executeCommand(new ClearSelectedMeshCommand(multipleMeshSelectionModel, meshView));
-                    }
-                    else {
-                        commandManager.executeCommand(new SelectMeshCommand(multipleMeshSelectionModel, meshView));
-                    }
-                }
-            }
-        });
-
-        // button to reset the hidden meshes
-        resetHide.setOnAction(event -> {
-            commandManager.executeCommand(new ResetHideCommand(hiddenMeshes));
-        });
     }
 
     /**
@@ -96,6 +45,10 @@ public class HumanBody extends Group{
      */
     public ConcurrentHashMap<String, MeshView> getFileIdToMeshMap() {
         return fileIdToMeshMap;
+    }
+
+    public MeshView getMeshOfFileID(String fileId) {
+        return fileIdToMeshMap.get(fileId);
     }
 
     /**
@@ -113,6 +66,10 @@ public class HumanBody extends Group{
 
     public List<MeshView> getMeshes() {
         return collectedMeshes;
+    }
+
+    public LinkedList<MeshView> getHiddenMeshes() {
+        return hiddenMeshes;
     }
 
     /**
@@ -158,8 +115,6 @@ public class HumanBody extends Group{
                 Platform.runLater(() -> progressCallback.accept(counter.incrementAndGet(), total));
             }
         });
-
-        Platform.runLater(() -> this.getChildren().addAll(collectedMeshes));
     }
 
     public void assignNames(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {

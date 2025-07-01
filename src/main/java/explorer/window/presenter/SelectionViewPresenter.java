@@ -24,6 +24,10 @@ public class SelectionViewPresenter {
         return lastFocusedTreeView.getSelectionModel().getSelectedItem();
     }
 
+    public TreeView<AnatomyNode> getLastFocusedTreeView() {
+        return lastFocusedTreeView;
+    }
+
     private final SelectionViewController controller;
 
     public SelectionViewPresenter(GuiRegistry registry) {

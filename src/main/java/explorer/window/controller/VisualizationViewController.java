@@ -82,6 +82,9 @@ public class VisualizationViewController {
     @FXML
     private Slider zoomSlider;
 
+    @FXML
+    private Button showConceptButton;
+
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
     }
@@ -180,6 +183,10 @@ public class VisualizationViewController {
 
     public Slider getZoomSlider() {
         return zoomSlider;
+    }
+
+    public Button getShowConceptButton() {
+        return showConceptButton;
     }
 
     @FXML
