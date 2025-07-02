@@ -1,16 +1,16 @@
 package explorer.model;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class AnatomyNode {
 
     private String conceptID;
     private String name;
-    private LinkedList<String> fileIDs;
-    private LinkedList<AnatomyNode> children;
+    private ArrayList<String> fileIDs;
+    private ArrayList<AnatomyNode> children;
 
-    public AnatomyNode(String conceptId, String name, LinkedList<AnatomyNode> children, LinkedList<String> fileIds) {
+    public AnatomyNode(String conceptId, String name, ArrayList<AnatomyNode> children, ArrayList<String> fileIds) {
         this.conceptID = conceptId;
         this.name = name;
         this.children = children;
@@ -29,11 +29,11 @@ public class AnatomyNode {
         return name;
     }
 
-    public LinkedList<String> getFileIDs() {
+    public ArrayList<String> getFileIDs() {
         return fileIDs;
     }
 
-    public LinkedList<AnatomyNode> getChildren() {
+    public ArrayList<AnatomyNode> getChildren() {
         return children;
     }
 
@@ -41,7 +41,7 @@ public class AnatomyNode {
         this.name = name;
     }
 
-    public void setFileIDs(LinkedList<String> fileIDs) {
+    public void setFileIDs(ArrayList<String> fileIDs) {
         this.fileIDs = fileIDs;
     }
 
@@ -49,7 +49,7 @@ public class AnatomyNode {
         this.fileIDs.add(objPath);
     }
 
-    public void setChildren(LinkedList<AnatomyNode> children) {
+    public void setChildren(ArrayList<AnatomyNode> children) {
         this.children = children;
     }
 

@@ -3,16 +3,16 @@ package explorer.window.command.commands;
 import explorer.window.command.Command;
 import javafx.scene.shape.MeshView;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class ResetHideCommand implements Command {
 
-    private final LinkedList<MeshView> hiddenMeshes;
-    private final LinkedList<MeshView> backupMeshes;
+    private final ArrayList<MeshView> hiddenMeshes;
+    private final ArrayList<MeshView> backupMeshes;
 
-    public ResetHideCommand(LinkedList<MeshView> hiddenMeshes) {
+    public ResetHideCommand(ArrayList<MeshView> hiddenMeshes) {
         this.hiddenMeshes = hiddenMeshes;
-        this.backupMeshes = new LinkedList<>(hiddenMeshes);
+        this.backupMeshes = new ArrayList<>(hiddenMeshes);
     }
 
     @Override

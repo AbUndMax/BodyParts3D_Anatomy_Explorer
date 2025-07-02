@@ -28,7 +28,7 @@ public class HumanBody {
     private final MultipleMeshSelectionModel multipleMeshSelectionModel = new MultipleMeshSelectionModel(collectedMeshes);
 
     // list of meshes that are set to visible(false)
-    private final LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
+    private final ArrayList<MeshView> hiddenMeshes = new ArrayList<>();
 
     // Shared default material for all MeshViews -> this lifts a heavy load since only one Material has to be managed
     // and thus memory is saved
@@ -73,7 +73,7 @@ public class HumanBody {
         return collectedMeshes;
     }
 
-    public LinkedList<MeshView> getHiddenMeshes() {
+    public ArrayList<MeshView> getHiddenMeshes() {
         return hiddenMeshes;
     }
 

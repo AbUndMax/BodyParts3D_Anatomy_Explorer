@@ -3,7 +3,7 @@ package explorer.model.treetools;
 import explorer.model.AnatomyNode;
 import java.io.*;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * This class was used only once to serialize the AnatomyNode tree to a kryo file for high performance tree Loading
@@ -28,8 +28,8 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializeIsATree() {
-        LinkedList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_inclusion_relation_list.txt");
-        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_element_parts.txt");
+        ArrayList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_inclusion_relation_list.txt");
+        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_element_parts.txt");
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA62955"); // root concept == "FMA62955" (anatomical entity)
         System.out.println(tree.toNewick()); // control tree
 
@@ -42,8 +42,8 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializePartOfTree() {
-        LinkedList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_inclusion_relation_list.txt");
-        HashMap<String, LinkedList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_element_parts.txt");
+        ArrayList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_inclusion_relation_list.txt");
+        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_element_parts.txt");
         AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA20394"); // root concept == "FMA20394" (human body)
         System.out.println(tree.toNewick()); // control tree
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/partOf_tree.kryo");
@@ -61,8 +61,8 @@ class TreeBuilder {
      *
      * SOURCE: assignment02
      */
-    private static LinkedList<Relation> loadRelationsFile(String filePath) {
-        LinkedList<Relation> relations = new LinkedList<>();
+    private static ArrayList<Relation> loadRelationsFile(String filePath) {
+        ArrayList<Relation> relations = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             reader.readLine(); // skip header
@@ -91,8 +91,8 @@ class TreeBuilder {
      *
      * SOURCE: assignment02
      */
-    private static HashMap<String, LinkedList<String>> loadElementFile(String filePath) {
-        HashMap<String, LinkedList<String>> IDtoFilelist = new HashMap<>();
+    private static HashMap<String, ArrayList<String>> loadElementFile(String filePath) {
+        HashMap<String, ArrayList<String>> IDtoFilelist = new HashMap<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -104,7 +104,7 @@ class TreeBuilder {
             while ((line=reader.readLine()) != null) {
                 String[] lineArr = line.split("\t");
                 String conceptID = lineArr[0].trim();
-                LinkedList<String> fileList = IDtoFilelist.containsKey(conceptID) ? IDtoFilelist.get(conceptID) : new LinkedList<String>();
+                ArrayList<String> fileList = IDtoFilelist.containsKey(conceptID) ? IDtoFilelist.get(conceptID) : new ArrayList<>();
                 fileList.add(lineArr[2].trim());
                 IDtoFilelist.put(conceptID, fileList);
             }
@@ -129,7 +129,7 @@ class TreeBuilder {
      *
      * SOURCE: assignment01
      */
-    private static AnatomyNode createTree(LinkedList<Relation> relations, HashMap<String, LinkedList<String>> conceptIDToFileID, String rootConceptID) {
+    private static AnatomyNode createTree(ArrayList<Relation> relations, HashMap<String, ArrayList<String>> conceptIDToFileID, String rootConceptID) {
         HashMap<String, AnatomyNode> idToNode = new HashMap<>();
 
         for (Relation relation : relations) {
@@ -138,8 +138,8 @@ class TreeBuilder {
             String childID = relation.childID();
             String childName = relation.childName();
 
-            AnatomyNode parentNode = idToNode.getOrDefault(parentID, new AnatomyNode(parentID, parentName, new LinkedList<>(), conceptIDToFileID.get(parentID)));
-            AnatomyNode childNode = idToNode.getOrDefault(childID, new AnatomyNode(childID, childName, new LinkedList<>(), conceptIDToFileID.get(childID)));
+            AnatomyNode parentNode = idToNode.getOrDefault(parentID, new AnatomyNode(parentID, parentName, new ArrayList<>(), conceptIDToFileID.get(parentID)));
+            AnatomyNode childNode = idToNode.getOrDefault(childID, new AnatomyNode(childID, childName, new ArrayList<>(), conceptIDToFileID.get(childID)));
             parentNode.addChild(childNode);
             idToNode.putIfAbsent(relation.parentID(), parentNode);
             idToNode.putIfAbsent(relation.childID(), childNode);

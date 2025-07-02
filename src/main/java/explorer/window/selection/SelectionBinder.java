@@ -56,7 +56,7 @@ public class SelectionBinder {
             while (change.next()) {
                 if (change.wasRemoved()) {
                     for (TreeItem<AnatomyNode> item : change.getRemoved()) {
-                        LinkedList<String> fileIDs = item.getValue().getFileIDs();
+                        ArrayList<String> fileIDs = item.getValue().getFileIDs();
 
                         // only selections on Leaves are counting as "selecting a mesh"
                         if (fileIDs != null && item.getValue().isLeaf()) {
@@ -68,7 +68,7 @@ public class SelectionBinder {
                 }
                 if (change.wasAdded()) {
                     for (TreeItem<AnatomyNode> item : change.getAddedSubList()) {
-                        LinkedList<String> fileIDs = item.getValue().getFileIDs();
+                        ArrayList<String> fileIDs = item.getValue().getFileIDs();
                         //DEBUG
                         //System.out.println("processing:" + item.getValue().getName());
                         //System.out.println("fileIDs:" + fileIDs);

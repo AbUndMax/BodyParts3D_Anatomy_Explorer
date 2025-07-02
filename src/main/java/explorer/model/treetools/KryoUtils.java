@@ -8,7 +8,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class KryoUtils {
 
@@ -25,7 +25,7 @@ public class KryoUtils {
 
         // Registrierungen wie beim Speichern (optional, aber empfohlen)
         kryo.register(AnatomyNode.class);
-        kryo.register(LinkedList.class);
+        kryo.register(ArrayList.class);
         kryo.register(String.class);
 
         try (Input input = new Input(new FileInputStream(kryoFilePath))) {
@@ -49,7 +49,7 @@ public class KryoUtils {
 
         // register classes
         kryo.register(AnatomyNode.class);
-        kryo.register(LinkedList.class);
+        kryo.register(ArrayList.class);
         kryo.register(String.class);
 
         // save to file

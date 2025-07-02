@@ -33,10 +33,8 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -493,7 +491,7 @@ public class VisualizationViewPresenter {
     }
 
     private void setupOnClick(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
-        LinkedList<MeshView> hiddenMeshes = humanBody.getHiddenMeshes();
+        ArrayList<MeshView> hiddenMeshes = humanBody.getHiddenMeshes();
 
         double[] mousePressX = new double[1];
         double[] mousePressY = new double[1];

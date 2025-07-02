@@ -3,14 +3,14 @@ package explorer.window.command.commands;
 import explorer.window.command.Command;
 import javafx.scene.shape.MeshView;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class HideMeshCommand implements Command {
 
     private final MeshView mesh;
-    private final LinkedList<MeshView> hiddenMeshes;
+    private final ArrayList<MeshView> hiddenMeshes;
 
-    public HideMeshCommand(MeshView mesh, LinkedList<MeshView> hiddenMeshes) {
+    public HideMeshCommand(MeshView mesh, ArrayList<MeshView> hiddenMeshes) {
         this.mesh = mesh;
         this.hiddenMeshes = hiddenMeshes;
     }
