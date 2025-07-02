@@ -207,5 +207,6 @@ public class VisualizationViewController {
     public void initialize() {
         radioLines.setUserData(DrawMode.LINE);
         radioFill.setUserData(DrawMode.FILL);
+        showFullHumanBodyMenuItem.setDisable(true);
     }
 }

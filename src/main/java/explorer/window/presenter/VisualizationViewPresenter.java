@@ -35,6 +35,7 @@ import javafx.scene.transform.Transform;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -415,8 +416,11 @@ public class VisualizationViewPresenter {
 
         // Main action of the SplitButton
         visController.getShowConceptButton().setOnAction(e -> {
-            commandManager.executeCommand(
-                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBody, true));
+            ArrayList<MeshView> meshesToShow = selectedMeshes();
+            if (!meshesToShow.isEmpty()) {
+                commandManager.executeCommand(
+                        new ShowConceptCommand(meshesToShow, anatomyGroup, humanBody, true));
+            }
         });
 
         // Additional MenuItem actions:
@@ -432,6 +436,13 @@ public class VisualizationViewPresenter {
             commandManager.executeCommand(
                     new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
             );
+        });
+
+        anatomyGroup.getChildren().addListener((ListChangeListener<Node>) change -> {
+            boolean humanBodyShown = new HashSet<>(anatomyGroup.getChildren())
+                    .containsAll(humanBody.getMeshes());
+
+            visController.getShowFullHumanBodyMenuItem().setDisable(humanBodyShown);
         });
     }
 
