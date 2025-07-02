@@ -83,7 +83,13 @@ public class VisualizationViewController {
     private Slider zoomSlider;
 
     @FXML
-    private Button showConceptButton;
+    private SplitMenuButton showConceptButton;
+
+    @FXML
+    private MenuItem addToCurrentShowMenuItem;
+
+    @FXML
+    private MenuItem showFullHumanBodyMenuItem;
 
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
@@ -185,8 +191,16 @@ public class VisualizationViewController {
         return zoomSlider;
     }
 
-    public Button getShowConceptButton() {
+    public SplitMenuButton getShowConceptButton() {
         return showConceptButton;
+    }
+
+    public MenuItem getAddToCurrentShowMenuItem() {
+        return addToCurrentShowMenuItem;
+    }
+
+    public MenuItem getShowFullHumanBodyMenuItem() {
+        return showFullHumanBodyMenuItem;
     }
 
     @FXML

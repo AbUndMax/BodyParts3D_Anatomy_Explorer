@@ -3,9 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
@@ -26,10 +28,12 @@
    <top>
       <ToolBar BorderPane.alignment="CENTER">
          <items>
-            <Button fx:id="showConceptButton" mnemonicParsing="false" text="Show Concept">
-               <tooltip>
-                  <Tooltip text="Removes the current model and shows only the meshes associated with the currently selected concepts" />
-               </tooltip></Button>
+            <SplitMenuButton fx:id="showConceptButton" mnemonicParsing="false" text="Show Concept">
+              <items>
+                <MenuItem fx:id="addToCurrentShowMenuItem" mnemonicParsing="false" text="Add To Current Show" />
+                <MenuItem fx:id="showFullHumanBodyMenuItem" mnemonicParsing="false" text="Show Full Human Body" />
+              </items>
+            </SplitMenuButton>
             <Separator orientation="VERTICAL" />
             <Button fx:id="clearSelectionButton" mnemonicParsing="false" text="Clear Selection">
                <tooltip>

@@ -88,11 +88,8 @@ public class SelectionViewPresenter {
             TreeUtils.selectAllBelowGivenNode(selectedItem(), lastFocusedTreeView.getSelectionModel());
         });
 
-        MenuButton toggleButton = controller.getToggleMenuButton();
-        MenuItem expandItem = toggleButton.getItems().get(0);
-        MenuItem collapseItem = toggleButton.getItems().get(1);
-        expandItem.setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));
-        collapseItem.setOnAction(e -> TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
+        controller.getExpandMenuItem().setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));
+        controller.getCollapseMenuItem().setOnAction(e -> TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
     }
 
     /**

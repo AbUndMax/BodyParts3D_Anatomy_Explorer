@@ -1,29 +1,32 @@
 package explorer.window.command.commands;
 
-import explorer.model.AnatomyNode;
 import explorer.window.command.Command;
 import explorer.window.vistools.HumanBody;
-import javafx.collections.ObservableList;
 import javafx.scene.Group;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.Node;
 import javafx.scene.shape.MeshView;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ShowConceptCommand implements Command {
 
-    private final TreeView<AnatomyNode> lastTree;
+    private List<MeshView> meshesToShow;
     private final Group anatomyGroup;
     private final HumanBody humanBody;
+    private final boolean deleteExisting;
 
-    private final LinkedList<MeshView> initialShownMeshes = new LinkedList<>();
-    private final LinkedList<MeshView> initialHiddenMeshes;
+    private final ArrayList<MeshView> initialShownMeshes = new ArrayList<>();
+    private final ArrayList<MeshView> initialHiddenMeshes;
 
-    public ShowConceptCommand(TreeView<AnatomyNode> lastTree, Group anatomyGroup, HumanBody humanBody) {
-        this.lastTree = lastTree;
+    public ShowConceptCommand(List<MeshView> meshesToShow, Group anatomyGroup, HumanBody humanBody, boolean deleteExisting) {
+        this.meshesToShow = meshesToShow;
         this.anatomyGroup = anatomyGroup;
         this.humanBody = humanBody;
+        this.deleteExisting = deleteExisting;
 
         for (var node : anatomyGroup.getChildren()) {
             if (node instanceof MeshView meshView) {
@@ -31,7 +34,7 @@ public class ShowConceptCommand implements Command {
             }
         }
 
-        initialHiddenMeshes = new LinkedList<>(humanBody.getHiddenMeshes());
+        initialHiddenMeshes = new ArrayList<>(humanBody.getHiddenMeshes());
     }
 
     @Override
@@ -41,17 +44,21 @@ public class ShowConceptCommand implements Command {
 
     @Override
     public void execute() {
-        anatomyGroup.getChildren().clear();
-        ObservableList<TreeItem<AnatomyNode>> selectedItems = lastTree.getSelectionModel().getSelectedItems();
-        LinkedList<MeshView> meshesToDraw = new LinkedList<>();
-        for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
-            for (String fileID : selectedItem.getValue().getFileIDs()) {
-                meshesToDraw.add(humanBody.getMeshOfFileID(fileID));
-            }
+        if (deleteExisting) {
+            anatomyGroup.getChildren().clear();
+
+        } else {
+            // if the new meshes should be added, check such that meshes that are not already shown are added
+            Set<MeshView> existingMeshes = new HashSet<>(initialShownMeshes);
+            Set<MeshView> meshesToAdd = new HashSet<>(meshesToShow);
+
+            meshesToAdd.removeAll(existingMeshes);
+
+            meshesToShow = new ArrayList<>(meshesToAdd);
         }
 
         // add Meshes and reset hidden meshes
-        anatomyGroup.getChildren().addAll(meshesToDraw);
+        anatomyGroup.getChildren().addAll(meshesToShow);
         for (MeshView meshView : humanBody.getHiddenMeshes()) {
             meshView.setVisible(true);
         }

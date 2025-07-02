@@ -30,7 +30,8 @@ public class HumanBody {
     // list of meshes that are set to visible(false)
     private final LinkedList<MeshView> hiddenMeshes = new LinkedList<>();
 
-    // Shared default material for all MeshViews
+    // Shared default material for all MeshViews -> this lifts a heavy load since only one Material has to be managed
+    // and thus memory is saved
     public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
     static {
         // setup default Material
@@ -51,6 +52,14 @@ public class HumanBody {
         return fileIdToMeshMap.get(fileId);
     }
 
+    public ArrayList<MeshView> getMeshesOfFilesIDs(List<String> fileIds) {
+        ArrayList<MeshView> meshes = new ArrayList<>();
+        for (String fileId : fileIds) {
+            meshes.add(getMeshOfFileID(fileId));
+        }
+        return meshes;
+    }
+
     /**
      * Returns the MeshSelection object that manages the selection state of MeshView objects.
      *
@@ -58,10 +67,6 @@ public class HumanBody {
      */
     public MultipleMeshSelectionModel getSelectionModel() {
         return multipleMeshSelectionModel;
-    }
-
-    public PhongMaterial getDefaultMaterial() {
-        return SHARED_DEFAULT_MATERIAL;
     }
 
     public List<MeshView> getMeshes() {

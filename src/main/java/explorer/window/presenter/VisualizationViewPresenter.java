@@ -32,7 +32,10 @@ import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Transform;
+
+import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -411,14 +414,36 @@ public class VisualizationViewPresenter {
     }
 
     private void setupShowConceptButton(CommandManager commandManager) {
-        Button showConceptButton = visController.getShowConceptButton();
 
-        showConceptButton.setOnAction(e -> {
+        // Main action of the SplitButton
+        visController.getShowConceptButton().setOnAction(e -> {
             commandManager.executeCommand(
-                    new ShowConceptCommand(registry.getSelectionViewPresenter().getLastFocusedTreeView(),
-                                           anatomyGroup,
-                                           humanBody));
+                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBody, true));
         });
+
+        // Additional MenuItem actions:
+
+        // add to current Shown meshes
+        visController.getAddToCurrentShowMenuItem().setOnAction(event -> {
+            commandManager.executeCommand(
+                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBody, false)
+            );
+        });
+
+        visController.getShowFullHumanBodyMenuItem().setOnAction(event -> {
+            commandManager.executeCommand(
+                    new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
+            );
+        });
+    }
+
+    private ArrayList<MeshView> selectedMeshes() {
+        ObservableList<TreeItem<AnatomyNode>> selectedItems = registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
+        ArrayList<MeshView> meshesToDraw = new ArrayList<>();
+        for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
+            meshesToDraw.addAll(humanBody.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
+        }
+        return meshesToDraw;
     }
 
     private void setupMeshRenderControls() {
@@ -448,7 +473,7 @@ public class VisualizationViewPresenter {
                     for (MeshView meshView : change.getRemoved()) {
                         Platform.runLater(() -> {
                             meshView.setDrawMode(line.isSelected() ? DrawMode.LINE : DrawMode.FILL);
-                            meshView.setMaterial(humanBody.getDefaultMaterial());
+                            meshView.setMaterial(HumanBody.SHARED_DEFAULT_MATERIAL);
                         });
                     }
                 }
