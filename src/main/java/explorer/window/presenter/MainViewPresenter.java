@@ -69,6 +69,8 @@ public class MainViewPresenter {
             return cmd != null ? "Undo: " + cmd.name() : "Undo";
         }, commandManager.getLastUndoCommand()));
 
+        undoMenu.disableProperty().bind(commandManager.getLastUndoCommand().isNull());
+
         undoMenu.setOnAction(event -> {
             commandManager.undo();
         });
@@ -77,6 +79,8 @@ public class MainViewPresenter {
             Command cmd = commandManager.getLastRedoCommand().getValue();
             return cmd != null ? "Redo: " + cmd.name() : "Redo";
         }, commandManager.getLastRedoCommand()));
+
+        redoMenu.disableProperty().bind(commandManager.getLastRedoCommand().isNull());
 
         redoMenu.setOnAction(event -> {
             commandManager.redo();

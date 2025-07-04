@@ -10,10 +10,7 @@ import explorer.window.command.commands.*;
 import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
-import explorer.window.vistools.Axes;
-import explorer.window.vistools.HumanBody;
-import explorer.window.vistools.MyCamera;
-import explorer.window.vistools.TransformUtils;
+import explorer.window.vistools.*;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -51,11 +48,6 @@ public class VisualizationViewPresenter {
             0.0, 0.0, -1.0, 0.0,
             0.0, 1.0, 0.0, 0.0
     );
-    public static final Affine INITIAL_TRANSFORM_B = new Affine(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, -1.0, 785.0,
-            0.0, 1.0, 0.0, 100.0
-    );
     private static final int ROTATION_STEP = 10;
 
     private final MyCamera camera = new MyCamera();
@@ -79,6 +71,7 @@ public class VisualizationViewPresenter {
         setupClearSelectionButton(registry.getCommandManager());
         setupShowConceptButton(registry.getCommandManager());
         setupMeshRenderControls();
+        setupAnimate();
     }
 
     /**
@@ -541,6 +534,12 @@ public class VisualizationViewPresenter {
         // button to reset the hidden meshes
         resetHide.setOnAction(event -> {
             commandManager.executeCommand(new ResetHideCommand(hiddenMeshes));
+        });
+    }
+
+    private void setupAnimate() {
+        visController.getExplosionMenuItem().setOnAction(event -> {
+            Animations.explodeGroup(anatomyGroup);
         });
     }
 

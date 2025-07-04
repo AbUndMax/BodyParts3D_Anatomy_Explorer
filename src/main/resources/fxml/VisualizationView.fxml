@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
@@ -163,11 +164,17 @@
                         <Color fx:constant="YELLOW" />
                      </value>
                   </ColorPicker>
-                  <ToggleButton fx:id="hideModeToggle" mnemonicParsing="false" prefWidth="100.0" text="Hide Mode">
+                  <ToggleButton fx:id="hideModeToggle" mnemonicParsing="false" prefWidth="105.0" text="Hide Mode">
                      <tooltip>
                         <Tooltip text="Activate or deactivate a Mode that will hide clicked meshes" />
                      </tooltip>
                   </ToggleButton>
+                  <MenuButton fx:id="animateMenuButton" mnemonicParsing="false" text="Animate">
+                    <items>
+                      <MenuItem fx:id="explosionMenuItem" mnemonicParsing="false" text="Explosion" />
+                      <MenuItem fx:id="pulseMenuItem" mnemonicParsing="false" text="Pulse" />
+                    </items>
+                  </MenuButton>
                   <RadioButton fx:id="radioLines" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" text="Lines">
                      <font>
                         <Font size="12.0" />

@@ -8,7 +8,7 @@ import java.util.Deque;
 
 public class CommandManager {
 
-    private static final int MAX_REDO = 20;
+    private static final int MAX_REDO = 100;
 
     private final Deque<Command> undoStack = new ArrayDeque<>();
     private final Deque<Command> redoStack = new ArrayDeque<>();
@@ -21,9 +21,12 @@ public class CommandManager {
         undoStack.push(cmd);
         lastUndoCommand.set(cmd);
 
-        // limit redo history to specific value to prevent endless stack growing
-        if (redoStack.size() > MAX_REDO) {
-            redoStack.removeLast();
+        // clear redo to maintain linear command history
+        redoStack.clear();
+
+        // limit undo history to specific value to prevent endless stack growing
+        if (undoStack.size() > MAX_REDO) {
+            undoStack.removeLast();
         }
     }
 

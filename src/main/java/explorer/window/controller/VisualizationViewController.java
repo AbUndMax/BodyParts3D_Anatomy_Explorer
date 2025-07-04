@@ -91,6 +91,15 @@ public class VisualizationViewController {
     @FXML
     private MenuItem showFullHumanBodyMenuItem;
 
+    @FXML
+    private MenuButton animateMenuButton;
+
+    @FXML
+    private MenuItem explosionMenuItem;
+
+    @FXML
+    private MenuItem pulseMenuItem;
+
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
     }
@@ -201,6 +210,18 @@ public class VisualizationViewController {
 
     public MenuItem getShowFullHumanBodyMenuItem() {
         return showFullHumanBodyMenuItem;
+    }
+
+    public MenuButton getAnimateMenuButton() {
+        return animateMenuButton;
+    }
+
+    public MenuItem getExplosionMenuItem() {
+        return explosionMenuItem;
+    }
+
+    public MenuItem getPulseMenuItem() {
+        return pulseMenuItem;
     }
 
     @FXML
