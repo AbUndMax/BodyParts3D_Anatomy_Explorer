@@ -416,8 +416,6 @@ public class VisualizationViewPresenter {
             }
         });
 
-        // Additional MenuItem actions:
-
         // add to current Shown meshes
         visController.getAddToCurrentShowMenuItem().setOnAction(event -> {
             commandManager.executeCommand(
@@ -425,12 +423,16 @@ public class VisualizationViewPresenter {
             );
         });
 
+        // TODO: button to remove selection from show
+
+        // show full human body
         visController.getShowFullHumanBodyMenuItem().setOnAction(event -> {
             commandManager.executeCommand(
                     new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
             );
         });
 
+        // control visibility of "show full human body" if full human body is already shown
         anatomyGroup.getChildren().addListener((ListChangeListener<Node>) change -> {
             boolean humanBodyShown = new HashSet<>(anatomyGroup.getChildren())
                     .containsAll(humanBody.getMeshes());
@@ -538,8 +540,14 @@ public class VisualizationViewPresenter {
     }
 
     private void setupAnimate() {
+        Animations animate = new Animations();
+
         visController.getExplosionMenuItem().setOnAction(event -> {
-            Animations.explodeGroup(anatomyGroup);
+            animate.explosion(anatomyGroup);
+        });
+
+        visController.getPulseMenuItem().setOnAction(event -> {
+            animate.pulse(anatomyGroup);
         });
     }
 

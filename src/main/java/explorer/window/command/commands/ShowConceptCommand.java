@@ -3,14 +3,12 @@ package explorer.window.command.commands;
 import explorer.window.command.Command;
 import explorer.window.vistools.HumanBody;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.shape.MeshView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ShowConceptCommand implements Command {
 
