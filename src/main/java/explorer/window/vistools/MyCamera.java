@@ -55,12 +55,12 @@ public class MyCamera extends PerspectiveCamera {
     public void setFocus(Group figure) {
         focusFullFigure(figure);
         // listening to the border allows to automatically follow the "explosion" animation
-        figure.boundsInParentProperty().addListener((obs, oldBounds, newBounds) -> {
-            this.focusFullFigure(figure);
-        });
-//        figure.getChildren().addListener((ListChangeListener<Node>) change -> {
+//        figure.boundsInParentProperty().addListener((obs, oldBounds, newBounds) -> {
 //            this.focusFullFigure(figure);
 //        });
+        figure.getChildren().addListener((ListChangeListener<Node>) change -> {
+            this.focusFullFigure(figure);
+        });
     }
 
     /**

@@ -17,6 +17,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -25,6 +26,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
+import javafx.scene.shape.CullFace;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
@@ -493,10 +496,10 @@ public class VisualizationViewPresenter {
             }
         });
 
-        setupOnClick(hideMode, resetHide, registry.getCommandManager());
+        setupMeshClickability(hideMode, resetHide, registry.getCommandManager());
     }
 
-    private void setupOnClick(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
+    private void setupMeshClickability(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
         ArrayList<MeshView> hiddenMeshes = humanBody.getHiddenMeshes();
 
         double[] mousePressX = new double[1];

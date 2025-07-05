@@ -8,6 +8,8 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import javafx.animation.Interpolator;
+import javafx.animation.Animation;
+import javafx.scene.transform.Scale;
 
 import java.util.*;
 
@@ -16,9 +18,13 @@ public class Animations {
     // Store original translate positions to allow resetting the explosion
     private final Map<Node, double[]> originalPositions = new HashMap<>();
 
-    private HashSet<Node> currentNodes = new HashSet<>();
+    private HashSet<Node> currentExplodingNodes = new HashSet<>();
+
+    private HashSet<Node> currentpulsingNodes = new HashSet<>();
 
     private boolean isExploded = false;
+
+    private Timeline pulseTimeline = null;
 
     public void explosion(Group group) {
 
@@ -41,7 +47,7 @@ public class Animations {
         animateExplosion(group);
 
         isExploded = true;
-        currentNodes = newNodes;
+        currentExplodingNodes = newNodes;
     }
 
     private void animateExplosion(Group group) {
@@ -150,12 +156,54 @@ public class Animations {
     }
 
     private boolean completeNewMeshes(HashSet<Node> groupMeshes) {
-        if (currentNodes == null || groupMeshes == null) return false;
+        if (currentExplodingNodes == null || groupMeshes == null) return false;
 
-        return Collections.disjoint(groupMeshes, currentNodes);
+        return Collections.disjoint(groupMeshes, currentExplodingNodes);
     }
 
     public void pulse(Group group) {
 
+        HashSet<Node> newNodes = new HashSet<>(group.getChildren());
+
+        // Stop any existing pulse animation and clean up old scale transforms
+        if (pulseTimeline != null) {
+            pulseTimeline.stop();
+            group.getTransforms().removeIf(t -> t instanceof Scale);
+            pulseTimeline = null;
+            return;
+        }
+
+        // Determine pivot at group's center
+        Bounds bounds = group.getBoundsInLocal();
+        double pivotX = bounds.getMinX() + bounds.getWidth() / 2;
+        double pivotY = bounds.getMinY() + bounds.getHeight() / 2;
+        double pivotZ = bounds.getMinZ() + bounds.getDepth() / 2;
+
+        // Create a Scale transform for pulsation
+        Scale pulseScale = new Scale(1, 1, 1, pivotX, pivotY, pivotZ);
+        group.getTransforms().add(pulseScale);
+
+        // Build a Timeline to animate scale in and out
+        pulseTimeline = new Timeline(
+            new KeyFrame(Duration.ZERO,
+                new KeyValue(pulseScale.xProperty(), 1),
+                new KeyValue(pulseScale.yProperty(), 1),
+                new KeyValue(pulseScale.zProperty(), 1)
+            ),
+            new KeyFrame(Duration.seconds(1.0),
+                new KeyValue(pulseScale.xProperty(), 1.1, Interpolator.EASE_BOTH),
+                new KeyValue(pulseScale.yProperty(), 1.1, Interpolator.EASE_BOTH),
+                new KeyValue(pulseScale.zProperty(), 1.1, Interpolator.EASE_BOTH)
+            ),
+            new KeyFrame(Duration.seconds(2.0),
+                new KeyValue(pulseScale.xProperty(), 1, Interpolator.EASE_BOTH),
+                new KeyValue(pulseScale.yProperty(), 1, Interpolator.EASE_BOTH),
+                new KeyValue(pulseScale.zProperty(), 1, Interpolator.EASE_BOTH)
+            )
+        );
+        pulseTimeline.setCycleCount(Animation.INDEFINITE);
+        pulseTimeline.play();
+
+        currentpulsingNodes = newNodes;
     }
 }
