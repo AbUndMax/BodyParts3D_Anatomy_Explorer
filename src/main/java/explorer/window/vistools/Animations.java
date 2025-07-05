@@ -23,8 +23,11 @@ public class Animations {
     private HashSet<Node> currentpulsingNodes = new HashSet<>();
 
     private boolean isExploded = false;
+    private boolean isPulsating = false;
 
-    private Timeline pulseTimeline = null;
+    // Per-node pulse state
+    private Map<Node, Timeline> pulseTimelines = new HashMap<>();
+    private Map<Node, Scale> pulseScales = new HashMap<>();
 
     public void explosion(Group group) {
 
@@ -33,7 +36,7 @@ public class Animations {
         // if some meshes are already exploded
         if (isExploded) {
             // either reset all "exploded" meshes if the new group contains only new meshes and continue to animate
-            if (completeNewMeshes(newNodes)) {
+            if (completeNewMeshes(currentExplodingNodes, newNodes)) {
                 resetExplosion();
 
             // or if some Meshes are already in the "show" than animate an un-explosion and return
@@ -46,7 +49,6 @@ public class Animations {
         // play the animation
         animateExplosion(group);
 
-        isExploded = true;
         currentExplodingNodes = newNodes;
     }
 
@@ -70,7 +72,7 @@ public class Animations {
 
         for (Node node : group.getChildren()) {
             // Compute the bounds of the current Node in the loop
-            Bounds boundsOfNode = node.getBoundsInParent();
+            Bounds boundsOfNode = node.getBoundsInLocal();
             double nodeX = boundsOfNode.getMinX() + boundsOfNode.getWidth()  / 2;
             double nodeY = boundsOfNode.getMinY() + boundsOfNode.getHeight() / 2;
             double nodeZ = boundsOfNode.getMinZ() + boundsOfNode.getDepth()  / 2;
@@ -110,6 +112,7 @@ public class Animations {
 
         // start the animation
         timeline.play();
+        isExploded = true;
     }
 
     /**
@@ -155,55 +158,106 @@ public class Animations {
         isExploded = false;
     }
 
-    private boolean completeNewMeshes(HashSet<Node> groupMeshes) {
-        if (currentExplodingNodes == null || groupMeshes == null) return false;
+    private boolean completeNewMeshes(HashSet<Node> currentNodes, HashSet<Node> groupMeshes) {
+        if (currentNodes == null || groupMeshes == null) return false;
 
-        return Collections.disjoint(groupMeshes, currentExplodingNodes);
+        return Collections.disjoint(groupMeshes, currentNodes);
     }
 
     public void pulse(Group group) {
 
         HashSet<Node> newNodes = new HashSet<>(group.getChildren());
 
-        // Stop any existing pulse animation and clean up old scale transforms
-        if (pulseTimeline != null) {
-            pulseTimeline.stop();
-            group.getTransforms().removeIf(t -> t instanceof Scale);
-            pulseTimeline = null;
-            return;
+        // Toggle off existing per-node animations
+        if (isPulsating) {
+
+            // if the shown Meshes are not completely new (i.e pulsating meshes are still shown)
+            // then just end the puls, otherwise we stop the pulse (of not shown Meshes) and directly start
+            // new pulse of shown meshes. This prevents to have to "double" klick the animate button when
+            // new Meshes are shown while the ones that were dismissed are stoll pulsing!
+            if (completeNewMeshes(currentpulsingNodes, newNodes)) {
+                stopPulsating();
+                return;
+            } else {
+                stopPulsating();
+            }
         }
 
-        // Determine pivot at group's center
-        Bounds bounds = group.getBoundsInLocal();
-        double pivotX = bounds.getMinX() + bounds.getWidth() / 2;
-        double pivotY = bounds.getMinY() + bounds.getHeight() / 2;
-        double pivotZ = bounds.getMinZ() + bounds.getDepth() / 2;
-
-        // Create a Scale transform for pulsation
-        Scale pulseScale = new Scale(1, 1, 1, pivotX, pivotY, pivotZ);
-        group.getTransforms().add(pulseScale);
-
-        // Build a Timeline to animate scale in and out
-        pulseTimeline = new Timeline(
-            new KeyFrame(Duration.ZERO,
-                new KeyValue(pulseScale.xProperty(), 1),
-                new KeyValue(pulseScale.yProperty(), 1),
-                new KeyValue(pulseScale.zProperty(), 1)
-            ),
-            new KeyFrame(Duration.seconds(1.0),
-                new KeyValue(pulseScale.xProperty(), 1.1, Interpolator.EASE_BOTH),
-                new KeyValue(pulseScale.yProperty(), 1.1, Interpolator.EASE_BOTH),
-                new KeyValue(pulseScale.zProperty(), 1.1, Interpolator.EASE_BOTH)
-            ),
-            new KeyFrame(Duration.seconds(2.0),
-                new KeyValue(pulseScale.xProperty(), 1, Interpolator.EASE_BOTH),
-                new KeyValue(pulseScale.yProperty(), 1, Interpolator.EASE_BOTH),
-                new KeyValue(pulseScale.zProperty(), 1, Interpolator.EASE_BOTH)
-            )
-        );
-        pulseTimeline.setCycleCount(Animation.INDEFINITE);
-        pulseTimeline.play();
+        animatePulse(group);
 
         currentpulsingNodes = newNodes;
+    }
+
+    private void animatePulse(Group group) {
+        // Find maximum mesh size to normalize pulse factors
+        double maxSize = 0;
+        Map<Node, Double> sizes = new HashMap<>();
+        for (Node node : group.getChildren()) {
+            Bounds nb = node.getBoundsInLocal();
+            double diag = Math.sqrt(nb.getWidth()*nb.getWidth()
+                                            + nb.getHeight()*nb.getHeight()
+                                            + nb.getDepth()*nb.getDepth());
+            sizes.put(node, diag);
+            if (diag > maxSize) maxSize = diag;
+        }
+        if (maxSize == 0) maxSize = 1; // avoid division by zero
+
+        // Start per-node pulse animations
+        for (Node node : group.getChildren()) {
+            double size = sizes.get(node);
+            double pulseFactor = 1.0 + (size / maxSize) * 0.2; // up to +20% for largest
+
+            // determine pivot for this mesh
+            Bounds nb = node.getBoundsInLocal();
+            double px = nb.getMinX() + nb.getWidth()/2;
+            double py = nb.getMinY() + nb.getHeight()/2;
+            double pz = nb.getMinZ() + nb.getDepth()/2;
+
+            // create and attach scale transform
+            Scale sc = new Scale(1, 1, 1, px, py, pz);
+            node.getTransforms().add(sc);
+            pulseScales.put(node, sc);
+
+            // build timeline
+            Timeline tl = new Timeline(
+                    new KeyFrame(Duration.ZERO,
+                                 new KeyValue(sc.xProperty(), 1),
+                                 new KeyValue(sc.yProperty(), 1),
+                                 new KeyValue(sc.zProperty(), 1)
+                    ),
+                    new KeyFrame(Duration.seconds(1),
+                                 new KeyValue(sc.xProperty(), pulseFactor, Interpolator.EASE_BOTH),
+                                 new KeyValue(sc.yProperty(), pulseFactor, Interpolator.EASE_BOTH),
+                                 new KeyValue(sc.zProperty(), pulseFactor, Interpolator.EASE_BOTH)
+                    ),
+                    new KeyFrame(Duration.seconds(2),
+                                 new KeyValue(sc.xProperty(), 1, Interpolator.EASE_BOTH),
+                                 new KeyValue(sc.yProperty(), 1, Interpolator.EASE_BOTH),
+                                 new KeyValue(sc.zProperty(), 1, Interpolator.EASE_BOTH)
+                    )
+            );
+            tl.setCycleCount(Animation.INDEFINITE);
+            tl.play();
+            pulseTimelines.put(node, tl);
+        }
+
+        isPulsating = true;
+    }
+
+    private void stopPulsating() {
+        if (!pulseTimelines.isEmpty()) {
+            for (Node node : pulseTimelines.keySet()) {
+                pulseTimelines.get(node).stop();
+                Scale sc = pulseScales.get(node);
+                if (sc != null) {
+                    node.getTransforms().remove(sc);
+                }
+            }
+            pulseTimelines.clear();
+            pulseScales.clear();
+            currentpulsingNodes.clear();
+        }
+
+        isPulsating = false;
     }
 }

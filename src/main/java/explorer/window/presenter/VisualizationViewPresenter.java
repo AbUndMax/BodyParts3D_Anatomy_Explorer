@@ -11,6 +11,7 @@ import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.*;
+import explorer.window.vistools.animations.Animation;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -35,6 +36,7 @@ import javafx.scene.transform.Transform;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,6 +59,7 @@ public class VisualizationViewPresenter {
     private final HumanBody humanBody = new HumanBody();
     private final Group contentGroup;
     private final Group anatomyGroup = new Group();
+    private final Animations animate = new Animations();
 
     /**
      * Initializes the visualization view presenter by setting up the 3D visualization,
@@ -543,7 +546,8 @@ public class VisualizationViewPresenter {
     }
 
     private void setupAnimate() {
-        Animations animate = new Animations();
+
+        HashMap<HashSet<Node>, Animation> nodesToAnimation = new HashMap<>();
 
         visController.getExplosionMenuItem().setOnAction(event -> {
             animate.explosion(anatomyGroup);
