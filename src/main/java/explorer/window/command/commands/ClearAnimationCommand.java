@@ -31,17 +31,17 @@ public class ClearAnimationCommand implements Command {
     @Override
     public void execute() {
         if (explosionAnimation.get() != null) {
-            explosionAnimation.get().stop();
+            explosionAnimation.get().reset();
             explosionAnimation.set(null);
         }
 
         if (pulseAnimation.get() != null) {
-            pulseAnimation.get().stop();
+            pulseAnimation.get().reset();
             pulseAnimation.set(null);
         }
 
         if (contRotateAnimation.get() != null) {
-            contRotateAnimation.get().stop();
+            contRotateAnimation.get().reset();
             contRotateAnimation.set(null);
         }
     }

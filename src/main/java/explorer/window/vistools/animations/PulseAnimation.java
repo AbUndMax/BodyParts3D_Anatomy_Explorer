@@ -85,7 +85,7 @@ public class PulseAnimation implements Animation {
     }
 
     @Override
-    public void reverse() {
+    public void reset() {
         this.stop();
     }
 

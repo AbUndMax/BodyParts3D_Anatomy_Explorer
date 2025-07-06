@@ -42,11 +42,10 @@ public class ContRotationAnimation implements Animation {
     }
 
     @Override
-    public void reverse() {
-        if (rotationTimeline != null) {
-            rotationTimeline.stop();
-            rotationTimeline = null;
-        }
+    public void reset() {
+        stop();
+        groupToAnimate.getTransforms().clear();
+        groupToAnimate.getTransforms().add(initialTransform);
         isRunning = false;
     }
 
@@ -59,9 +58,6 @@ public class ContRotationAnimation implements Animation {
             rotationTimeline.stop();
             rotationTimeline = null;
         }
-        groupToAnimate.getTransforms().clear();
-        groupToAnimate.getTransforms().add(initialTransform);
-        isRunning = false;
     }
 
     @Override

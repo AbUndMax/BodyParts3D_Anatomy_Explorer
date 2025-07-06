@@ -2,7 +2,6 @@ package explorer.window.command.commands;
 
 import explorer.window.command.Command;
 import explorer.window.vistools.animations.Animation;
-
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StopAnimationCommand implements Command {
@@ -22,7 +21,7 @@ public class StopAnimationCommand implements Command {
 
     @Override
     public void execute() {
-        animation.reverse();
+        animation.stop();
         currentAnimation.set(null);
     }
 

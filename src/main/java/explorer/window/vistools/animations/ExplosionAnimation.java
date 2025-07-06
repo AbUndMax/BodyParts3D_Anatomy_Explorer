@@ -108,7 +108,25 @@ public class ExplosionAnimation implements Animation {
     }
 
     @Override
-    public void reverse() {
+    public void reset() {
+        groupToAnimate.boundsInParentProperty().addListener(boundsListener);
+        if (originalPositions.isEmpty()) {
+            return; // nothing to reset
+        }
+        for (Node node : originalPositions.keySet()) {
+            double[] pos = originalPositions.get(node);
+            if (pos != null) {
+                node.setTranslateX(pos[0]);
+                node.setTranslateY(pos[1]);
+                node.setTranslateZ(pos[2]);
+            }
+        }
+        groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
+        isRunning = false;
+    }
+
+    @Override
+    public void stop() {
         groupToAnimate.boundsInParentProperty().addListener(boundsListener);
         if (originalPositions.isEmpty()) {
             return; // nothing to reset
@@ -131,24 +149,6 @@ public class ExplosionAnimation implements Animation {
             groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
             isRunning = false;
         });
-    }
-
-    @Override
-    public void stop() {
-        groupToAnimate.boundsInParentProperty().addListener(boundsListener);
-        if (originalPositions.isEmpty()) {
-            return; // nothing to reset
-        }
-        for (Node node : originalPositions.keySet()) {
-            double[] pos = originalPositions.get(node);
-            if (pos != null) {
-                node.setTranslateX(pos[0]);
-                node.setTranslateY(pos[1]);
-                node.setTranslateZ(pos[2]);
-            }
-        }
-        groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
-        isRunning = false;
     }
 
     @Override
