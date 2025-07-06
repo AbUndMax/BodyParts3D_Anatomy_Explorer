@@ -100,6 +100,9 @@ public class VisualizationViewController {
     @FXML
     private MenuItem pulseMenuItem;
 
+    @FXML
+    private MenuItem contRotateMenuItem;
+
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
     }
@@ -222,6 +225,10 @@ public class VisualizationViewController {
 
     public MenuItem getPulseMenuItem() {
         return pulseMenuItem;
+    }
+
+    public MenuItem getContRotateMenuItem() {
+        return contRotateMenuItem;
     }
 
     @FXML

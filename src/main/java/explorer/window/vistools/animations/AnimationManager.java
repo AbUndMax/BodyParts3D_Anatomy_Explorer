@@ -53,6 +53,9 @@ public class AnimationManager {
         if (currentContRotation.get() == null) {
             ContRotationAnimation contRotationAnimation = new ContRotationAnimation(groupToAnimate, rotationChange, initialTransform, rotationAxis);
             commandManager.executeCommand(new StartAnimationCommand(contRotationAnimation, currentContRotation));
+
+        } else if (currentContRotation.get().isRunning()) {
+            commandManager.executeCommand(new StopAnimationCommand(currentContRotation));
         }
     }
 

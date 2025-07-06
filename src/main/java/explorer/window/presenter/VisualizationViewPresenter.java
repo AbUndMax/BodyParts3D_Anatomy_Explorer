@@ -284,6 +284,13 @@ public class VisualizationViewPresenter {
             animationManager.pulse(anatomyGroup);
         });
 
+        visController.getContRotateMenuItem().setOnAction(event -> {
+            animationManager.contRotation(contentGroup,
+                                          1,
+                                          new Affine(contentGroup.getTransforms().getFirst()),
+                                          new Point3D(0, 1, 0));
+        });
+
         // set undo / redo functions
         Button undo = visController.getUndoButton();
         undo.setOnAction(event -> commandManager.undo());

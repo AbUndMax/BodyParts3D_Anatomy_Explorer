@@ -171,6 +171,7 @@
                   </ToggleButton>
                   <MenuButton fx:id="animateMenuButton" mnemonicParsing="false" text="Animate">
                     <items>
+                      <MenuItem fx:id="contRotateMenuItem" mnemonicParsing="false" text="Rotate" />
                       <MenuItem fx:id="explosionMenuItem" mnemonicParsing="false" text="Explosion" />
                       <MenuItem fx:id="pulseMenuItem" mnemonicParsing="false" text="Pulse" />
                     </items>
