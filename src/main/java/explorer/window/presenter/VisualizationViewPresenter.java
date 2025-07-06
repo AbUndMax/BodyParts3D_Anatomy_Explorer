@@ -11,9 +11,7 @@ import explorer.window.selection.MultipleMeshSelectionModel;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.*;
-import explorer.window.vistools.animations.Animation;
-import explorer.window.vistools.animations.ExplosionAnimation;
-import explorer.window.vistools.animations.PulseAnimation;
+import explorer.window.vistools.animations.AnimationManager;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -35,7 +33,6 @@ import javafx.scene.transform.Transform;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,8 +55,8 @@ public class VisualizationViewPresenter {
     private final HumanBody humanBody = new HumanBody();
     private final Group contentGroup;
     private final Group anatomyGroup = new Group();
-    private final AtomicReference<Animation> currentExplosionAnimation = new AtomicReference<>(null);
-    private final AtomicReference<Animation> currentPulseAnimation = new AtomicReference<>(null);
+    private final AnimationManager animationManager;
+
 
     /**
      * Initializes the visualization view presenter by setting up the 3D visualization,
@@ -71,13 +68,14 @@ public class VisualizationViewPresenter {
         this.registry = registry;
         this.visController = registry.getVisualizationViewController();
 
+        animationManager = new AnimationManager(registry.getCommandManager());
         contentGroup = setupVisualisationPane(registry.getCommandManager());
+
         setupTripodPane();
         setupVisualizationViewButtons(registry.getCommandManager());
         setupClearSelectionButton(registry.getCommandManager());
         setupShowConceptButton(registry.getCommandManager());
         setupMeshRenderControls();
-        setupAnimate(registry.getCommandManager());
     }
 
     /**
@@ -264,7 +262,7 @@ public class VisualizationViewPresenter {
                               new TranslateCommand(camera, -1, 0))
         );
 
-        // Alle Action-Handler in der Schleife setzen
+        // Setup all direction Buttons using a loop
         for (DirAction action : actions) {
             action.btn().setOnAction(e -> {
                 Command cmd = visController.getRadioRotation().isSelected()
@@ -277,6 +275,17 @@ public class VisualizationViewPresenter {
         // set zoom functions
         visController.getButtonCntrlReset().setOnAction(e -> resetView(commandManager));
         setupZoomSlider(commandManager);
+
+        // set animation buttons
+        visController.getExplosionMenuItem().setOnAction(event -> {
+            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
+            animationManager.explosion(meshesToAnimate, anatomyGroup.getBoundsInLocal());
+        });
+
+        visController.getPulseMenuItem().setOnAction(event -> {
+            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
+            animationManager.pulse(meshesToAnimate);
+        });
 
         // set undo / redo functions
         Button undo = visController.getUndoButton();
@@ -417,11 +426,11 @@ public class VisualizationViewPresenter {
         visController.getShowConceptButton().setOnAction(e -> {
             ArrayList<MeshView> meshesToShow = selectedMeshes();
             if (!meshesToShow.isEmpty()) {
+                animationManager.clearAnimations();
+
                 commandManager.executeCommand(
                         new ShowConceptCommand(meshesToShow, anatomyGroup, humanBody, true));
             }
-
-            resetAnimation();
         });
 
         // add to current Shown meshes
@@ -435,11 +444,11 @@ public class VisualizationViewPresenter {
 
         // show full human body
         visController.getShowFullHumanBodyMenuItem().setOnAction(event -> {
+            animationManager.clearAnimations();
+
             commandManager.executeCommand(
                     new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
             );
-
-            resetAnimation();
         });
 
         // control visibility of "show full human body" if full human body is already shown
@@ -549,35 +558,6 @@ public class VisualizationViewPresenter {
         });
     }
 
-    private void setupAnimate(CommandManager commandManager) {
-
-        visController.getExplosionMenuItem().setOnAction(event -> {
-            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
-
-            if (currentExplosionAnimation.get() == null) {
-                ExplosionAnimation explosion = new ExplosionAnimation(meshesToAnimate, anatomyGroup.getBoundsInLocal());
-                commandManager.executeCommand(new StartAnimationCommand(explosion, currentExplosionAnimation));
-
-            } else if (currentExplosionAnimation.get().isRunning()) {
-                commandManager.executeCommand(new StopAnimationCommand(currentExplosionAnimation));
-
-            }
-        });
-
-        visController.getPulseMenuItem().setOnAction(event -> {
-            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
-
-            if (currentPulseAnimation.get() == null) {
-                PulseAnimation pulse = new PulseAnimation(meshesToAnimate);
-                commandManager.executeCommand(new StartAnimationCommand(pulse, currentPulseAnimation));
-
-            } else if (currentPulseAnimation.get().isRunning()) {
-                commandManager.executeCommand(new StopAnimationCommand(currentPulseAnimation));
-
-            }
-        });
-    }
-
     /**
      * Rotates the 3D content group upward along the X-axis.
      */
@@ -642,17 +622,5 @@ public class VisualizationViewPresenter {
      */
     protected void resetView(CommandManager commandManager) {
         commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
-    }
-
-    private void resetAnimation() {
-        if (currentExplosionAnimation.get() != null) {
-            currentExplosionAnimation.get().stop();
-            currentExplosionAnimation.set(null);
-        }
-
-        if (currentPulseAnimation.get() != null) {
-            currentPulseAnimation.get().stop();
-            currentPulseAnimation.set(null);
-        }
     }
 }
