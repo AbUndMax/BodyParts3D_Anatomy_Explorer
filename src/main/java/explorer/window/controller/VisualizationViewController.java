@@ -103,6 +103,9 @@ public class VisualizationViewController {
     @FXML
     private MenuItem contRotateMenuItem;
 
+    @FXML
+    private MenuItem removeFromCurrentShowMenuItem;
+
     public Button getButtonCntrlDown() {
         return buttonCntrlDown;
     }
@@ -229,6 +232,10 @@ public class VisualizationViewController {
 
     public MenuItem getContRotateMenuItem() {
         return contRotateMenuItem;
+    }
+
+    public MenuItem getRemoveFromCurrentShowMenuItem() {
+        return removeFromCurrentShowMenuItem;
     }
 
     @FXML

@@ -32,6 +32,7 @@
             <SplitMenuButton fx:id="showConceptButton" mnemonicParsing="false" text="Show Concept">
               <items>
                 <MenuItem fx:id="addToCurrentShowMenuItem" mnemonicParsing="false" text="Add To Current Show" />
+                 <MenuItem fx:id="removeFromCurrentShowMenuItem" mnemonicParsing="false" text="Remove From Current Show" />
                 <MenuItem fx:id="showFullHumanBodyMenuItem" mnemonicParsing="false" text="Show Full Human Body" />
               </items>
             </SplitMenuButton>

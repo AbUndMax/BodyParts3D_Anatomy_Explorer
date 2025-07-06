@@ -445,6 +445,12 @@ public class VisualizationViewPresenter {
         });
 
         // TODO: button to remove selection from show
+        visController.getRemoveFromCurrentShowMenuItem().setOnAction(event -> {
+            animationManager.clearAnimations();
+
+            commandManager.executeCommand(
+                    new RemoveConceptCommand(selectedMeshes(), anatomyGroup));
+        });
 
         // show full human body
         visController.getShowFullHumanBodyMenuItem().setOnAction(event -> {
