@@ -278,13 +278,11 @@ public class VisualizationViewPresenter {
 
         // set animation buttons
         visController.getExplosionMenuItem().setOnAction(event -> {
-            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
-            animationManager.explosion(meshesToAnimate, anatomyGroup.getBoundsInLocal());
+            animationManager.explosion(anatomyGroup, camera);
         });
 
         visController.getPulseMenuItem().setOnAction(event -> {
-            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
-            animationManager.pulse(meshesToAnimate);
+            animationManager.pulse(anatomyGroup);
         });
 
         // set undo / redo functions
@@ -383,7 +381,7 @@ public class VisualizationViewPresenter {
                 // add humanBody to the contentGroup
                 anatomyGroup.getChildren().addAll(humanBody.getMeshes());
                 contentGroup.getChildren().add(anatomyGroup);
-                resetView(new CommandManager()); // dummy manager because this initial reset should not used as Command
+                resetView(null); // initial reset should not used as Command
 
                 // bind the TreeViews to the MeshSelection
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
@@ -621,6 +619,8 @@ public class VisualizationViewPresenter {
      * the camera position and resetting the transformations of the content group.
      */
     protected void resetView(CommandManager commandManager) {
-        commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
+        if (commandManager != null) {
+            commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
+        }
     }
 }

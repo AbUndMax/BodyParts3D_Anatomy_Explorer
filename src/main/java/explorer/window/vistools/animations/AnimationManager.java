@@ -4,7 +4,9 @@ import explorer.window.command.CommandManager;
 import explorer.window.command.commands.ClearAnimationCommand;
 import explorer.window.command.commands.StartAnimationCommand;
 import explorer.window.command.commands.StopAnimationCommand;
+import explorer.window.vistools.MyCamera;
 import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Node;
 
 import java.util.HashSet;
@@ -24,9 +26,9 @@ public class AnimationManager {
         this.commandManager = commandManager;
     }
 
-    public void explosion(HashSet<Node> meshesToAnimate, Bounds boundsInLocal) {
+    public void explosion(Group groupToAnimate, MyCamera camera) {
         if (currentExplosionAnimation.get() == null) {
-            ExplosionAnimation explosion = new ExplosionAnimation(meshesToAnimate, boundsInLocal);
+            ExplosionAnimation explosion = new ExplosionAnimation(groupToAnimate, camera);
             commandManager.executeCommand(new StartAnimationCommand(explosion, currentExplosionAnimation));
 
         } else if (currentExplosionAnimation.get().isRunning()) {
@@ -34,8 +36,9 @@ public class AnimationManager {
         }
     }
 
-    public void pulse(HashSet<Node> meshesToAnimate) {
+    public void pulse(Group groupToAnimate) {
         if (currentPulseAnimation.get() == null) {
+            HashSet<Node> meshesToAnimate = new HashSet<>(groupToAnimate.getChildren());
             PulseAnimation pulse = new PulseAnimation(meshesToAnimate);
             commandManager.executeCommand(new StartAnimationCommand(pulse, currentPulseAnimation));
 

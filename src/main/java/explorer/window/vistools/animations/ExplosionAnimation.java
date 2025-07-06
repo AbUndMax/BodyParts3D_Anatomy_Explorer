@@ -1,10 +1,13 @@
 package explorer.window.vistools.animations;
 
+import explorer.window.vistools.MyCamera;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.util.Duration;
 
@@ -14,21 +17,31 @@ import java.util.Map;
 
 public class ExplosionAnimation implements Animation {
 
+    private final Group groupToAnimate;
     private final HashSet<Node> animatedMeshes;
     private final Bounds boundsOfGroup;
+    private final MyCamera camera;
+    private final ChangeListener<Bounds> boundsListener;
 
     private boolean isRunning = false;
 
     // Store original translate positions to allow resetting the explosion
     private final Map<Node, double[]> originalPositions = new HashMap<>();
 
-    public ExplosionAnimation(HashSet<Node> meshesToAnimate, Bounds boundInLocal) {
-        this.animatedMeshes = meshesToAnimate;
-        this.boundsOfGroup = boundInLocal;
+    public ExplosionAnimation(Group groupToAnimate, MyCamera camera) {
+        this.groupToAnimate = groupToAnimate;
+        this.animatedMeshes = new HashSet<>(groupToAnimate.getChildren());
+        this.boundsOfGroup = groupToAnimate.getBoundsInLocal();
+        this.camera = camera;
+        boundsListener = (obs, oldBounds, newBounds) -> {
+            camera.focusFullFigure(groupToAnimate);
+        };
     }
 
     @Override
     public void start() {
+        groupToAnimate.boundsInParentProperty().addListener(boundsListener);
+
         // Clear any previous stored positions and record current positions
         originalPositions.clear();
         for (Node node : animatedMeshes) {
@@ -87,11 +100,16 @@ public class ExplosionAnimation implements Animation {
 
         // start the animation
         timeline.play();
-        isRunning = true;
+
+        timeline.setOnFinished(e -> {
+            groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
+            isRunning = true;
+        });
     }
 
     @Override
     public void reverse() {
+        groupToAnimate.boundsInParentProperty().addListener(boundsListener);
         if (originalPositions.isEmpty()) {
             return; // nothing to reset
         }
@@ -108,11 +126,16 @@ public class ExplosionAnimation implements Animation {
             resetTimeline.getKeyFrames().add(kf);
         }
         resetTimeline.play();
-        isRunning = false;
+
+        resetTimeline.setOnFinished(e -> {
+            groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
+            isRunning = false;
+        });
     }
 
     @Override
     public void stop() {
+        groupToAnimate.boundsInParentProperty().addListener(boundsListener);
         if (originalPositions.isEmpty()) {
             return; // nothing to reset
         }
@@ -124,6 +147,7 @@ public class ExplosionAnimation implements Animation {
                 node.setTranslateZ(pos[2]);
             }
         }
+        groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
         isRunning = false;
     }
 
