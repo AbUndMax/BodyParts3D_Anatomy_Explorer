@@ -1,6 +1,7 @@
 package explorer.window.selection;
 
 import explorer.model.AnatomyNode;
+import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBody;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.ListView;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SelectionBinder {
 
     // Observable list of currently selected Meshes -> SourceOfTruth FOR ALL SELECTIONS
-    MultipleMeshSelectionModel meshSelectionModel;
+    MeshSelectionManager meshSelectionModel;
 
     // connects fileID to a MeshView instance loaded from that fileID
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap;
@@ -81,7 +82,7 @@ public class SelectionBinder {
                                 meshSelectionModel.select(fileIdToMeshMap.get(fileID));
 
                                 // Select all TreeItems associated with this fileID
-                                Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+                                Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
                                 if (associatedItems != null) {
                                     for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
                                         if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
@@ -108,9 +109,7 @@ public class SelectionBinder {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView addedMesh : change.getAddedSubList()) {
-                        binding.isSyncing = true;
                         selectNodeInTree(treeView, addedMesh.getId());
-                        binding.isSyncing = false;
                     }
                 }
                 if (change.wasRemoved()) {
@@ -134,13 +133,10 @@ public class SelectionBinder {
         TreeItem<AnatomyNode> root = treeView.getRoot();
         if (root == null) return;
 
-        Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+        Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToSelect != null) {
-            TreeViewBinding binding = treeViewBindings.get(treeView);
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                binding.isSyncing = true;
                 selectionModel.select(item);
-                binding.isSyncing = false;
             }
         }
     }
@@ -156,7 +152,7 @@ public class SelectionBinder {
         TreeItem<AnatomyNode> root = treeView.getRoot();
         if (root == null) return;
 
-        Set<TreeItem<AnatomyNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToNode.get(fileID);
+        Set<TreeItem<AnatomyNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToDeSelect != null) {
             for (TreeItem<AnatomyNode> item : itemsToDeSelect) {
                 int index = treeView.getRow(item);
@@ -202,12 +198,32 @@ public class SelectionBinder {
         selectionList.setFocusTraversable(false);
     }
 
+    public void selectAllBelow(TreeItem<AnatomyNode> item, TreeView<AnatomyNode> treeView) {
+        TreeViewBinding binding = treeViewBindings.get(treeView);
 
+        // selection of the Model in TreeView and in my sourceOfTruth has to be performed seperatly and
+        binding.isSyncing = true;
+        ArrayList<MeshView> meshesToSelect = new ArrayList<>();
+        MultipleSelectionModel<TreeItem<AnatomyNode>> selModel = treeView.getSelectionModel();
+        selModel.clearSelection();
+
+        TreeUtils.preOrderTreeViewTraversal(item, node -> {
+            selModel.select(node);
+            for (String fileID : node.getValue().getFileIDs()) {
+                meshesToSelect.add(fileIdToMeshMap.get(fileID));
+            }
+        });
+
+        // using Batch selection to fire only ONE event for the listeners -> Crucial for correct TreeView SelectionModel
+        // selection above (receiving items from the source of truth)
+        meshSelectionModel.selectAll(meshesToSelect);
+        binding.isSyncing = false;
+    }
 
     private static class TreeViewBinding {
         private final TreeView<AnatomyNode> treeView;
-        // map fileID to AnatomyNode -> Set of Nodes is used because one FileID can be associated with multiple concepts
-        private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToNode = new HashMap<>();
+        // map fileID to TreeItem -> Set of Nodes is used because one FileID can be associated with multiple Items
+        private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToTreeItem = new HashMap<>();
         private boolean isSyncing = false;
 
         /**
@@ -232,7 +248,7 @@ public class SelectionBinder {
                 List<String> fileIDs = current.getValue().getFileIDs();
                 if (fileIDs != null) {
                     for (String fileID : fileIDs) {
-                        Set<TreeItem<AnatomyNode>> set = fileIdToNode
+                        Set<TreeItem<AnatomyNode>> set = fileIdToTreeItem
                             .computeIfAbsent(fileID, k -> new HashSet<>());
                         set.add(current);
                     }

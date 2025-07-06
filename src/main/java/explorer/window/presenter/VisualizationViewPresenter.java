@@ -7,7 +7,7 @@ import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
 import explorer.window.command.commands.*;
-import explorer.window.selection.MultipleMeshSelectionModel;
+import explorer.window.selection.MeshSelectionManager;
 import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.*;
@@ -394,7 +394,7 @@ public class VisualizationViewPresenter {
                 TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
                 ListView<String> listView = registry.getSelectionViewController().getSelectionListView();
                 humanBody.assignNames(isATreeView.getRoot(), partOfTreeView.getRoot());
-                SelectionBinder binder = new SelectionBinder(humanBody);
+                SelectionBinder binder = registry.getSelectionBinder();
                 binder.bindTreeView(isATreeView);
                 binder.bindTreeView(partOfTreeView);
                 binder.bindListView(listView);
@@ -444,7 +444,6 @@ public class VisualizationViewPresenter {
             );
         });
 
-        // TODO: button to remove selection from show
         visController.getRemoveFromCurrentShowMenuItem().setOnAction(event -> {
             animationManager.clearAnimations();
 
@@ -486,7 +485,7 @@ public class VisualizationViewPresenter {
         ToggleButton hideMode = visController.getHideModeToggle();
         Button resetHide = visController.getResetHideButton();
 
-        MultipleMeshSelectionModel meshSelectionModel = humanBody.getSelectionModel();
+        MeshSelectionManager meshSelectionModel = humanBody.getSelectionModel();
 
         // add a listener to the currentSelection list to make sure all selected nodes get colored
         // and all deselected nodes get the default coloring back
@@ -552,7 +551,7 @@ public class VisualizationViewPresenter {
                     if (hideMode.isSelected()) {
                         commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
                     }
-                    else if (humanBody.getSelectionModel().contains(meshView)){
+                    else if (humanBody.getSelectionModel().isSelected(meshView)){
                         commandManager.executeCommand(new ClearSelectedMeshCommand(humanBody.getSelectionModel(), meshView));
                     }
                     else {
@@ -634,5 +633,9 @@ public class VisualizationViewPresenter {
         if (commandManager != null) {
             commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
         }
+    }
+
+    public HumanBody getHumanBody() {
+        return humanBody;
     }
 }

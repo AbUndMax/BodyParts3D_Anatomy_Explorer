@@ -1,15 +1,15 @@
 package explorer.window.command.commands;
 
 import explorer.window.command.Command;
-import explorer.window.selection.MultipleMeshSelectionModel;
+import explorer.window.selection.MeshSelectionManager;
 import javafx.scene.shape.MeshView;
 
 public class SelectMeshCommand implements Command {
 
-    private final MultipleMeshSelectionModel model;
+    private final MeshSelectionManager model;
     private final MeshView mesh;
 
-    public SelectMeshCommand(MultipleMeshSelectionModel model, MeshView mesh) {
+    public SelectMeshCommand(MeshSelectionManager model, MeshView mesh) {
         this.model = model;
         this.mesh = mesh;
     }

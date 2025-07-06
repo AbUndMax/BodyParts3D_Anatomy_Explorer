@@ -10,6 +10,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.control.TreeView;
 
 public class SelectionViewPresenter {
 
@@ -42,7 +43,7 @@ public class SelectionViewPresenter {
         // default is partOf tree
         lastFocusedTreeView = treeViewPartOf;
 
-        setupButtons();
+        setupButtons(registry);
 
         setupSearchBar(registry);
     }
@@ -83,9 +84,9 @@ public class SelectionViewPresenter {
     /**
      * Configures the selection, expansion, and collapse buttons and their associated actions.
      */
-    private void setupButtons() {
+    private void setupButtons(GuiRegistry registry) {
         controller.getButtonSelectAtTreeNode().setOnAction(e -> {
-            TreeUtils.selectAllBelowGivenNode(selectedItem(), lastFocusedTreeView.getSelectionModel());
+            registry.getSelectionBinder().selectAllBelow(selectedItem(), lastFocusedTreeView);
         });
 
         controller.getExpandMenuItem().setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));

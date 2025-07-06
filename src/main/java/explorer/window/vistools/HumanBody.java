@@ -2,7 +2,7 @@ package explorer.window.vistools;
 
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
-import explorer.window.selection.MultipleMeshSelectionModel;
+import explorer.window.selection.MeshSelectionManager;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
@@ -25,7 +25,7 @@ public class HumanBody {
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap = new ConcurrentHashMap<>();
 
     // meshSelection is interpreted as a SelectionModel for a humanBody instance
-    private final MultipleMeshSelectionModel multipleMeshSelectionModel = new MultipleMeshSelectionModel(collectedMeshes);
+    private final MeshSelectionManager meshSelectionManager = new MeshSelectionManager(collectedMeshes);
 
     // list of meshes that are set to visible(false)
     private final ArrayList<MeshView> hiddenMeshes = new ArrayList<>();
@@ -65,8 +65,8 @@ public class HumanBody {
      *
      * @return the MeshSelection object used for selection management.
      */
-    public MultipleMeshSelectionModel getSelectionModel() {
-        return multipleMeshSelectionModel;
+    public MeshSelectionManager getSelectionModel() {
+        return meshSelectionManager;
     }
 
     public List<MeshView> getMeshes() {
