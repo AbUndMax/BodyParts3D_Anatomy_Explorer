@@ -113,7 +113,7 @@ public class VisualizationViewPresenter {
         visualizationPane.getChildren().add(subScene);
 
         // setup rotation via mouse:
-        TransformUtils.setupMouseRotation(visualizationPane, contentGroup, commandManager);
+        TransformUtils.setupMouseRotation(visualizationPane, contentGroup, commandManager, animationManager);
 
         //add zoom functionality via scrolling
         visPaneOnScroll(visualizationPane, commandManager);
@@ -121,8 +121,7 @@ public class VisualizationViewPresenter {
         // focus on anatomyGroup
         camera.setFocus(anatomyGroup);
 
-        TransformUtils.centerGroupToItself(anatomyGroup);
-
+        // add automatic centering each time the group gets changed
         anatomyGroup.getChildren().addListener((ListChangeListener<Node>) change -> {
             TransformUtils.centerGroupToItself(anatomyGroup);
         });

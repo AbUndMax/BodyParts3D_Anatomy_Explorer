@@ -11,12 +11,16 @@ public class ClearAnimationCommand implements Command {
     public final Animation initialExplosion;
     private final AtomicReference<Animation> pulseAnimation;
     private final Animation initalPulse;
+    private final AtomicReference<Animation> contRotateAnimation;
+    private final Animation initContRotate;
 
-    public ClearAnimationCommand(AtomicReference<Animation> explosionAnimation, AtomicReference<Animation> pulseAnimation) {
+    public ClearAnimationCommand(AtomicReference<Animation> explosionAnimation, AtomicReference<Animation> pulseAnimation, AtomicReference<Animation> contRotateAnimation) {
         this.explosionAnimation = explosionAnimation;
         initialExplosion = explosionAnimation.get();
         this.pulseAnimation = pulseAnimation;
         initalPulse = pulseAnimation.get();
+        this.contRotateAnimation = contRotateAnimation;
+        initContRotate = contRotateAnimation.get();
     }
 
     @Override
@@ -35,18 +39,28 @@ public class ClearAnimationCommand implements Command {
             pulseAnimation.get().stop();
             pulseAnimation.set(null);
         }
+
+        if (contRotateAnimation.get() != null) {
+            contRotateAnimation.get().stop();
+            contRotateAnimation.set(null);
+        }
     }
 
     @Override
     public void undo() {
-        if (initialExplosion != null) {
-            explosionAnimation.set(initalPulse);
-            initialExplosion.start();
+        if (explosionAnimation.get() == null && initialExplosion != null) {
+            explosionAnimation.set(initialExplosion);
+            explosionAnimation.get().start();
         }
 
-        if (pulseAnimation.get() != null) {
-            pulseAnimation.set(null);
-            initalPulse.start();
+        if (pulseAnimation.get() == null && initalPulse != null) {
+            pulseAnimation.set(initalPulse);
+            pulseAnimation.get().start();
+        }
+
+        if (contRotateAnimation.get() == null && initContRotate != null) {
+            contRotateAnimation.set(initContRotate);
+            contRotateAnimation.get().start();
         }
     }
 }

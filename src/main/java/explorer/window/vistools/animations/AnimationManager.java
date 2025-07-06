@@ -5,9 +5,10 @@ import explorer.window.command.commands.ClearAnimationCommand;
 import explorer.window.command.commands.StartAnimationCommand;
 import explorer.window.command.commands.StopAnimationCommand;
 import explorer.window.vistools.MyCamera;
-import javafx.geometry.Bounds;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.transform.Affine;
 
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,6 +20,7 @@ public class AnimationManager {
 
     private final AtomicReference<Animation> currentExplosionAnimation = new AtomicReference<>(null);
     private final AtomicReference<Animation> currentPulseAnimation = new AtomicReference<>(null);
+    private final AtomicReference<Animation> currentContRotation = new AtomicReference<>(null);
 
     private final CommandManager commandManager;
 
@@ -47,7 +49,23 @@ public class AnimationManager {
         }
     }
 
+    public void contRotation(Group groupToAnimate, double rotationChange, Affine initialTransform, Point3D rotationAxis) {
+        if (currentContRotation.get() == null) {
+            ContRotationAnimation contRotationAnimation = new ContRotationAnimation(groupToAnimate, rotationChange, initialTransform, rotationAxis);
+            commandManager.executeCommand(new StartAnimationCommand(contRotationAnimation, currentContRotation));
+        }
+    }
+
+    public boolean stopContRotation() {
+        if (currentContRotation.get() != null && currentContRotation.get().isRunning()) {
+            StopAnimationCommand stopAnimationCommand = new StopAnimationCommand(currentContRotation);
+            commandManager.executeCommand(stopAnimationCommand);
+            return true;
+        }
+        return false;
+    }
+
     public void clearAnimations() {
-        commandManager.executeCommand(new ClearAnimationCommand(currentExplosionAnimation, currentPulseAnimation));
+        commandManager.executeCommand(new ClearAnimationCommand(currentExplosionAnimation, currentPulseAnimation, currentContRotation));
     }
 }
