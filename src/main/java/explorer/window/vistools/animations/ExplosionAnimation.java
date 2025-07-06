@@ -28,7 +28,7 @@ public class ExplosionAnimation implements Animation {
     }
 
     @Override
-    public void play() {
+    public void start() {
         // Clear any previous stored positions and record current positions
         originalPositions.clear();
         for (Node node : animatedMeshes) {

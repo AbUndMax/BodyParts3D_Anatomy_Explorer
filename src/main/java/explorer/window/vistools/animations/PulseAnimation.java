@@ -9,24 +9,28 @@ import javafx.scene.Node;
 import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PulseAnimation implements Animation {
 
-    // Per-node pulse state
-    private Map<Node, Timeline> pulseTimelines = new HashMap<>();
-    private Map<Node, Scale> pulseScales = new HashMap<>();
+    // Holds per-node pulse state
+    private final Map<Node, PulseState> pulseStates = new HashMap<>();
+
+    // Encapsulates a node's pulse Scale and Timeline.
+    private record PulseState (Scale scale, Timeline timeline) {}
 
     private final HashSet<Node> animatedMeshes;
+
+    private boolean isRunning = false;
 
     public PulseAnimation(HashSet<Node> meshesToAnimate) {
         this.animatedMeshes = meshesToAnimate;
     }
 
     @Override
-    public void play() {
+    public void start() {
         // Find maximum mesh size to normalize pulse factors
         double maxSize = 0;
         Map<Node, Double> sizes = new HashMap<>();
@@ -52,32 +56,32 @@ public class PulseAnimation implements Animation {
             double pz = nb.getMinZ() + nb.getDepth()/2;
 
             // create and attach scale transform
-            Scale sc = new Scale(1, 1, 1, px, py, pz);
-            node.getTransforms().add(sc);
-            pulseScales.put(node, sc);
+            Scale scale = new Scale(1, 1, 1, px, py, pz);
+            node.getTransforms().add(scale);
 
             // build timeline
-            Timeline tl = new Timeline(
+            Timeline timeline = new Timeline(
                     new KeyFrame(Duration.ZERO,
-                                 new KeyValue(sc.xProperty(), 1),
-                                 new KeyValue(sc.yProperty(), 1),
-                                 new KeyValue(sc.zProperty(), 1)
+                                 new KeyValue(scale.xProperty(), 1),
+                                 new KeyValue(scale.yProperty(), 1),
+                                 new KeyValue(scale.zProperty(), 1)
                     ),
                     new KeyFrame(Duration.seconds(1),
-                                 new KeyValue(sc.xProperty(), pulseFactor, Interpolator.EASE_BOTH),
-                                 new KeyValue(sc.yProperty(), pulseFactor, Interpolator.EASE_BOTH),
-                                 new KeyValue(sc.zProperty(), pulseFactor, Interpolator.EASE_BOTH)
+                                 new KeyValue(scale.xProperty(), pulseFactor, Interpolator.EASE_BOTH),
+                                 new KeyValue(scale.yProperty(), pulseFactor, Interpolator.EASE_BOTH),
+                                 new KeyValue(scale.zProperty(), pulseFactor, Interpolator.EASE_BOTH)
                     ),
                     new KeyFrame(Duration.seconds(2),
-                                 new KeyValue(sc.xProperty(), 1, Interpolator.EASE_BOTH),
-                                 new KeyValue(sc.yProperty(), 1, Interpolator.EASE_BOTH),
-                                 new KeyValue(sc.zProperty(), 1, Interpolator.EASE_BOTH)
+                                 new KeyValue(scale.xProperty(), 1, Interpolator.EASE_BOTH),
+                                 new KeyValue(scale.yProperty(), 1, Interpolator.EASE_BOTH),
+                                 new KeyValue(scale.zProperty(), 1, Interpolator.EASE_BOTH)
                     )
             );
-            tl.setCycleCount(javafx.animation.Animation.INDEFINITE);
-            tl.play();
-            pulseTimelines.put(node, tl);
+            timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+            timeline.play();
+            pulseStates.put(node, new PulseState(scale, timeline));
         }
+        isRunning = true;
     }
 
     @Override
@@ -87,21 +91,17 @@ public class PulseAnimation implements Animation {
 
     @Override
     public void stop() {
-        if (!pulseTimelines.isEmpty()) {
-            for (Node node : pulseTimelines.keySet()) {
-                pulseTimelines.get(node).stop();
-                Scale sc = pulseScales.get(node);
-                if (sc != null) {
-                    node.getTransforms().remove(sc);
-                }
-            }
-            pulseTimelines.clear();
-            pulseScales.clear();
+        for (Node node : animatedMeshes) {
+            PulseState state = pulseStates.get(node);
+            state.timeline.stop();
+            node.getTransforms().remove(state.scale);
         }
+        pulseStates.clear();
+        isRunning = false;
     }
 
     @Override
     public boolean isRunning() {
-        return false;
+        return isRunning;
     }
 }

@@ -12,13 +12,14 @@ import explorer.window.selection.SelectionBinder;
 import explorer.window.controller.VisualizationViewController;
 import explorer.window.vistools.*;
 import explorer.window.vistools.animations.Animation;
+import explorer.window.vistools.animations.ExplosionAnimation;
+import explorer.window.vistools.animations.PulseAnimation;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -27,8 +28,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
 import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Affine;
@@ -59,7 +58,8 @@ public class VisualizationViewPresenter {
     private final HumanBody humanBody = new HumanBody();
     private final Group contentGroup;
     private final Group anatomyGroup = new Group();
-    private final Animations animate = new Animations();
+    private final AtomicReference<Animation> currentExplosionAnimation = new AtomicReference<>(null);
+    private final AtomicReference<Animation> currentPulseAnimation = new AtomicReference<>(null);
 
     /**
      * Initializes the visualization view presenter by setting up the 3D visualization,
@@ -77,7 +77,7 @@ public class VisualizationViewPresenter {
         setupClearSelectionButton(registry.getCommandManager());
         setupShowConceptButton(registry.getCommandManager());
         setupMeshRenderControls();
-        setupAnimate();
+        setupAnimate(registry.getCommandManager());
     }
 
     /**
@@ -420,6 +420,8 @@ public class VisualizationViewPresenter {
                 commandManager.executeCommand(
                         new ShowConceptCommand(meshesToShow, anatomyGroup, humanBody, true));
             }
+
+            resetAnimation();
         });
 
         // add to current Shown meshes
@@ -436,6 +438,8 @@ public class VisualizationViewPresenter {
             commandManager.executeCommand(
                     new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
             );
+
+            resetAnimation();
         });
 
         // control visibility of "show full human body" if full human body is already shown
@@ -545,16 +549,32 @@ public class VisualizationViewPresenter {
         });
     }
 
-    private void setupAnimate() {
-
-        HashMap<HashSet<Node>, Animation> nodesToAnimation = new HashMap<>();
+    private void setupAnimate(CommandManager commandManager) {
 
         visController.getExplosionMenuItem().setOnAction(event -> {
-            animate.explosion(anatomyGroup);
+            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
+
+            if (currentExplosionAnimation.get() == null) {
+                ExplosionAnimation explosion = new ExplosionAnimation(meshesToAnimate, anatomyGroup.getBoundsInLocal());
+                commandManager.executeCommand(new StartAnimationCommand(explosion, currentExplosionAnimation));
+
+            } else if (currentExplosionAnimation.get().isRunning()) {
+                commandManager.executeCommand(new StopAnimationCommand(currentExplosionAnimation));
+
+            }
         });
 
         visController.getPulseMenuItem().setOnAction(event -> {
-            animate.pulse(anatomyGroup);
+            HashSet<Node> meshesToAnimate = new HashSet<>(anatomyGroup.getChildren());
+
+            if (currentPulseAnimation.get() == null) {
+                PulseAnimation pulse = new PulseAnimation(meshesToAnimate);
+                commandManager.executeCommand(new StartAnimationCommand(pulse, currentPulseAnimation));
+
+            } else if (currentPulseAnimation.get().isRunning()) {
+                commandManager.executeCommand(new StopAnimationCommand(currentPulseAnimation));
+
+            }
         });
     }
 
@@ -622,5 +642,17 @@ public class VisualizationViewPresenter {
      */
     protected void resetView(CommandManager commandManager) {
         commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
+    }
+
+    private void resetAnimation() {
+        if (currentExplosionAnimation.get() != null) {
+            currentExplosionAnimation.get().stop();
+            currentExplosionAnimation.set(null);
+        }
+
+        if (currentPulseAnimation.get() != null) {
+            currentPulseAnimation.get().stop();
+            currentPulseAnimation.set(null);
+        }
     }
 }

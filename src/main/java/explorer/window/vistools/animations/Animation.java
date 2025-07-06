@@ -2,7 +2,7 @@ package explorer.window.vistools.animations;
 
 public interface Animation {
 
-    public void play();
+    public void start();
 
     public void reverse();
 
