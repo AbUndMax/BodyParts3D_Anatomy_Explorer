@@ -15,6 +15,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * Animation that causes meshes in a 3D group to "explode" outward from their center.
+ * Captures original mesh positions, computes explosion trajectories, and animates movement.
+ * Allows resetting and stopping the explosion for undo/reset functionality.
+ */
 public class ExplosionAnimation implements Animation {
 
     private final Group groupToAnimate;
@@ -28,6 +33,12 @@ public class ExplosionAnimation implements Animation {
     // Store original translate positions to allow resetting the explosion
     private final Map<Node, double[]> originalPositions = new HashMap<>();
 
+    /**
+     * Constructs an ExplosionAnimation for the specified group and camera.
+     *
+     * @param groupToAnimate the Group containing meshes to animate
+     * @param camera the camera to refocus on the group bounds during animation
+     */
     public ExplosionAnimation(Group groupToAnimate, MyCamera camera) {
         this.groupToAnimate = groupToAnimate;
         this.animatedMeshes = new HashSet<>(groupToAnimate.getChildren());
@@ -38,11 +49,18 @@ public class ExplosionAnimation implements Animation {
         };
     }
 
+    /**
+     * Starts the explosion animation.
+     * Records original positions, computes trajectories away from the group's center,
+     * and plays a Timeline that moves each mesh over two seconds.
+     * Adds a bounds listener to refocus the camera.
+     */
     @Override
     public void start() {
+        // Add listener to keep camera focused on exploding group
         groupToAnimate.boundsInParentProperty().addListener(boundsListener);
 
-        // Clear any previous stored positions and record current positions
+        // Clear and record mesh original positions for reset
         originalPositions.clear();
         for (Node node : animatedMeshes) {
             originalPositions.put(node, new double[] {
@@ -51,7 +69,7 @@ public class ExplosionAnimation implements Animation {
                     node.getTranslateZ()
             });
         }
-        // Calculate the center of the group
+        // Compute center of group for explosion origin
         double centerX = boundsOfGroup.getMinX() + boundsOfGroup.getWidth()  / 2;
         double centerY = boundsOfGroup.getMinY() + boundsOfGroup.getHeight() / 2;
         double centerZ = boundsOfGroup.getMinZ() + boundsOfGroup.getDepth()  / 2;
@@ -59,6 +77,7 @@ public class ExplosionAnimation implements Animation {
         Timeline timeline = new Timeline();
 
         for (Node node : animatedMeshes) {
+            // For each mesh, calculate its explosion direction and target position
             // Compute the bounds of the current Node in the loop
             Bounds boundsOfNode = node.getBoundsInParent();
             double nodeX = boundsOfNode.getMinX() + boundsOfNode.getWidth()  / 2;
@@ -98,21 +117,27 @@ public class ExplosionAnimation implements Animation {
             timeline.getKeyFrames().add(kf);
         }
 
-        // start the animation
+        // Play the explosion animation
         timeline.play();
 
+        // When animation finishes, remove listener and mark as running
         timeline.setOnFinished(e -> {
             groupToAnimate.boundsInParentProperty().removeListener(boundsListener);
             isRunning = true;
         });
     }
 
+    /**
+     * Resets all meshes to their original positions.
+     * Stops any running explosion and reapplies stored positions.
+     */
     @Override
     public void reset() {
         groupToAnimate.boundsInParentProperty().addListener(boundsListener);
         if (originalPositions.isEmpty()) {
             return; // nothing to reset
         }
+        // Restore each mesh to its recorded original position
         for (Node node : originalPositions.keySet()) {
             double[] pos = originalPositions.get(node);
             if (pos != null) {
@@ -125,12 +150,16 @@ public class ExplosionAnimation implements Animation {
         isRunning = false;
     }
 
+    /**
+     * Stops the explosion and animates meshes back into place over one second.
+     */
     @Override
     public void stop() {
         groupToAnimate.boundsInParentProperty().addListener(boundsListener);
         if (originalPositions.isEmpty()) {
             return; // nothing to reset
         }
+        // Animate meshes back to original positions with easing
         Timeline resetTimeline = new Timeline();
         for (Node node : originalPositions.keySet()) {
             double[] pos = originalPositions.get(node);
@@ -151,6 +180,11 @@ public class ExplosionAnimation implements Animation {
         });
     }
 
+    /**
+     * Indicates whether the explosion animation has completed.
+     *
+     * @return true if the animation has finished, false otherwise
+     */
     @Override
     public boolean isRunning() {
         return isRunning;

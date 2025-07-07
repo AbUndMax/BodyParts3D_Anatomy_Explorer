@@ -37,10 +37,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+
+/**
+ * Presenter for the visualization view, responsible for initializing and configuring the 3D scene,
+ * camera, animations, and user interaction controls within the explorer window.
+ * Sets up rotation, zoom, and selection handlers, and manages mesh visibility and commands.
+ */
 public class VisualizationViewPresenter {
 
+    // registry for all important and central presenter / manager classes
     private final GuiRegistry registry;
-    private final VisualizationViewController visController;
+
+    // controller of this presenter class
+    private final VisualizationViewController controller;
 
     // constants copied from assignment06
     // initial view on the tripod is saved as Affine. It is also used as reset position.
@@ -51,10 +60,19 @@ public class VisualizationViewPresenter {
     );
     private static final int ROTATION_STEP = 10;
 
+    // one camera instance on the subscene
     private final MyCamera camera = new MyCamera();
-    private final HumanBody humanBody = new HumanBody();
+
+    // one central HumanBody instance - holds all loaded Meshes
+    private final HumanBodyMeshes humanBodyMeshes = new HumanBodyMeshes();
+
+    // the content group is used for transformation operations!
     private final Group contentGroup;
+
+    // the anatomyGroup is the group that holds the current shown meshes
     private final Group anatomyGroup = new Group();
+
+    // the animation manager
     private final AnimationManager animationManager;
 
 
@@ -66,7 +84,7 @@ public class VisualizationViewPresenter {
      */
     public VisualizationViewPresenter(GuiRegistry registry) {
         this.registry = registry;
-        this.visController = registry.getVisualizationViewController();
+        this.controller = registry.getVisualizationViewController();
 
         animationManager = new AnimationManager(registry.getCommandManager());
         contentGroup = setupVisualisationPane(registry.getCommandManager());
@@ -84,7 +102,7 @@ public class VisualizationViewPresenter {
      * Adds the configured subscene to the application's 3D drawing pane.
      */
     private Group setupVisualisationPane(CommandManager commandManager) {
-        Pane visualizationPane = visController.getVisualizationPane();
+        Pane visualizationPane = controller.getVisualizationPane();
         Group contentGroup = new Group();
         Group root3d = new Group(contentGroup);
 
@@ -133,21 +151,27 @@ public class VisualizationViewPresenter {
         return contentGroup;
     }
 
+    /**
+     * Configures scroll-based interactions for the visualization pane.
+     * Handles live panning and zooming during scroll events and pushes capture commands on scroll end.
+     *
+     * @param visualizationPane the pane receiving scroll events
+     * @param commandManager the manager to execute capture commands
+     */
     private void visPaneOnScroll(Pane visualizationPane, CommandManager commandManager) {
 
         double[] scrollStartZoom = {0};
         double[] scrollStartTranslateX = {0};
         double[] scrollStartTranslateY = {0};
 
-        // Track when scroll starts
+        // Record initial camera state on scroll start
         visualizationPane.setOnScrollStarted(event -> {
-
             scrollStartZoom[0] = camera.getTranslateZ();
             scrollStartTranslateX[0] = camera.getTranslateX();
             scrollStartTranslateY[0] = camera.getTranslateY();
         });
 
-        // Apply camera movement live
+        // Apply live panning (Shift) or zoom based on scroll delta
         visualizationPane.setOnScroll(event -> {
             double deltaY = camera.translateValue(event.getDeltaY()) * 0.9;
             double deltaX = camera.translateValue(event.getDeltaX()) * 0.9;
@@ -159,26 +183,24 @@ public class VisualizationViewPresenter {
             }
         });
 
-        // When scrolling ends -> create command
+        // On scroll end, push a capture command for the full scroll interaction
         visualizationPane.setOnScrollFinished(event -> {
-
             if (event.isShiftDown()) {
                 double totalDeltaX = camera.getTranslateX() - scrollStartTranslateX[0];
                 double totalDeltaY = camera.getTranslateY() - scrollStartTranslateY[0];
                 if (totalDeltaX != 0 || totalDeltaY != 0) {
-                    commandManager.executeCommand(new TranslateMemoryCommand(camera,
-                                                                             scrollStartTranslateX[0],
-                                                                             scrollStartTranslateY[0],
-                                                                             camera.getTranslateX(),
-                                                                             camera.getTranslateY()));
+                    commandManager.executeCommand(new TranslateCaptureCommand(camera,
+                                                                              scrollStartTranslateX[0],
+                                                                              scrollStartTranslateY[0],
+                                                                              camera.getTranslateX(),
+                                                                              camera.getTranslateY()));
                 }
-
             } else {
                 double totalZoomDelta = camera.getTranslateZ() - scrollStartZoom[0];
                 if (totalZoomDelta != 0) {
-                    commandManager.executeCommand(new ZoomMemoryCommand(camera,
-                                                                        scrollStartZoom[0],
-                                                                        camera.getTranslateZ()));
+                    commandManager.executeCommand(new ZoomCaptureCommand(camera,
+                                                                         scrollStartZoom[0],
+                                                                         camera.getTranslateZ()));
                 }
             }
         });
@@ -189,7 +211,7 @@ public class VisualizationViewPresenter {
      * Displays the tripod in the lower left corner of the visualization view.
      */
     private void setupTripodPane() {
-        Pane tripodPane = visController.getTripodPane();
+        Pane tripodPane = controller.getTripodPane();
 
         Group tripodGroup = new Group();
         tripodGroup.getChildren().add(new Axes(10));
@@ -228,35 +250,35 @@ public class VisualizationViewPresenter {
         // All directions and its corresponding buttons
         List<DirAction> actions = List.of(
                 // Left UP
-                new DirAction(visController.getButtonCntrlLeftUp(),
+                new DirAction(controller.getButtonCntrlLeftUp(),
                               new RotateCommand(contentGroup, new Point3D(1,0,1), -ROTATION_STEP),
                               new TranslateCommand(camera, 1, 1)),
                 // UP
-                new DirAction(visController.getButtonCntrlUp(),
+                new DirAction(controller.getButtonCntrlUp(),
                               new RotateCommand(contentGroup, new Point3D(1,0,0), -ROTATION_STEP),
                               new TranslateCommand(camera, 0, 1)),
                 // Right UP
-                new DirAction(visController.getButtonCntrlRightUp(),
+                new DirAction(controller.getButtonCntrlRightUp(),
                               new RotateCommand(contentGroup, new Point3D(1,1,0), -ROTATION_STEP),
                               new TranslateCommand(camera, -1, 1)),
                 // Left DOWN
-                new DirAction(visController.getButtonCntrlLeftDown(),
+                new DirAction(controller.getButtonCntrlLeftDown(),
                               new RotateCommand(contentGroup, new Point3D(1,1,0), ROTATION_STEP),
                               new TranslateCommand(camera, 1, -1)),
                 // DOWN
-                new DirAction(visController.getButtonCntrlDown(),
+                new DirAction(controller.getButtonCntrlDown(),
                               new RotateCommand(contentGroup, new Point3D(1,0,0), ROTATION_STEP),
                               new TranslateCommand(camera, 0, -1)),
                 // Right DOWN
-                new DirAction(visController.getButtonCntrlRightDown(),
+                new DirAction(controller.getButtonCntrlRightDown(),
                               new RotateCommand(contentGroup, new Point3D(1,0,1), ROTATION_STEP),
                               new TranslateCommand(camera, -1, -1)),
                 // LEFT
-                new DirAction(visController.getButtonCntrlLeft(),
+                new DirAction(controller.getButtonCntrlLeft(),
                               new RotateCommand(contentGroup, new Point3D(0,1,0), ROTATION_STEP),
                               new TranslateCommand(camera, -1 ,0)),
                 // RIGHT
-                new DirAction(visController.getButtonCntrlRight(),
+                new DirAction(controller.getButtonCntrlRight(),
                               new RotateCommand(contentGroup, new Point3D(0,1,0), -ROTATION_STEP),
                               new TranslateCommand(camera, -1, 0))
         );
@@ -264,7 +286,7 @@ public class VisualizationViewPresenter {
         // Setup all direction Buttons using a loop
         for (DirAction action : actions) {
             action.btn().setOnAction(e -> {
-                Command cmd = visController.getRadioRotation().isSelected()
+                Command cmd = controller.getRadioRotation().isSelected()
                         ? action.rotateCmd()
                         : action.translateCmd();
                 commandManager.executeCommand(cmd);
@@ -272,19 +294,19 @@ public class VisualizationViewPresenter {
         }
 
         // set zoom functions
-        visController.getButtonCntrlReset().setOnAction(e -> resetView(commandManager));
+        controller.getButtonCntrlReset().setOnAction(e -> resetView(commandManager));
         setupZoomSlider(commandManager);
 
         // set animation buttons
-        visController.getExplosionMenuItem().setOnAction(event -> {
+        controller.getExplosionMenuItem().setOnAction(event -> {
             animationManager.explosion(anatomyGroup, camera);
         });
 
-        visController.getPulseMenuItem().setOnAction(event -> {
+        controller.getPulseMenuItem().setOnAction(event -> {
             animationManager.pulse(anatomyGroup);
         });
 
-        visController.getContRotateMenuItem().setOnAction(event -> {
+        controller.getContRotateMenuItem().setOnAction(event -> {
             animationManager.contRotation(contentGroup,
                                           1,
                                           new Affine(contentGroup.getTransforms().getFirst()),
@@ -292,9 +314,9 @@ public class VisualizationViewPresenter {
         });
 
         // set undo / redo functions
-        Button undo = visController.getUndoButton();
+        Button undo = controller.getUndoButton();
         undo.setOnAction(event -> commandManager.undo());
-        Button redo = visController.getRedoButton();
+        Button redo = controller.getRedoButton();
         redo.setOnAction(event -> commandManager.redo());
 
         // Bind disable properties to CommandManager's last undo/redo command
@@ -304,10 +326,14 @@ public class VisualizationViewPresenter {
     }
 
     /**
-     * sets up the zoom slider and its bidirectional binding of the camera position
+     * Configures the zoom slider to control and reflect the camera's zoom level.
+     * Binds the slider to the camera's translateZ property and records zoom start/end positions
+     * to push a ZoomCaptureCommand on slider release.
+     *
+     * @param commandManager the manager to execute capture commands
      */
     private void setupZoomSlider(CommandManager commandManager) {
-        Slider slider = visController.getZoomSlider();
+        Slider slider = controller.getZoomSlider();
 
         DoubleProperty sliderValue = new SimpleDoubleProperty();
 
@@ -322,14 +348,16 @@ public class VisualizationViewPresenter {
         // setOnMousepressed and Released for Undo / Redo functionality
         double[] startZoom = {0};
 
+        // Record initial zoom position on slider press
         slider.setOnMousePressed(e -> {
             startZoom[0] = camera.getTranslateZ();
         });
 
+        // Push ZoomCaptureCommand if zoom has changed
         slider.setOnMouseReleased(e -> {
             double endZoom = camera.getTranslateZ();
             if (startZoom[0] != endZoom) {
-                commandManager.executeCommand(new ZoomMemoryCommand(camera, startZoom[0], endZoom));
+                commandManager.executeCommand(new ZoomCaptureCommand(camera, startZoom[0], endZoom));
             }
         });
 
@@ -357,17 +385,17 @@ public class VisualizationViewPresenter {
             openButton.setOnAction(e -> {
                 File path = ObjIO.openDirectoryChooser();
                 AppConfig.saveLastPath(path.getAbsolutePath());
-                visController.getVisualizationStackPane().getChildren().remove(overlay);
+                controller.getVisualizationStackPane().getChildren().remove(overlay);
                 loadHumanBody();
             });
 
             overlay.setCenter(openButton);
-            visController.getVisualizationStackPane().getChildren().add(overlay);
+            controller.getVisualizationStackPane().getChildren().add(overlay);
             return;
         }
 
         ProgressBar progressBar = new ProgressBar(0);
-        StackPane visualizationStack = visController.getVisualizationStackPane();
+        StackPane visualizationStack = controller.getVisualizationStackPane();
         visualizationStack.getChildren().add(progressBar);
 
         // use a task for save load handling -> visualize progress via progressBar
@@ -375,7 +403,7 @@ public class VisualizationViewPresenter {
         Task<Void> loadTask = new Task<>() {
             @Override
             protected Void call() {
-                humanBody.loadMeshes(finalWavefrontPath, this::updateProgress);
+                humanBodyMeshes.loadMeshes(finalWavefrontPath, this::updateProgress);
                 return null;
             }
 
@@ -385,7 +413,7 @@ public class VisualizationViewPresenter {
                 visualizationStack.getChildren().remove(progressBar);
 
                 // add humanBody to the contentGroup
-                anatomyGroup.getChildren().addAll(humanBody.getMeshes());
+                anatomyGroup.getChildren().addAll(humanBodyMeshes.getMeshes());
                 contentGroup.getChildren().add(anatomyGroup);
                 resetView(null); // initial reset should not used as Command
 
@@ -393,7 +421,9 @@ public class VisualizationViewPresenter {
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
                 TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
                 ListView<String> listView = registry.getSelectionViewController().getSelectionListView();
-                humanBody.assignNames(isATreeView.getRoot(), partOfTreeView.getRoot());
+                // map FileIDs to Meshes
+                humanBodyMeshes.mapFileIDsToMeshes(isATreeView.getRoot(), partOfTreeView.getRoot());
+                // actual binding
                 SelectionBinder binder = registry.getSelectionBinder();
                 binder.bindTreeView(isATreeView);
                 binder.bindTreeView(partOfTreeView);
@@ -413,83 +443,102 @@ public class VisualizationViewPresenter {
     }
 
     /**
-     * clears all selections
+     * Configures the 'Clear Selection' button to clear all mesh, tree view, and search selections.
+     * Executes a ClearSelectionCommand when clicked.
+     *
+     * @param commandManager the manager to execute the clear command
      */
     private void setupClearSelectionButton(CommandManager commandManager) {
-        visController.getClearSelectionButton().setOnAction(e -> {
-            commandManager.executeCommand(new ClearSelectionCommand(humanBody,
+        controller.getClearSelectionButton().setOnAction(e -> {
+            commandManager.executeCommand(new ClearSelectionCommand(humanBodyMeshes,
                                                                     registry.getSelectionViewController().getTreeViewIsA(),
                                                                     registry.getSelectionViewController().getTreeViewPartOf(),
                                                                     registry.getSelectionViewController().getTextFieldSearchBar()));
         });
     }
 
+    /**
+     * Configures the 'Show Concept' button and its related menu items to display, add, or remove anatomical meshes.
+     * Includes functionality to:
+     * - Show selected meshes with animations cleared.
+     * - Add selected meshes to the currently displayed ones.
+     * - Remove selected meshes from the current view.
+     * - Display the entire human body model.
+     * Also manages enabling/disabling the 'Show Full Human Body' option based on the current display state.
+     */
     private void setupShowConceptButton(CommandManager commandManager) {
 
-        // Main action of the SplitButton
-        visController.getShowConceptButton().setOnAction(e -> {
+        // Main button action: Show selected meshes and clear running animations
+        controller.getShowConceptButton().setOnAction(e -> {
             ArrayList<MeshView> meshesToShow = selectedMeshes();
             if (!meshesToShow.isEmpty()) {
                 animationManager.clearAnimations();
-
                 commandManager.executeCommand(
-                        new ShowConceptCommand(meshesToShow, anatomyGroup, humanBody, true));
+                        new ShowConceptCommand(meshesToShow, anatomyGroup, humanBodyMeshes, true));
             }
         });
 
-        // add to current Shown meshes
-        visController.getAddToCurrentShowMenuItem().setOnAction(event -> {
+        // Add selected meshes to the currently displayed meshes without clearing the view
+        controller.getAddToCurrentShowMenuItem().setOnAction(event -> {
             commandManager.executeCommand(
-                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBody, false)
+                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBodyMeshes, false)
             );
         });
 
-        visController.getRemoveFromCurrentShowMenuItem().setOnAction(event -> {
+        // Remove selected meshes from the currently displayed meshes and clear running animations
+        controller.getRemoveFromCurrentShowMenuItem().setOnAction(event -> {
             animationManager.clearAnimations();
-
             commandManager.executeCommand(
                     new RemoveConceptCommand(selectedMeshes(), anatomyGroup));
         });
 
-        // show full human body
-        visController.getShowFullHumanBodyMenuItem().setOnAction(event -> {
+        // Show all human body meshes and clear running animations
+        controller.getShowFullHumanBodyMenuItem().setOnAction(event -> {
             animationManager.clearAnimations();
-
             commandManager.executeCommand(
-                    new ShowConceptCommand(humanBody.getMeshes(), anatomyGroup, humanBody, true)
+                    new ShowConceptCommand(humanBodyMeshes.getMeshes(), anatomyGroup, humanBodyMeshes, true)
             );
         });
 
-        // control visibility of "show full human body" if full human body is already shown
+        // Disable 'Show Full Human Body' option if the full body is already displayed
         anatomyGroup.getChildren().addListener((ListChangeListener<Node>) change -> {
             boolean humanBodyShown = new HashSet<>(anatomyGroup.getChildren())
-                    .containsAll(humanBody.getMeshes());
-
-            visController.getShowFullHumanBodyMenuItem().setDisable(humanBodyShown);
+                    .containsAll(humanBodyMeshes.getMeshes());
+            controller.getShowFullHumanBodyMenuItem().setDisable(humanBodyShown);
         });
     }
 
+    /**
+     * Retrieves the list of meshes associated with the currently selected AnatomyNode items
+     * in the last focused TreeView.
+     *
+     * @return an ArrayList of MeshView objects to be displayed.
+     */
     private ArrayList<MeshView> selectedMeshes() {
         ObservableList<TreeItem<AnatomyNode>> selectedItems = registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
         ArrayList<MeshView> meshesToDraw = new ArrayList<>();
+        // Collect meshes corresponding to the selected nodes in the TreeView
         for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
-            meshesToDraw.addAll(humanBody.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
+            meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
         }
         return meshesToDraw;
     }
 
+    /**
+     * Configures controls for mesh rendering options, including color picker, draw modes,
+     * and hide/reset hide buttons. Sets up listeners to update mesh appearance and handle interactions.
+     */
     private void setupMeshRenderControls() {
-        ColorPicker colorPicker = visController.getSelectionColorPicker();
-        RadioButton line = visController.getRadioLines();
-        ToggleGroup drawMode = visController.getDrawMode();
-        ToggleButton hideMode = visController.getHideModeToggle();
-        Button resetHide = visController.getResetHideButton();
+        ColorPicker colorPicker = controller.getSelectionColorPicker();
+        RadioButton line = controller.getRadioLines();
+        ToggleGroup drawMode = controller.getDrawMode();
+        ToggleButton hideMode = controller.getHideModeToggle();
+        Button resetHide = controller.getResetHideButton();
 
-        MeshSelectionManager meshSelectionModel = humanBody.getSelectionModel();
+        MeshSelectionManager meshSelectionModel = humanBodyMeshes.getSelectionModel();
 
-        // add a listener to the currentSelection list to make sure all selected nodes get colored
-        // and all deselected nodes get the default coloring back
-        humanBody.getSelectionModel().addListener(change -> {
+        // Update mesh materials when selection changes
+        humanBodyMeshes.getSelectionModel().addListener(change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView meshView : change.getAddedSubList()) {
@@ -505,14 +554,14 @@ public class VisualizationViewPresenter {
                     for (MeshView meshView : change.getRemoved()) {
                         Platform.runLater(() -> {
                             meshView.setDrawMode(line.isSelected() ? DrawMode.LINE : DrawMode.FILL);
-                            meshView.setMaterial(HumanBody.SHARED_DEFAULT_MATERIAL);
+                            meshView.setMaterial(HumanBodyMeshes.SHARED_DEFAULT_MATERIAL);
                         });
                     }
                 }
             }
         });
 
-        // Add Listener to the DrawMode RadioButtons to change DrawMode accordingly!
+        // Update draw mode of unselected meshes when draw mode changes
         drawMode.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 RadioButton selected = (RadioButton) newToggle;
@@ -524,19 +573,27 @@ public class VisualizationViewPresenter {
         setupMeshClickability(hideMode, resetHide, registry.getCommandManager());
     }
 
+    /**
+     * Enables click-based selection, hiding, and clearing of individual meshes on the 3D content group.
+     * Differentiates between clicks and drags, and executes appropriate commands.
+     *
+     * @param hideMode toggle button to enable hide mode
+     * @param resetHide button to reset all hidden meshes
+     * @param commandManager manager to execute mesh commands
+     */
     private void setupMeshClickability(ToggleButton hideMode, Button resetHide, CommandManager commandManager) {
-        ArrayList<MeshView> hiddenMeshes = humanBody.getHiddenMeshes();
+        ArrayList<MeshView> hiddenMeshes = humanBodyMeshes.getHiddenMeshes();
 
         double[] mousePressX = new double[1];
         double[] mousePressY = new double[1];
 
-        // save the position
+        // Save mouse press coordinates for click vs. drag detection
         contentGroup.setOnMousePressed(event -> {
             mousePressX[0] = event.getScreenX();
             mousePressY[0] = event.getScreenY();
         });
 
-        // check release position
+        // Determine click vs drag; handle mesh selection, hide, or clear based on mode
         contentGroup.setOnMouseReleased(event -> {
             double mouseReleaseX = event.getScreenX();
             double mouseReleaseY = event.getScreenY();
@@ -551,17 +608,17 @@ public class VisualizationViewPresenter {
                     if (hideMode.isSelected()) {
                         commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
                     }
-                    else if (humanBody.getSelectionModel().isSelected(meshView)){
-                        commandManager.executeCommand(new ClearSelectedMeshCommand(humanBody.getSelectionModel(), meshView));
+                    else if (humanBodyMeshes.getSelectionModel().isSelected(meshView)){
+                        commandManager.executeCommand(new ClearSelectedMeshCommand(humanBodyMeshes.getSelectionModel(), meshView));
                     }
                     else {
-                        commandManager.executeCommand(new SelectMeshCommand(humanBody.getSelectionModel(), meshView));
+                        commandManager.executeCommand(new SelectMeshCommand(humanBodyMeshes.getSelectionModel(), meshView));
                     }
                 }
             }
         });
 
-        // button to reset the hidden meshes
+        // Execute ResetHideCommand to restore all hidden meshes
         resetHide.setOnAction(event -> {
             commandManager.executeCommand(new ResetHideCommand(hiddenMeshes));
         });
@@ -569,6 +626,8 @@ public class VisualizationViewPresenter {
 
     /**
      * Rotates the 3D content group upward along the X-axis.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void rotateContentGroupUp(CommandManager commandManager) {
         commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(1, 0, 0), -ROTATION_STEP));
@@ -576,6 +635,8 @@ public class VisualizationViewPresenter {
 
     /**
      * Rotates the 3D content group downward along the X-axis.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void rotateContentGroupDown(CommandManager commandManager) {
         commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP));
@@ -583,6 +644,8 @@ public class VisualizationViewPresenter {
 
     /**
      * Rotates the 3D content group to the left along the Y-axis.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void rotateContentGroupLeft(CommandManager commandManager) {
         commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0, 1, 0), ROTATION_STEP));
@@ -590,29 +653,53 @@ public class VisualizationViewPresenter {
 
     /**
      * Rotates the 3D content group to the right along the Y-axis.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void rotateContentGroupRight(CommandManager commandManager) {
         commandManager.executeCommand(new RotateCommand(contentGroup, new Point3D(0,1, 0), -ROTATION_STEP));
     }
 
+    /**
+     * Translates (pans) the camera upward along the Y-axis.
+     *
+     * @param commandManager the manager to execute the translate command
+     */
     protected void translateContentGroupUp(CommandManager commandManager) {
         commandManager.executeCommand(new TranslateCommand(camera, 0, 1));
     }
 
+    /**
+     * Translates (pans) the camera downward along the Y-axis.
+     *
+     * @param commandManager the manager to execute the translate command
+     */
     protected void translateContentGroupDown(CommandManager commandManager) {
         commandManager.executeCommand(new TranslateCommand(camera, 0, -1));
     }
 
+    /**
+     * Translates (pans) the camera to the left along the X-axis.
+     *
+     * @param commandManager the manager to execute the translate command
+     */
     protected void translateContentGroupLeft(CommandManager commandManager) {
         commandManager.executeCommand(new TranslateCommand(camera, 1, 0));
     }
 
+    /**
+     * Translates (pans) the camera to the right along the X-axis.
+     *
+     * @param commandManager the manager to execute the translate command
+     */
     protected void translateContentGroupRight(CommandManager commandManager) {
         commandManager.executeCommand(new TranslateCommand(camera, -1, 0));
     }
 
     /**
      * Zooms in the camera on the 3D content.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void zoomIntoContentGroup(CommandManager commandManager) {
         commandManager.executeCommand(new ZoomCommand(camera, 1));
@@ -620,6 +707,8 @@ public class VisualizationViewPresenter {
 
     /**
      * Zooms out the camera from the 3D content.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void zoomOutContentGroup(CommandManager commandManager) {
         commandManager.executeCommand(new ZoomCommand(camera, -1));
@@ -628,6 +717,8 @@ public class VisualizationViewPresenter {
     /**
      * Resets the view of the 3D scene to its initial state by adjusting
      * the camera position and resetting the transformations of the content group.
+     *
+     * @param commandManager the manager to execute the translate command
      */
     protected void resetView(CommandManager commandManager) {
         if (commandManager != null) {
@@ -635,7 +726,12 @@ public class VisualizationViewPresenter {
         }
     }
 
-    public HumanBody getHumanBody() {
-        return humanBody;
+    /**
+     * Returns the current HumanBody model containing meshes and selection state.
+     *
+     * @return the HumanBody instance
+     */
+    public HumanBodyMeshes getHumanBody() {
+        return humanBodyMeshes;
     }
 }

@@ -1,7 +1,7 @@
 package explorer.window.vistools;
 
 import explorer.window.command.CommandManager;
-import explorer.window.command.commands.RotateMemoryCommand;
+import explorer.window.command.commands.RotateCaptureCommand;
 import explorer.window.vistools.animations.AnimationManager;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
@@ -54,11 +54,14 @@ public class TransformUtils {
     }
 
     /**
-     * setups the mouse rotation functionality on:
-     * @param pane in which the mouse rotation should be active
-     * @param figure on which the rotation should be applied
+     * Configures drag-based rotation on the specified pane for the given 3D figure.
+     * Records the initial transform on mouse press, applies live rotation on drag,
+     * and issues a RotateCaptureCommand on mouse release to capture the entire interaction.
      *
-     * SOURCE: modified based on assignment06 MouseRotate3D class
+     * @param pane the Pane on which mouse rotation interactions are registered
+     * @param figure the Group representing the 3D content to rotate
+     * @param commandManager the CommandManager used to execute commands
+     * @param animationManager the AnimationManager controlling continuous rotations
      */
     public static void setupMouseRotation(Pane pane, Group figure, CommandManager commandManager, AnimationManager animationManager) {
         final double[] xPrev = new double[1];
@@ -117,7 +120,7 @@ public class TransformUtils {
                     animationManager.contRotation(figure, rotationChange, beforeRotation[0], lastAxis[0]);
 
                 } else {
-                    commandManager.executeCommand(new RotateMemoryCommand(figure, beforeRotation[0], afterRotation[0]));
+                    commandManager.executeCommand(new RotateCaptureCommand(figure, beforeRotation[0], afterRotation[0]));
                 }
             }
 

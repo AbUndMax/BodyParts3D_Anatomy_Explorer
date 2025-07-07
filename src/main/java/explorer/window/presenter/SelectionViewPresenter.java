@@ -12,25 +12,36 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
 
+
+/**
+ * Presenter for the selection view, connecting TreeViews, search bar, and control buttons
+ * with the anatomy model and selection logic.
+ */
 public class SelectionViewPresenter {
 
     private TreeView<AnatomyNode> lastFocusedTreeView = null;
 
     /**
-     * Returns the currently selected item from the last focused TreeView.
-     *
-     * @return The selected TreeItem in the last focused TreeView.
+     * @return The currently selected item from the last focused TreeView
      */
     private TreeItem<AnatomyNode> selectedItem() {
         return lastFocusedTreeView.getSelectionModel().getSelectedItem();
     }
 
+    /**
+     * @return the TreeView that most recently gained focus
+     */
     public TreeView<AnatomyNode> getLastFocusedTreeView() {
         return lastFocusedTreeView;
     }
 
     private final SelectionViewController controller;
 
+    /**
+     * Constructs a SelectionViewPresenter, initializing TreeViews, buttons, and search bar for selection handling.
+     *
+     * @param registry the GuiRegistry providing access to controllers and UI components
+     */
     public SelectionViewPresenter(GuiRegistry registry) {
         controller = registry.getSelectionViewController();
 
@@ -50,10 +61,10 @@ public class SelectionViewPresenter {
 
     /**
      * Initializes the provided TreeView with a tree structure loaded from a Kryo file.
-     * Also sets the selection mode and tracks focus changes.
+     * Also sets selection mode to multiple and updates focus to track the last focused TreeView.
      *
-     * @param treeView The TreeView to initialize.
-     * @param kryoPath The path to the Kryo file containing the tree data.
+     * @param treeView the TreeView to initialize
+     * @param kryoPath the path to the Kryo file containing the tree data
      */
     private void setupTreeView(TreeView<AnatomyNode> treeView, String kryoPath) {
         AnatomyNode root = KryoUtils.loadTreeFromKryo(kryoPath);
@@ -82,7 +93,9 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Configures the selection, expansion, and collapse buttons and their associated actions.
+     * Configures the select, expand, and collapse buttons for the selection view.
+     *
+     * @param registry the GuiRegistry providing access to controllers and selection binder
      */
     private void setupButtons(GuiRegistry registry) {
         controller.getButtonSelectAtTreeNode().setOnAction(e -> {
@@ -94,10 +107,9 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Sets up the search bar and its related buttons to perform search, navigate results,
-     * and display hit counts within the TreeView.
+     * Sets up the search bar, find buttons, and hit count label for searching AnatomyNode names.
      *
-     * @param registry The ControllerRegistry containing references to UI elements.
+     * @param registry the GuiRegistry providing access to selection view controls and TreeViews
      */
     private void setupSearchBar(GuiRegistry registry) {
         TextField searchBar = controller.getTextFieldSearchBar();
@@ -148,10 +160,10 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Returns the TreeView based on the user's choice in the ChoiceBox.
+     * Returns the TreeView based on the user's choice in the search ChoiceBox.
      *
-     * @param registry The ControllerRegistry providing access to the TreeViews.
-     * @return The selected TreeView (either isA or partOf).
+     * @param registry the GuiRegistry providing access to controllers
+     * @return the selected TreeView (either isA or partOf)
      */
     private TreeView<AnatomyNode> treeOfChoice(GuiRegistry registry) {
         ChoiceBox<String> choiceBox = controller.getSearchChoice();
@@ -162,6 +174,10 @@ public class SelectionViewPresenter {
         return choiceBox.getValue().equals("part-of") ? partOfTree : isATree;
     }
 
+    /**
+     * Encapsulates search state and functionality for TreeView items based on AnatomyNode names.
+     * Maintains search results list and current index, and provides methods for performing and navigating search.
+     */
     private class Search {
         /**
          * Returns the current list of search result TreeItems.
@@ -278,10 +294,10 @@ public class SelectionViewPresenter {
         }
 
         /**
-         * Selects the provided TreeItem in the TreeView and scrolls to its position.
+         * Selects the provided TreeItem in the TreeView and scrolls it into view.
          *
-         * @param treeView The TreeView containing the item.
-         * @param item The TreeItem to select and focus.
+         * @param treeView the TreeView containing the item
+         * @param item the TreeItem to select and focus
          */
         private void selectAndFocus(TreeView<AnatomyNode> treeView, TreeItem<AnatomyNode> item) {
             treeView.getSelectionModel().clearSelection();
@@ -293,18 +309,30 @@ public class SelectionViewPresenter {
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);
     }
 
+    /**
+     * Expands all nodes in the 'is-a' TreeView.
+     */
     public void expandIsATree() {
         TreeUtils.expandAllBelowGivenNode(controller.getTreeViewIsA().getRoot());
     }
 
+    /**
+     * Collapses all nodes in the 'is-a' TreeView up to the given node.
+     */
     public void collapseIsATree() {
         TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewIsA().getRoot());
     }
 
+    /**
+     * Expands all nodes in the 'part-of' TreeView.
+     */
     public void expandPartOfTree() {
         TreeUtils.expandAllBelowGivenNode(controller.getTreeViewPartOf().getRoot());
     }
 
+    /**
+     * Collapses all nodes in the 'part-of' TreeView up to the given node.
+     */
     public void collapsePartOfTree() {
         TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewPartOf().getRoot());
     }

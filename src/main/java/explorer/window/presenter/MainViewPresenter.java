@@ -13,15 +13,34 @@ import javafx.scene.control.MenuItem;
 
 import java.util.Optional;
 
+/**
+ * Presenter for the main application view.
+ * Responsible for configuring menu button actions, binding UI controls to command logic,
+ * and handling application-level actions such as undo/redo and configuration management.
+ */
 public class MainViewPresenter {
 
     private final MainViewController mainController;
 
+    /**
+     * Constructs a MainViewPresenter and initializes menu button handlers.
+     *
+     * @param registry the GuiRegistry providing access to controllers, command manager, and views
+     */
     public MainViewPresenter(GuiRegistry registry) {
         mainController = registry.getMainViewController();
         setupMenuButtons(registry);
     }
 
+    /**
+     * Configures all menu button actions in the main view, including:
+     * - Explorer configuration invalidation
+     * - Edit commands (undo/redo, reset selection)
+     * - View controls (expand/collapse trees, toggle selection list)
+     * - Transformation commands (rotate, translate, reset position, zoom)
+     *
+     * @param registry the GuiRegistry providing access to controllers and command manager
+     */
     private void setupMenuButtons(GuiRegistry registry) {
 
         // EXPLORER
@@ -64,6 +83,7 @@ public class MainViewPresenter {
         MenuItem redoMenu = mainController.getMenuButtonRedo();
         CommandManager commandManager = registry.getCommandManager();
 
+        // Bind Undo menu label to last undoable command
         undoMenu.textProperty().bind(Bindings.createStringBinding(()  -> {
             Command cmd = commandManager.getLastUndoCommand().getValue();
             return cmd != null ? "Undo: " + cmd.name() : "Undo";
@@ -71,10 +91,12 @@ public class MainViewPresenter {
 
         undoMenu.disableProperty().bind(commandManager.getLastUndoCommand().isNull());
 
+        // Execute undo when Undo menu is selected
         undoMenu.setOnAction(event -> {
             commandManager.undo();
         });
 
+        // Bind Redo menu label to last redoable command
         redoMenu.textProperty().bind(Bindings.createStringBinding(() -> {
             Command cmd = commandManager.getLastRedoCommand().getValue();
             return cmd != null ? "Redo: " + cmd.name() : "Redo";
@@ -82,6 +104,7 @@ public class MainViewPresenter {
 
         redoMenu.disableProperty().bind(commandManager.getLastRedoCommand().isNull());
 
+        // Execute redo when Redo menu is selected
         redoMenu.setOnAction(event -> {
             commandManager.redo();
         });

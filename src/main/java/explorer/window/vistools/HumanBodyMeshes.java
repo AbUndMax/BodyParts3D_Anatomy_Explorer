@@ -16,7 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HumanBody {
+/**
+ * Manages loading, mapping, and visibility of 3D meshes representing human anatomy.
+ * Loads .obj files into MeshView instances, maintains mappings from file IDs to meshes,
+ * and provides selection and hidden mesh management.
+ */
+public class HumanBodyMeshes {
 
     // collect all meshes in a list and append them with addAll after all Meshes are parsed
     private final List<MeshView> collectedMeshes = Collections.synchronizedList(new ArrayList<>());
@@ -40,18 +45,28 @@ public class HumanBody {
     }
 
     /**
-     * Returns the mapping from file IDs to their corresponding MeshView objects.
-     *
-     * @return a ConcurrentHashMap mapping file IDs to MeshView instances.
+     * @return the mapping from file IDs to their corresponding MeshView objects.
      */
     public ConcurrentHashMap<String, MeshView> getFileIdToMeshMap() {
         return fileIdToMeshMap;
     }
 
+    /**
+     * Retrieves the MeshView associated with the given file ID.
+     *
+     * @param fileId the file ID whose mesh is requested
+     * @return the MeshView corresponding to the file ID, or null if not found
+     */
     public MeshView getMeshOfFileID(String fileId) {
         return fileIdToMeshMap.get(fileId);
     }
 
+    /**
+     * Retrieves a list of MeshView objects corresponding to the provided list of file IDs.
+     *
+     * @param fileIds the list of file IDs
+     * @return an ArrayList of MeshView objects for the specified IDs
+     */
     public ArrayList<MeshView> getMeshesOfFilesIDs(List<String> fileIds) {
         ArrayList<MeshView> meshes = new ArrayList<>();
         for (String fileId : fileIds) {
@@ -61,18 +76,22 @@ public class HumanBody {
     }
 
     /**
-     * Returns the MeshSelection object that manages the selection state of MeshView objects.
-     *
-     * @return the MeshSelection object used for selection management.
+     * @return the MeshSelectionManager that manages the selection state of MeshView objects.
      */
     public MeshSelectionManager getSelectionModel() {
         return meshSelectionManager;
     }
 
+    /**
+     * @return list of all loaded MeshView objects for the human body model
+     */
     public List<MeshView> getMeshes() {
         return collectedMeshes;
     }
 
+    /**
+     * @return an ArrayList of currently hidden MeshView objects
+     */
     public ArrayList<MeshView> getHiddenMeshes() {
         return hiddenMeshes;
     }
@@ -122,18 +141,31 @@ public class HumanBody {
         });
     }
 
-    public void assignNames(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
-        TreeUtils.preOrderTreeViewTraversal(partOfTreeRoot, this::assignNamesToMeshes);
-        TreeUtils.preOrderTreeViewTraversal(isATreeRoot, this::assignNamesToMeshes);
+    /**
+     * Associates anatomy node names with their corresponding meshes by traversing two anatomy trees.
+     * Processes both 'part-of' and 'is-a' hierarchies to populate mesh userData sets.
+     *
+     * @param isATreeRoot the root of the 'is-a' anatomy tree
+     * @param partOfTreeRoot the root of the 'part-of' anatomy tree
+     */
+    public void mapFileIDsToMeshes(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
+        TreeUtils.preOrderTreeViewTraversal(partOfTreeRoot, this::mapFileIDsToMeshes);
+        TreeUtils.preOrderTreeViewTraversal(isATreeRoot, this::mapFileIDsToMeshes);
     }
 
-    private void assignNamesToMeshes(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
+    /**
+     * Helper method that processes a single AnatomyNode TreeItem.
+     * If the node is a leaf, adds its name to the MeshView userData set for each of its file IDs.
+     *
+     * @param anatomyNodeTreeItem the TreeItem to process
+     */
+    private void mapFileIDsToMeshes(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
         if (anatomyNodeTreeItem.isLeaf()) {
             AnatomyNode anatomyNode = anatomyNodeTreeItem.getValue();
             for (String fileID : anatomyNode.getFileIDs()) {
                 MeshView mesh = fileIdToMeshMap.get(fileID);
                 if (mesh.getUserData() instanceof HashSet<?> userData) {
-                    @SuppressWarnings("unchecked") // not ideal, but since we wonÄt reuse the userData it suffices
+                    @SuppressWarnings("unchecked") // not ideal, but since we won't reuse the userData it suffices
                     HashSet<String> names = (HashSet<String>) userData;
                     names.add(anatomyNode.getName());
                 }
