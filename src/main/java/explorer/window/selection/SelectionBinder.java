@@ -56,16 +56,19 @@ public class SelectionBinder {
             if (binding.isSyncing) return;
             binding.isSyncing = true;
 
+            List<MeshView> meshesToSelect = new ArrayList<>();
+            List<MeshView> meshesToDeselect = new ArrayList<>();
+
             while (change.next()) {
                 // Remove mesh selections when tree nodes are deselected
                 if (change.wasRemoved()) {
                     for (TreeItem<AnatomyNode> item : change.getRemoved()) {
                         ArrayList<String> fileIDs = item.getValue().getFileIDs();
 
-                        // only selections on Leaves are counting as "selecting a mesh"
-                        if (fileIDs != null && item.getValue().isLeaf()) {
+                        // collect the meshes that should be removed
+                        if (fileIDs != null) {
                             for (String fileID : fileIDs) {
-                                meshSelectionModel.clearSelection(fileIdToMeshMap.get(fileID));
+                                meshesToDeselect.add(fileIdToMeshMap.get(fileID));
                             }
                         }
                     }
@@ -83,12 +86,16 @@ public class SelectionBinder {
                             //System.out.println("fileID not null");
                             for (String fileID : fileIDs) {
                                 //System.out.println("try to add:" + fileID);
-                                meshSelectionModel.select(fileIdToMeshMap.get(fileID));
+                                meshesToSelect.add(fileIdToMeshMap.get(fileID));
                             }
                         }
                     }
                 }
             }
+
+            // apply batch de-/selections
+            meshSelectionModel.deselectAll(meshesToDeselect);
+            meshSelectionModel.selectAll(meshesToSelect);
 
             binding.isSyncing = false;
         });
@@ -128,7 +135,8 @@ public class SelectionBinder {
         Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToSelect != null) {
             for (TreeItem<AnatomyNode> item : itemsToSelect) {
-                selectionModel.select(item);
+                // meshes are only represented DIRECTLY by leaves -> so only they get selected
+                if (item.getValue().isLeaf()) selectionModel.select(item);
             }
         }
     }
@@ -254,14 +262,12 @@ public class SelectionBinder {
         private void mapTree(TreeItem<AnatomyNode> current) {
             if (current == null) return;
             // Only map leaves so parents aren't selected for child fileIDs
-            if (current.isLeaf()) {
-                List<String> fileIDs = current.getValue().getFileIDs();
-                if (fileIDs != null) {
-                    for (String fileID : fileIDs) {
-                        Set<TreeItem<AnatomyNode>> set = fileIdToTreeItem
-                            .computeIfAbsent(fileID, k -> new HashSet<>());
-                        set.add(current);
-                    }
+            List<String> fileIDs = current.getValue().getFileIDs();
+            if (fileIDs != null) {
+                for (String fileID : fileIDs) {
+                    Set<TreeItem<AnatomyNode>> set = fileIdToTreeItem
+                        .computeIfAbsent(fileID, k -> new HashSet<>());
+                    set.add(current);
                 }
             }
             for (TreeItem<AnatomyNode> child : current.getChildren()) {

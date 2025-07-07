@@ -46,6 +46,6 @@ public class SelectMeshCommand implements Command {
      */
     @Override
     public void undo() {
-        model.clearSelection(mesh);
+        model.deselect(mesh);
     }
 }

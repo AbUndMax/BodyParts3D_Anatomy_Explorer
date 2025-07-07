@@ -89,9 +89,13 @@ public class MeshSelectionManager {
      *
      * @param meshView the MeshView to deselect
      */
-    public void clearSelection(MeshView meshView) {
+    public void deselect(MeshView meshView) {
         if (meshView == null) return;
         selectedMeshes.remove(meshView);
+    }
+
+    public void deselectAll(List<MeshView> meshViews) {
+        selectedMeshes.removeAll(meshViews);
     }
 
     /**

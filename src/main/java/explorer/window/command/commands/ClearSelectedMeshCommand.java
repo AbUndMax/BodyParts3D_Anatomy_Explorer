@@ -37,7 +37,7 @@ public class ClearSelectedMeshCommand implements Command {
      * Executes the command by clearing the selection of the target mesh.
      */
     public void execute() {
-        model.clearSelection(mesh);
+        model.deselect(mesh);
     }
 
     @Override

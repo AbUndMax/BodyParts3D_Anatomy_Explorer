@@ -523,7 +523,6 @@ public class VisualizationViewPresenter {
         for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
             meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
         }
-        System.out.println("TODRAW:" + meshesToDraw);
         return meshesToDraw;
     }
 
