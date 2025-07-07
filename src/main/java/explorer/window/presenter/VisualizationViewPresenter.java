@@ -35,6 +35,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -470,7 +471,7 @@ public class VisualizationViewPresenter {
 
         // Main button action: Show selected meshes and clear running animations
         controller.getShowConceptButton().setOnAction(e -> {
-            ArrayList<MeshView> meshesToShow = selectedMeshes();
+            Set<MeshView> meshesToShow = selectedMeshes();
             if (!meshesToShow.isEmpty()) {
                 animationManager.clearAnimations();
                 commandManager.executeCommand(
@@ -496,7 +497,7 @@ public class VisualizationViewPresenter {
         controller.getShowFullHumanBodyMenuItem().setOnAction(event -> {
             animationManager.clearAnimations();
             commandManager.executeCommand(
-                    new ShowConceptCommand(humanBodyMeshes.getMeshes(), anatomyGroup, humanBodyMeshes, true)
+                    new ShowConceptCommand(new HashSet<>(humanBodyMeshes.getMeshes()), anatomyGroup, humanBodyMeshes, true)
             );
         });
 
@@ -514,9 +515,10 @@ public class VisualizationViewPresenter {
      *
      * @return an ArrayList of MeshView objects to be displayed.
      */
-    private ArrayList<MeshView> selectedMeshes() {
-        ObservableList<TreeItem<AnatomyNode>> selectedItems = registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
-        ArrayList<MeshView> meshesToDraw = new ArrayList<>();
+    private HashSet<MeshView> selectedMeshes() {
+        ObservableList<TreeItem<AnatomyNode>> selectedItems =
+                registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
+        HashSet<MeshView> meshesToDraw = new HashSet<>();
         // Collect meshes corresponding to the selected nodes in the TreeView
         for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
             meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));

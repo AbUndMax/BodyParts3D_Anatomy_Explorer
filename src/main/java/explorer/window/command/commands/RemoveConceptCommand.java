@@ -3,8 +3,7 @@ package explorer.window.command.commands;
 import explorer.window.command.Command;
 import javafx.scene.Group;
 import javafx.scene.shape.MeshView;
-
-import java.util.List;
+import java.util.Set;
 
 /**
  * Command to remove a set of meshes from the anatomy group in the explorer window.
@@ -12,7 +11,7 @@ import java.util.List;
  */
 public class RemoveConceptCommand implements Command {
 
-    private final List<MeshView> meshesToRemove;
+    private final Set<MeshView> meshesToRemove;
     private final Group anatomyGroup;
 
     /**
@@ -21,7 +20,7 @@ public class RemoveConceptCommand implements Command {
      * @param meshesToRemove the list of meshes to remove from the anatomy group
      * @param anatomyGroup the group from which the meshes will be removed
      */
-    public RemoveConceptCommand(List<MeshView> meshesToRemove, Group anatomyGroup) {
+    public RemoveConceptCommand(Set<MeshView> meshesToRemove, Group anatomyGroup) {
         this.meshesToRemove = meshesToRemove;
         this.anatomyGroup = anatomyGroup;
     }

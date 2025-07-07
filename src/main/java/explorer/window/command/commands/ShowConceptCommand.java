@@ -7,7 +7,6 @@ import javafx.scene.shape.MeshView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -17,7 +16,7 @@ import java.util.Set;
  */
 public class ShowConceptCommand implements Command {
 
-    private List<MeshView> meshesToShow;
+    private Set<MeshView> meshesToShow;
     private final Group anatomyGroup;
     private final HumanBodyMeshes humanBodyMeshes;
     private final boolean deleteExisting;
@@ -34,7 +33,7 @@ public class ShowConceptCommand implements Command {
      * @param humanBodyMeshes the human body model managing hidden meshes
      * @param deleteExisting flag indicating whether to clear existing meshes before showing the new ones
      */
-    public ShowConceptCommand(List<MeshView> meshesToShow, Group anatomyGroup, HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
+    public ShowConceptCommand(Set<MeshView> meshesToShow, Group anatomyGroup, HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
         this.meshesToShow = meshesToShow;
         this.anatomyGroup = anatomyGroup;
         this.humanBodyMeshes = humanBodyMeshes;
@@ -70,11 +69,7 @@ public class ShowConceptCommand implements Command {
         } else {
             // if the new meshes should be added, check such that meshes that are not already shown are added
             Set<MeshView> existingMeshes = new HashSet<>(initialShownMeshes);
-            Set<MeshView> meshesToAdd = new HashSet<>(meshesToShow);
-
-            meshesToAdd.removeAll(existingMeshes);
-
-            meshesToShow = new ArrayList<>(meshesToAdd);
+            meshesToShow.removeAll(existingMeshes);
         }
 
         // add Meshes and reset hidden meshes
