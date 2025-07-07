@@ -471,7 +471,7 @@ public class VisualizationViewPresenter {
 
         // Main button action: Show selected meshes and clear running animations
         controller.getShowConceptButton().setOnAction(e -> {
-            Set<MeshView> meshesToShow = selectedMeshes();
+            Set<Node> meshesToShow = selectedMeshes();
             if (!meshesToShow.isEmpty()) {
                 animationManager.clearAnimations();
                 commandManager.executeCommand(
@@ -515,14 +515,15 @@ public class VisualizationViewPresenter {
      *
      * @return an ArrayList of MeshView objects to be displayed.
      */
-    private HashSet<MeshView> selectedMeshes() {
+    private HashSet<Node> selectedMeshes() {
         ObservableList<TreeItem<AnatomyNode>> selectedItems =
                 registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
-        HashSet<MeshView> meshesToDraw = new HashSet<>();
+        HashSet<Node> meshesToDraw = new HashSet<>();
         // Collect meshes corresponding to the selected nodes in the TreeView
         for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
             meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
         }
+        System.out.println("TODRAW:" + meshesToDraw);
         return meshesToDraw;
     }
 

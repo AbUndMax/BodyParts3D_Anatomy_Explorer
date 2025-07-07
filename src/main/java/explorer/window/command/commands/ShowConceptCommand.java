@@ -3,6 +3,7 @@ package explorer.window.command.commands;
 import explorer.window.command.Command;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.shape.MeshView;
 
 import java.util.ArrayList;
@@ -16,12 +17,12 @@ import java.util.Set;
  */
 public class ShowConceptCommand implements Command {
 
-    private Set<MeshView> meshesToShow;
+    private final Set<Node> meshesToShow;
     private final Group anatomyGroup;
     private final HumanBodyMeshes humanBodyMeshes;
     private final boolean deleteExisting;
 
-    private final ArrayList<MeshView> initialShownMeshes = new ArrayList<>();
+    private final Set<Node> initialShownMeshes = new HashSet<>();
     private final ArrayList<MeshView> initialHiddenMeshes;
 
     /**
@@ -33,18 +34,13 @@ public class ShowConceptCommand implements Command {
      * @param humanBodyMeshes the human body model managing hidden meshes
      * @param deleteExisting flag indicating whether to clear existing meshes before showing the new ones
      */
-    public ShowConceptCommand(Set<MeshView> meshesToShow, Group anatomyGroup, HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
+    public ShowConceptCommand(Set<Node> meshesToShow, Group anatomyGroup, HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
         this.meshesToShow = meshesToShow;
         this.anatomyGroup = anatomyGroup;
         this.humanBodyMeshes = humanBodyMeshes;
         this.deleteExisting = deleteExisting;
 
-        for (var node : anatomyGroup.getChildren()) {
-            if (node instanceof MeshView meshView) {
-                initialShownMeshes.add(meshView);
-            }
-        }
-
+        initialShownMeshes.addAll(anatomyGroup.getChildren());
         initialHiddenMeshes = new ArrayList<>(humanBodyMeshes.getHiddenMeshes());
     }
 
@@ -68,9 +64,11 @@ public class ShowConceptCommand implements Command {
 
         } else {
             // if the new meshes should be added, check such that meshes that are not already shown are added
-            Set<MeshView> existingMeshes = new HashSet<>(initialShownMeshes);
-            meshesToShow.removeAll(existingMeshes);
+            meshesToShow.removeAll(initialShownMeshes);
         }
+
+        System.out.println(anatomyGroup.getChildren());
+        System.out.println(meshesToShow);
 
         // add Meshes and reset hidden meshes
         anatomyGroup.getChildren().addAll(meshesToShow);

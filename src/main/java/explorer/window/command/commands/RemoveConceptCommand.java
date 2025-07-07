@@ -2,7 +2,7 @@ package explorer.window.command.commands;
 
 import explorer.window.command.Command;
 import javafx.scene.Group;
-import javafx.scene.shape.MeshView;
+import javafx.scene.Node;
 import java.util.Set;
 
 /**
@@ -11,16 +11,16 @@ import java.util.Set;
  */
 public class RemoveConceptCommand implements Command {
 
-    private final Set<MeshView> meshesToRemove;
+    private final Set<Node> meshesToRemove;
     private final Group anatomyGroup;
 
     /**
      * Constructs a RemoveConceptCommand for a given list of meshes and a target anatomy group.
      *
-     * @param meshesToRemove the list of meshes to remove from the anatomy group
+     * @param meshesToRemove the Set of meshes to remove from the anatomy group
      * @param anatomyGroup the group from which the meshes will be removed
      */
-    public RemoveConceptCommand(Set<MeshView> meshesToRemove, Group anatomyGroup) {
+    public RemoveConceptCommand(Set<Node> meshesToRemove, Group anatomyGroup) {
         this.meshesToRemove = meshesToRemove;
         this.anatomyGroup = anatomyGroup;
     }
