@@ -67,9 +67,6 @@ public class ShowConceptCommand implements Command {
             meshesToShow.removeAll(initialShownMeshes);
         }
 
-        System.out.println(anatomyGroup.getChildren());
-        System.out.println(meshesToShow);
-
         // add Meshes and reset hidden meshes
         anatomyGroup.getChildren().addAll(meshesToShow);
         for (MeshView meshView : humanBodyMeshes.getHiddenMeshes()) {

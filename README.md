@@ -27,10 +27,17 @@ concepts. The following properties made it hard to synchronize the selection ove
 
 So it was quite some work to figure out how exactly to parse selections between the trees and visPane.
 
-**This deep dive into the connections between FileIDs and ConceptIDs leads to the reason why it can happen that selecting one Node in 
-a tree view might induce the selection of other nodes that share the selected FileIDs. I implemented it that way,
-because I interpreted my selected Meshes (or FileIDs) as SourceOfTruth. Meaning selecting a Mesh leads to the selection of
-ALL ASSOCIATED AnatomyNodes / treeItems (= Concepts).**
+This deep dive into the connections between FileIDs and ConceptIDs revealed
+that selecting one Node in a tree view should induce the selection of other nodes if they share the associated FileIDs.
+Originally, it was implemented like that and node selection would cascade to every concept (TreeItem) that shared its FileID.
+
+**But I decided on an asymmetric synchronization. Meaning selecting a TreeView leaf marks only its corresponding mesh as 
+selected (one-to-one), whereas clicking a mesh selects all TreeItems sharing that mesh’s FileID (one-to-many).**
+
+By restricting tree-to-mesh to a single mesh per node, we avoid unwanted selections in the concept hierarchy. 
+Mesh-driven selection therefore shows every related TreeItem so that all associated concepts remain visible.
+The trade-off is simpler tree navigation at the cost of non-uniform selection behavior depending on whether one click 
+in the tree or on a mesh directly.
 
 ## Dev-Notes
 

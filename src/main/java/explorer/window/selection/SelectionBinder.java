@@ -84,18 +84,6 @@ public class SelectionBinder {
                             for (String fileID : fileIDs) {
                                 //System.out.println("try to add:" + fileID);
                                 meshSelectionModel.select(fileIdToMeshMap.get(fileID));
-
-                                // Select all TreeItems associated with this fileID
-                                Set<TreeItem<AnatomyNode>> associatedItems = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
-                                if (associatedItems != null) {
-                                    for (TreeItem<AnatomyNode> associatedItem : associatedItems) {
-                                        if (!multipleSelectionModel.getSelectedItems().contains(associatedItem)) {
-                                            binding.isSyncing = true;
-                                            multipleSelectionModel.select(associatedItem);
-                                            binding.isSyncing = false;
-                                        }
-                                    }
-                                }
                             }
                         }
                     }

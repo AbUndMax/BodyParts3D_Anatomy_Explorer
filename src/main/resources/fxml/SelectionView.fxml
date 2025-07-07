@@ -190,7 +190,7 @@
                   <ListView fx:id="selectionListView" />
                </center>
                <top>
-                  <Label text="Selected Parts" BorderPane.alignment="CENTER">
+                  <Label text="Associated Concepts" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="5.0" top="6.0" />
                      </BorderPane.margin>
