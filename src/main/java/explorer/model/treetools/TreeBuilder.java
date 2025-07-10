@@ -28,9 +28,12 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializeIsATree() {
-        ArrayList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_inclusion_relation_list.txt");
-        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/isa_element_parts.txt");
-        AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA62955"); // root concept == "FMA62955" (anatomical entity)
+        String ISA_INCLUSION_RELATION_LIST_PATH = "PATH";
+        String ISA_ELEMENTS_PARTS_PATH = "PATH";
+        ArrayList<Relation> relations = loadRelationsFile(ISA_INCLUSION_RELATION_LIST_PATH);
+        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile(ISA_ELEMENTS_PARTS_PATH);
+        String ROOT_CONCEPT = "FMA62955";
+        AnatomyNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
         System.out.println(tree.toNewick()); // control tree
 
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/isA_tree.kryo");
@@ -42,9 +45,12 @@ class TreeBuilder {
      * prints the tree in Newick format, and saves it using Kryo serialization.
      */
     private static void serializePartOfTree() {
-        ArrayList<Relation> relations = loadRelationsFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_inclusion_relation_list.txt");
-        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile("/Users/max/Library/CloudStorage/OneDrive-Persönlich/Bioinformatics_M.Sc/Module/4_Semester_M.Sc/AdJa-Advanced_Java/AdJa_Project/anatomy/partof_element_parts.txt");
-        AnatomyNode tree = createTree(relations, conceptIDToFileID, "FMA20394"); // root concept == "FMA20394" (human body)
+        String PARTOF_INCLUSION_RELATION_LIST_PATH = "PATH";
+        String PARTOF_ELEMENTS_PARTS_PATH = "PATH";
+        ArrayList<Relation> relations = loadRelationsFile(PARTOF_INCLUSION_RELATION_LIST_PATH);
+        HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile(PARTOF_ELEMENTS_PARTS_PATH);
+        String ROOT_CONCEPT = "FMA20394";
+        AnatomyNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
         System.out.println(tree.toNewick()); // control tree
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/partOf_tree.kryo");
     }
@@ -104,7 +110,10 @@ class TreeBuilder {
             while ((line=reader.readLine()) != null) {
                 String[] lineArr = line.split("\t");
                 String conceptID = lineArr[0].trim();
-                ArrayList<String> fileList = IDtoFilelist.containsKey(conceptID) ? IDtoFilelist.get(conceptID) : new ArrayList<>();
+                ArrayList<String> fileList = IDtoFilelist.containsKey(conceptID)
+                        ? IDtoFilelist.get(conceptID)
+                        : new ArrayList<>();
+
                 fileList.add(lineArr[2].trim());
                 IDtoFilelist.put(conceptID, fileList);
             }
@@ -129,7 +138,9 @@ class TreeBuilder {
      *
      * SOURCE: assignment01
      */
-    private static AnatomyNode createTree(ArrayList<Relation> relations, HashMap<String, ArrayList<String>> conceptIDToFileID, String rootConceptID) {
+    private static AnatomyNode createTree(ArrayList<Relation> relations, HashMap<String,
+            ArrayList<String>> conceptIDToFileID, String rootConceptID) {
+
         HashMap<String, AnatomyNode> idToNode = new HashMap<>();
 
         for (Relation relation : relations) {
@@ -138,8 +149,15 @@ class TreeBuilder {
             String childID = relation.childID();
             String childName = relation.childName();
 
-            AnatomyNode parentNode = idToNode.getOrDefault(parentID, new AnatomyNode(parentID, parentName, new ArrayList<>(), conceptIDToFileID.get(parentID)));
-            AnatomyNode childNode = idToNode.getOrDefault(childID, new AnatomyNode(childID, childName, new ArrayList<>(), conceptIDToFileID.get(childID)));
+            AnatomyNode parentNode = idToNode.getOrDefault(parentID, new AnatomyNode(parentID,
+                                                                                     parentName,
+                                                                                     new ArrayList<>(),
+                                                                                     conceptIDToFileID.get(parentID)));
+
+            AnatomyNode childNode = idToNode.getOrDefault(childID, new AnatomyNode(childID,
+                                                                                   childName,
+                                                                                   new ArrayList<>(),
+                                                                                   conceptIDToFileID.get(childID)));
             parentNode.addChild(childNode);
             idToNode.putIfAbsent(relation.parentID(), parentNode);
             idToNode.putIfAbsent(relation.childID(), childNode);

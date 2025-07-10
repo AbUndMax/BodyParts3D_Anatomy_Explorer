@@ -34,7 +34,8 @@ public class MyCamera extends PerspectiveCamera {
      * with specific initial configuration.
      *
      * This camera is configured to:
-     * - Start with a field of view set by the superclass constructor with the 'true' parameter, enabling vertical field of view.
+     * - Start with a field of view set by the superclass constructor with the 'true' parameter,
+     * enabling vertical field of view.
      * - Set a far clipping plane distance of 10,000 units to control the maximum visible distance.
      * - Set a near clipping plane distance of 0.1 units to control the minimum visible distance.
      * - Position the camera away from the origin (in the Z-axis) by applying a translation

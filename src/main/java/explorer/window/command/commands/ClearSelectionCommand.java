@@ -37,7 +37,9 @@ public class ClearSelectionCommand implements Command {
      * @param treeViewPartOf the tree view showing "part-of" relationships
      * @param searchBar the search bar input field
      */
-    public ClearSelectionCommand(HumanBodyMeshes humanBodyMeshes, TreeView<AnatomyNode> treeViewIsA, TreeView<AnatomyNode> treeViewPartOf, TextField searchBar) {
+    public ClearSelectionCommand(HumanBodyMeshes humanBodyMeshes, TreeView<AnatomyNode> treeViewIsA,
+                                 TreeView<AnatomyNode> treeViewPartOf, TextField searchBar) {
+
         this.humanBodyMeshes = humanBodyMeshes;
         previousMeshSelection.addAll(humanBodyMeshes.getSelectionModel().getSelectedItems());
         this.treeViewIsA = treeViewIsA;

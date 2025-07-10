@@ -34,7 +34,9 @@ public class ShowConceptCommand implements Command {
      * @param humanBodyMeshes the human body model managing hidden meshes
      * @param deleteExisting flag indicating whether to clear existing meshes before showing the new ones
      */
-    public ShowConceptCommand(Set<Node> meshesToShow, Group anatomyGroup, HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
+    public ShowConceptCommand(Set<Node> meshesToShow, Group anatomyGroup,
+                              HumanBodyMeshes humanBodyMeshes, boolean deleteExisting) {
+
         this.meshesToShow = meshesToShow;
         this.anatomyGroup = anatomyGroup;
         this.humanBodyMeshes = humanBodyMeshes;

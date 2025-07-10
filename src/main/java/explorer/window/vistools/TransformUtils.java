@@ -63,48 +63,67 @@ public class TransformUtils {
      * @param commandManager the CommandManager used to execute commands
      * @param animationManager the AnimationManager controlling continuous rotations
      */
-    public static void setupMouseRotation(Pane pane, Group figure, CommandManager commandManager, AnimationManager animationManager) {
-        final double[] xPrev = new double[1];
-        final double[] yPrev = new double[1];
-        final Point3D[] lastAxis = new Point3D[1];
-        final Affine[] beforeRotation = new Affine[1];
-        final Affine[] afterRotation = new Affine[1];
+    public static void setupMouseRotation(Pane pane, Group figure,
+                                          CommandManager commandManager,
+                                          AnimationManager animationManager) {
+
+        class InteractionState {
+            double mouseX;
+            double mouseY;
+            Point3D lastAxis;
+            Affine beforeRotation;
+            Affine afterRotation;
+        }
+        
+        InteractionState interactionState = new InteractionState();
 
         pane.setOnMousePressed(e -> {
-            xPrev[0] = e.getSceneX();
-            yPrev[0] = e.getSceneY();
-            beforeRotation[0] = new Affine(figure.getTransforms().getFirst());
+            interactionState.mouseX = e.getSceneX();
+            interactionState.mouseY = e.getSceneY();
+            interactionState.beforeRotation = new Affine(figure.getTransforms().getFirst());
         });
 
         pane.setOnMouseDragged(e -> {
-            var dx = e.getSceneX() - xPrev[0];
-            var dy = e.getSceneY() - yPrev[0];
+            var dx = e.getSceneX() - interactionState.mouseX;
+            var dy = e.getSceneY() - interactionState.mouseY;
             var axis = new Point3D(dy, -dx, 0).normalize();
-            lastAxis[0] = axis;
+            interactionState.lastAxis = axis;
             var angle = Math.sqrt(dx * dx + dy * dy) * 0.5; // based on the distance of the mouse movement
 
             applyGlobalRotation(figure, axis, angle);
 
-            xPrev[0] = e.getSceneX();
-            yPrev[0] = e.getSceneY();
+            interactionState.mouseX = e.getSceneX();
+            interactionState.mouseY = e.getSceneY();
         });
 
         pane.setOnMouseReleased(e -> {
             double rotationChange = 0;
 
-            afterRotation[0] = new Affine(figure.getTransforms().getFirst());
-            if (beforeRotation[0] != null && !beforeRotation[0].equals(afterRotation[0])) {
-                double deltaMxx = Math.abs(afterRotation[0].getMxx() - beforeRotation[0].getMxx());
-                double deltaMxy = Math.abs(afterRotation[0].getMxy() - beforeRotation[0].getMxy());
-                double deltaMxz = Math.abs(afterRotation[0].getMxz() - beforeRotation[0].getMxz());
+            interactionState.afterRotation = new Affine(figure.getTransforms().getFirst());
 
-                double deltaMyx = Math.abs(afterRotation[0].getMyx() - beforeRotation[0].getMyx());
-                double deltaMyy = Math.abs(afterRotation[0].getMyy() - beforeRotation[0].getMyy());
-                double deltaMyz = Math.abs(afterRotation[0].getMyz() - beforeRotation[0].getMyz());
+            if (interactionState.beforeRotation != null
+                    && !interactionState.beforeRotation.equals(interactionState.afterRotation)) {
 
-                double deltaMzx = Math.abs(afterRotation[0].getMzx() - beforeRotation[0].getMzx());
-                double deltaMzy = Math.abs(afterRotation[0].getMzy() - beforeRotation[0].getMzy());
-                double deltaMzz = Math.abs(afterRotation[0].getMzz() - beforeRotation[0].getMzz());
+                double deltaMxx = Math.abs(
+                        interactionState.afterRotation.getMxx() - interactionState.beforeRotation.getMxx());
+                double deltaMxy = Math.abs(
+                        interactionState.afterRotation.getMxy() - interactionState.beforeRotation.getMxy());
+                double deltaMxz = Math.abs(
+                        interactionState.afterRotation.getMxz() - interactionState.beforeRotation.getMxz());
+
+                double deltaMyx = Math.abs(
+                        interactionState.afterRotation.getMyx() - interactionState.beforeRotation.getMyx());
+                double deltaMyy = Math.abs(
+                        interactionState.afterRotation.getMyy() - interactionState.beforeRotation.getMyy());
+                double deltaMyz = Math.abs(
+                        interactionState.afterRotation.getMyz() - interactionState.beforeRotation.getMyz());
+
+                double deltaMzx = Math.abs(
+                        interactionState.afterRotation.getMzx() - interactionState.beforeRotation.getMzx());
+                double deltaMzy = Math.abs(
+                        interactionState.afterRotation.getMzy() - interactionState.beforeRotation.getMzy());
+                double deltaMzz = Math.abs(
+                        interactionState.afterRotation.getMzz() - interactionState.beforeRotation.getMzz());
 
                 rotationChange = deltaMxx + deltaMxy + deltaMxz
                         + deltaMyx + deltaMyy + deltaMyz
@@ -117,10 +136,14 @@ public class TransformUtils {
             // guard the executaion of the command so that micro-rotations do not get pushed to the undo stack.
             if (rotationChange > 0.01 && !stoppedAnimation) {
                 if (e.isShiftDown() && e.isControlDown()) {
-                    animationManager.contRotation(figure, rotationChange, beforeRotation[0], lastAxis[0]);
+                    animationManager.contRotation(figure, rotationChange,
+                                                  interactionState.beforeRotation,
+                                                  interactionState.lastAxis);
 
                 } else {
-                    commandManager.executeCommand(new RotateCaptureCommand(figure, beforeRotation[0], afterRotation[0]));
+                    commandManager.executeCommand(new RotateCaptureCommand(figure,
+                                                                           interactionState.beforeRotation,
+                                                                           interactionState.afterRotation));
                 }
             }
 

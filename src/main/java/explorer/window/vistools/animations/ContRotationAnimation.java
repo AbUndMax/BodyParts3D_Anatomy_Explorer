@@ -30,7 +30,9 @@ public class ContRotationAnimation implements Animation {
      * @param initialTransform the initial Affine transform to restore on reset
      * @param rotationAxis the axis around which the group will rotate
      */
-    public ContRotationAnimation(Group groupToAnimate, double rotationChange, Affine initialTransform, Point3D rotationAxis) {
+    public ContRotationAnimation(Group groupToAnimate, double rotationChange,
+                                 Affine initialTransform, Point3D rotationAxis) {
+
         this.groupToAnimate = groupToAnimate;
         this.rotationSpeed = rotationChange * 2; // speed factor, can be tuned
         this.initialTransform = initialTransform;

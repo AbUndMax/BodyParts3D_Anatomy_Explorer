@@ -305,7 +305,9 @@ public class SelectionViewPresenter {
             treeView.scrollTo(treeView.getRow(item));
         }
 
-        private final ObservableList<TreeItem<AnatomyNode>> searchResults = javafx.collections.FXCollections.observableArrayList();
+        private final ObservableList<TreeItem<AnatomyNode>> searchResults =
+                javafx.collections.FXCollections.observableArrayList();
+
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);
     }
 

@@ -85,7 +85,8 @@ public class AnimationManager {
      */
     public void contRotation(Group groupToAnimate, double rotationChange, Affine initialTransform, Point3D rotationAxis) {
         if (currentContRotation.get() == null) {
-            ContRotationAnimation contRotationAnimation = new ContRotationAnimation(groupToAnimate, rotationChange, initialTransform, rotationAxis);
+            ContRotationAnimation contRotationAnimation = new ContRotationAnimation(groupToAnimate, rotationChange,
+                                                                                    initialTransform, rotationAxis);
             // Start continuous rotation via command
             commandManager.executeCommand(new StartAnimationCommand(contRotationAnimation, currentContRotation));
         } else if (currentContRotation.get().isRunning()) {
@@ -115,6 +116,8 @@ public class AnimationManager {
      */
     public void clearAnimations() {
         // Clear all animations via command
-        commandManager.executeCommand(new ClearAnimationCommand(currentExplosionAnimation, currentPulseAnimation, currentContRotation));
+        commandManager.executeCommand(new ClearAnimationCommand(currentExplosionAnimation,
+                                                                currentPulseAnimation,
+                                                                currentContRotation));
     }
 }

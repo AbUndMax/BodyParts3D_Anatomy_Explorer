@@ -25,7 +25,10 @@ public class ClearAnimationCommand implements Command {
      * @param pulseAnimation the reference to the pulse animation
      * @param contRotateAnimation the reference to the continuous rotation animation
      */
-    public ClearAnimationCommand(AtomicReference<Animation> explosionAnimation, AtomicReference<Animation> pulseAnimation, AtomicReference<Animation> contRotateAnimation) {
+    public ClearAnimationCommand(AtomicReference<Animation> explosionAnimation,
+                                 AtomicReference<Animation> pulseAnimation,
+                                 AtomicReference<Animation> contRotateAnimation) {
+
         this.explosionAnimation = explosionAnimation;
         initialExplosion = explosionAnimation.get();
         this.pulseAnimation = pulseAnimation;

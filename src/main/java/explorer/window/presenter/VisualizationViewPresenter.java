@@ -107,7 +107,9 @@ public class VisualizationViewPresenter {
         Group contentGroup = new Group();
         Group root3d = new Group(contentGroup);
 
-        var subScene = new SubScene(root3d, 600, 600, true, SceneAntialiasing.BALANCED);
+        int initWidth = 600;
+        int initHeight = 600;
+        var subScene = new SubScene(root3d, initWidth, initHeight, true, SceneAntialiasing.BALANCED);
         subScene.widthProperty().bind(visualizationPane.widthProperty());
         subScene.heightProperty().bind(visualizationPane.heightProperty());
         // set subScene background
@@ -161,15 +163,19 @@ public class VisualizationViewPresenter {
      */
     private void visPaneOnScroll(Pane visualizationPane, CommandManager commandManager) {
 
-        double[] scrollStartZoom = {0};
-        double[] scrollStartTranslateX = {0};
-        double[] scrollStartTranslateY = {0};
+        class ScrollStart {
+            double zoom = 0;
+            double translateX = 0;
+            double translateY = 0;
+        }
+
+        ScrollStart scrollStart = new ScrollStart();
 
         // Record initial camera state on scroll start
         visualizationPane.setOnScrollStarted(event -> {
-            scrollStartZoom[0] = camera.getTranslateZ();
-            scrollStartTranslateX[0] = camera.getTranslateX();
-            scrollStartTranslateY[0] = camera.getTranslateY();
+            scrollStart.zoom = camera.getTranslateZ();
+            scrollStart.translateX = camera.getTranslateX();
+            scrollStart.translateY = camera.getTranslateY();
         });
 
         // Apply live panning (Shift) or zoom based on scroll delta
@@ -187,20 +193,20 @@ public class VisualizationViewPresenter {
         // On scroll end, push a capture command for the full scroll interaction
         visualizationPane.setOnScrollFinished(event -> {
             if (event.isShiftDown()) {
-                double totalDeltaX = camera.getTranslateX() - scrollStartTranslateX[0];
-                double totalDeltaY = camera.getTranslateY() - scrollStartTranslateY[0];
+                double totalDeltaX = camera.getTranslateX() - scrollStart.translateX;
+                double totalDeltaY = camera.getTranslateY() - scrollStart.translateY;
                 if (totalDeltaX != 0 || totalDeltaY != 0) {
                     commandManager.executeCommand(new TranslateCaptureCommand(camera,
-                                                                              scrollStartTranslateX[0],
-                                                                              scrollStartTranslateY[0],
+                                                                              scrollStart.translateX,
+                                                                              scrollStart.translateY,
                                                                               camera.getTranslateX(),
                                                                               camera.getTranslateY()));
                 }
             } else {
-                double totalZoomDelta = camera.getTranslateZ() - scrollStartZoom[0];
+                double totalZoomDelta = camera.getTranslateZ() - scrollStart.zoom;
                 if (totalZoomDelta != 0) {
                     commandManager.executeCommand(new ZoomCaptureCommand(camera,
-                                                                         scrollStartZoom[0],
+                                                                         scrollStart.zoom,
                                                                          camera.getTranslateZ()));
                 }
             }
@@ -451,10 +457,11 @@ public class VisualizationViewPresenter {
      */
     private void setupClearSelectionButton(CommandManager commandManager) {
         controller.getClearSelectionButton().setOnAction(e -> {
-            commandManager.executeCommand(new ClearSelectionCommand(humanBodyMeshes,
-                                                                    registry.getSelectionViewController().getTreeViewIsA(),
-                                                                    registry.getSelectionViewController().getTreeViewPartOf(),
-                                                                    registry.getSelectionViewController().getTextFieldSearchBar()));
+            commandManager.executeCommand(
+                    new ClearSelectionCommand(humanBodyMeshes,
+                                              registry.getSelectionViewController().getTreeViewIsA(),
+                                              registry.getSelectionViewController().getTreeViewPartOf(),
+                                              registry.getSelectionViewController().getTextFieldSearchBar()));
         });
     }
 
@@ -497,7 +504,8 @@ public class VisualizationViewPresenter {
         controller.getShowFullHumanBodyMenuItem().setOnAction(event -> {
             animationManager.clearAnimations();
             commandManager.executeCommand(
-                    new ShowConceptCommand(new HashSet<>(humanBodyMeshes.getMeshes()), anatomyGroup, humanBodyMeshes, true)
+                    new ShowConceptCommand(new HashSet<>(humanBodyMeshes.getMeshes()), anatomyGroup,
+                                           humanBodyMeshes, true)
             );
         });
 
@@ -611,10 +619,12 @@ public class VisualizationViewPresenter {
                         commandManager.executeCommand(new HideMeshCommand(meshView, hiddenMeshes));
                     }
                     else if (humanBodyMeshes.getSelectionModel().isSelected(meshView)){
-                        commandManager.executeCommand(new ClearSelectedMeshCommand(humanBodyMeshes.getSelectionModel(), meshView));
+                        commandManager.executeCommand(new ClearSelectedMeshCommand(humanBodyMeshes.getSelectionModel(),
+                                                                                   meshView));
                     }
                     else {
-                        commandManager.executeCommand(new SelectMeshCommand(humanBodyMeshes.getSelectionModel(), meshView));
+                        commandManager.executeCommand(new SelectMeshCommand(humanBodyMeshes.getSelectionModel(),
+                                                                            meshView));
                     }
                 }
             }
@@ -724,6 +734,7 @@ public class VisualizationViewPresenter {
      */
     protected void resetView(CommandManager commandManager) {
         if (commandManager != null) {
+            animationManager.clearAnimations();
             commandManager.executeCommand(new ResetViewCommand(contentGroup, camera));
         }
     }

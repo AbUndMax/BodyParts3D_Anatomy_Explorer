@@ -59,7 +59,8 @@ public class MainViewPresenter {
             alert.setHeaderText("Config Path Invalidation");
             alert.setContentText("You are about to delete the config Path to the BodyParts3D wavefront folder.\n\n" +
                                          "This action will close the application.\n" +
-                                         "On restart you are asked to set a new Path to the 'isa_BP3D_4.0_obj_99' folder.");
+                                         "On restart you are asked to set a new Path to the 'isa_BP3D_4.0_obj_99' " +
+                                         "folder.");
 
             ButtonType continueButton = new ButtonType("Continue");
             ButtonType abortButton = new ButtonType("Abort", ButtonBar.ButtonData.CANCEL_CLOSE);
