@@ -61,7 +61,7 @@ public class SelectionViewController {
     private ToggleButton selectionListToggle;
 
     @FXML
-    private ListView<String> selectionListView;
+    private ListView<Label> selectionListView;
 
     @FXML
     private TextField textFieldSearchBar;
@@ -146,7 +146,7 @@ public class SelectionViewController {
         return selectionListToggle;
     }
 
-    public ListView<String> getSelectionListView() {
+    public ListView<Label> getSelectionListView() {
         return selectionListView;
     }
 

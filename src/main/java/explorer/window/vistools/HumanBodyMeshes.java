@@ -37,11 +37,15 @@ public class HumanBodyMeshes {
 
     // Shared default material for all MeshViews -> this lifts a heavy load since only one Material has to be managed
     // and thus memory is saved
-    public static final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
-    static {
-        // setup default Material
+    private final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
+
+    public HumanBodyMeshes() {
         SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
         SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
+    }
+
+    public PhongMaterial getDefaultPhongMaterial() {
+        return SHARED_DEFAULT_MATERIAL;
     }
 
     /**

@@ -34,6 +34,7 @@ concepts. The following properties made it hard to synchronize the selection ove
 - One Concept can have multiple FileIDs associated with it (Selecting a node in a TreeView can lead to a selection of multiple MeshView in the 3D pane).
 - Concepts that have the same conceptID usually do not share the same Meshes (or fileIDs).
 - Leaves of partOf and isA are not fully contained within each other (partOf has 869 leafes, isA has 1651 leafes and 770 leafes in total are common).
+- Internal Nodes can be annotated with FileIDs that are not part of ANY leaf below that internal node.
 
 So it was quite some work to figure out how exactly to parse selections between the trees and visPane.
 

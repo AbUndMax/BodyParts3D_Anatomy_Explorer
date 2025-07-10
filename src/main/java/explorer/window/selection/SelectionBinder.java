@@ -4,10 +4,8 @@ import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -167,7 +165,7 @@ public class SelectionBinder {
      *
      * @param selectionList the ListView<String> to display selected anatomy names
      */
-    public void bindListView(ListView<String> selectionList) {
+    public void bindListView(ListView<Label> selectionList, ColorPicker colorPicker) {
         if (selectionList == null) return;
 
         // Update ListView items when mesh selection model changes
@@ -180,8 +178,22 @@ public class SelectionBinder {
                         @SuppressWarnings("unchecked")
                         HashSet<String> names = (HashSet<String>) addedMesh.getUserData();
                         for (String name : names) {
-                            if (!selectionList.getItems().contains(name)) {
-                                selectionList.getItems().add(name);
+                            boolean alreadyExists = selectionList.getItems().stream()
+                                    .anyMatch(label -> label.getText().equals(name));
+
+                            Label label = new Label(name);
+
+                            Circle colorCircle = new Circle(5);
+                            colorCircle.setFill(colorPicker.getValue());
+                            label.setGraphic(colorCircle);
+                            label.setGraphicTextGap(8);
+
+                            if (!alreadyExists) {
+                                selectionList.getItems().add(label);
+
+                            } else { // if it already exists, update its color to the new selected color
+                                selectionList.getItems().removeIf(existingLabel -> existingLabel.getText().equals(name));
+                                selectionList.getItems().add(label);
                             }
                         }
                     }
@@ -192,7 +204,7 @@ public class SelectionBinder {
                         @SuppressWarnings("unchecked")
                         HashSet<String> names = (HashSet<String>) removedMesh.getUserData();
                         for (String name : names) {
-                            selectionList.getItems().remove(name);
+                            selectionList.getItems().removeIf(label -> label.getText().equals(name));
                         }
                     }
                 }

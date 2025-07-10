@@ -427,14 +427,14 @@ public class VisualizationViewPresenter {
                 // bind the TreeViews to the MeshSelection
                 TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
                 TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
-                ListView<String> listView = registry.getSelectionViewController().getSelectionListView();
+                ListView<Label> listView = registry.getSelectionViewController().getSelectionListView();
                 // map FileIDs to Meshes
                 humanBodyMeshes.mapFileIDsToMeshes(isATreeView.getRoot(), partOfTreeView.getRoot());
                 // actual binding
                 SelectionBinder binder = registry.getSelectionBinder();
                 binder.bindTreeView(isATreeView);
                 binder.bindTreeView(partOfTreeView);
-                binder.bindListView(listView);
+                binder.bindListView(listView, controller.getSelectionColorPicker());
             }
 
             @Override
@@ -564,14 +564,14 @@ public class VisualizationViewPresenter {
                     for (MeshView meshView : change.getRemoved()) {
                         Platform.runLater(() -> {
                             meshView.setDrawMode(line.isSelected() ? DrawMode.LINE : DrawMode.FILL);
-                            meshView.setMaterial(HumanBodyMeshes.SHARED_DEFAULT_MATERIAL);
+                            meshView.setMaterial(humanBodyMeshes.getDefaultPhongMaterial());
                         });
                     }
                 }
             }
         });
 
-        // Update draw mode of unselected meshes when draw mode changes
+        // Update draw mode of unselected meshes when draw mode changes i.e from FILL to LINE and vice versa
         drawMode.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 RadioButton selected = (RadioButton) newToggle;
