@@ -196,6 +196,41 @@
                      </BorderPane.margin>
                   </Label>
                </top>
+               <bottom>
+                  <VBox BorderPane.alignment="CENTER">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="# Selected Concepts" maxWidth="Infinity">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font></Label>
+                        <Label fx:id="numberSelectedConceptsPartOfLabel" text="part-of:">
+                        </Label>
+                        <Label fx:id="numberSelectedConceptsIsALabel" text="is-a:">
+                        <font>
+                           <Font name="Monospaced"/>
+                        </font>
+                        </Label>
+                        <Label alignment="CENTER" contentDisplay="CENTER" text="# Selected Meshes" maxWidth="Infinity">
+                           <padding>
+                              <Insets top="5.0" />
+                           </padding>
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font></Label>
+                        <Label fx:id="numberSelectedMeshesLabel" text="model:">
+                        <font>
+                           <Font name="Monospaced"/>
+                        </font>
+                        </Label>
+                     </children>
+                     <BorderPane.margin>
+                        <Insets />
+                     </BorderPane.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
+               </bottom>
             </BorderPane>
          </items>
       </SplitPane>

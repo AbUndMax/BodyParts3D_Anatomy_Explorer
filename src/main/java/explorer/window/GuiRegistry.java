@@ -35,8 +35,8 @@ public class GuiRegistry {
         selectionViewController = mainViewController.getSelectionViewController();
         visualizationViewController = mainViewController.getVisualizationViewController();
         mainViewPresenter = new MainViewPresenter(this);
-        selectionViewPresenter = new SelectionViewPresenter(this);
         visualizationViewPresenter = new VisualizationViewPresenter(this);
+        selectionViewPresenter = new SelectionViewPresenter(this);
 
         binder = new SelectionBinder(visualizationViewPresenter.getHumanBody());
     }

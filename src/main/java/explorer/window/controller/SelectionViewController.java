@@ -78,6 +78,15 @@ public class SelectionViewController {
     @FXML
     private SplitPane treeViewSplitPane;
 
+    @FXML
+    private Label numberSelectedConceptsPartOfLabel;
+
+    @FXML
+    private Label numberSelectedConceptsIsALabel;
+
+    @FXML
+    private Label numberSelectedMeshesLabel;
+
     public MenuItem getCollapseMenuItem() {
         return CollapseMenuItem;
     }
@@ -168,6 +177,18 @@ public class SelectionViewController {
 
     public SplitPane getTreeViewSplitPane() {
         return treeViewSplitPane;
+    }
+
+    public Label getNumberSelectedConceptsPartOfLabel() {
+        return numberSelectedConceptsPartOfLabel;
+    }
+
+    public Label getNumberSelectedConceptsIsALabel() {
+        return numberSelectedConceptsIsALabel;
+    }
+
+    public Label getNumberSelectedMeshesLabel() {
+        return numberSelectedMeshesLabel;
     }
 
     /**

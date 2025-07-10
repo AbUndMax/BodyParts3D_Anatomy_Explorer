@@ -55,7 +55,7 @@ public class SelectionViewPresenter {
         lastFocusedTreeView = treeViewPartOf;
 
         setupButtons(registry);
-
+        setupSelectionCounterLabels(registry);
         setupSearchBar(registry);
     }
 
@@ -157,6 +157,40 @@ public class SelectionViewPresenter {
             (search.getCurrentSearchIndex() + 1) + " / " + search.getNumberOfHits() + " hits",
              search.currentSearchIndexProperty(), search.getSearchResults()
         ));
+    }
+
+    /**
+     * Binds the Labels that show the number of selected Nodes / meshes to the respective TreeViews / selectionModels
+     * @param registry
+     */
+    private void setupSelectionCounterLabels(GuiRegistry registry) {
+        Label selectedNumberPartOf = controller.getNumberSelectedConceptsPartOfLabel();
+        Label selectedNumberIsA = controller.getNumberSelectedConceptsIsALabel();
+        Label selectedNumberMesh = controller.getNumberSelectedMeshesLabel();
+
+        selectedNumberPartOf.textProperty().bind(
+                Bindings.concat("part-of: ",
+                                Bindings.size(
+                                        controller.getTreeViewPartOf().getSelectionModel().getSelectedItems()
+                                )
+                )
+        );
+
+        selectedNumberIsA.textProperty().bind(
+                Bindings.concat("is-a:    ",
+                                Bindings.size(
+                                        controller.getTreeViewIsA().getSelectionModel().getSelectedItems()
+                                )
+                )
+        );
+
+        selectedNumberMesh.textProperty().bind(
+                Bindings.concat("model:   ",
+                                Bindings.size(
+                                        registry.getVisualizationViewPresenter()
+                                                .getHumanBody().getSelectionModel().getSelectedItems()
+                                ))
+        );
     }
 
     /**
