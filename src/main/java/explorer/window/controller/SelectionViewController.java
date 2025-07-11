@@ -87,6 +87,9 @@ public class SelectionViewController {
     @FXML
     private Label numberSelectedMeshesLabel;
 
+    @FXML
+    private ToggleButton regexToggleButton;
+
     public MenuItem getCollapseMenuItem() {
         return CollapseMenuItem;
     }
@@ -189,6 +192,10 @@ public class SelectionViewController {
 
     public Label getNumberSelectedMeshesLabel() {
         return numberSelectedMeshesLabel;
+    }
+
+    public ToggleButton getRegexToggleButton() {
+        return regexToggleButton;
     }
 
     /**

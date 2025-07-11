@@ -12,6 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 
 /**
  * Presenter for the selection view, connecting TreeViews, search bar, and control buttons
@@ -117,6 +121,7 @@ public class SelectionViewPresenter {
         Button firstButton = controller.getButtonFindFirst();
         Button allButton = controller.getButtonFindAll();
         Label hitLabel = controller.getSearchHitLabel();
+        ToggleButton useRegexToggle = controller.getRegexToggleButton();
 
 
         Search search = new Search();
@@ -128,7 +133,7 @@ public class SelectionViewPresenter {
                 controller.getTreeViewPartOf().getSelectionModel().clearSelection();
             }
             else {
-                search.performSearch(newValue, treeOfChoice(registry));
+                search.performSearch(newValue, treeOfChoice(registry), useRegexToggle.isSelected());
                 if (search.getNumberOfHits() > 0) {
                     nextButton.setDisable(false);
                     firstButton.setDisable(false);
@@ -264,7 +269,7 @@ public class SelectionViewPresenter {
          * @param searchTerm The search term to look for in node names.
          * @param treeView The TreeView to search within.
          */
-        public void performSearch(String searchTerm, TreeView<AnatomyNode> treeView) {
+        public void performSearch(String searchTerm, TreeView<AnatomyNode> treeView, boolean useRegex) {
             if (treeView == null || searchTerm.isEmpty()) return;
 
             TreeItem<AnatomyNode> root = treeView.getRoot();
@@ -273,12 +278,30 @@ public class SelectionViewPresenter {
             searchResults.clear();
             currentSearchIndex.set(-1);
 
-            // collect Hits
-            TreeUtils.preOrderTreeViewTraversal(root, item -> {
-                if (item.getValue().getName().toLowerCase().contains(searchTerm.toLowerCase())) {
-                    searchResults.add(item);
+            // collect Hits by either using Regex or direct (case insensitiv) matching
+            if (useRegex) {
+                try {
+                    Pattern pattern = Pattern.compile(searchTerm);
+                    TreeUtils.preOrderTreeViewTraversal(root, item -> {
+                        Matcher matcher = pattern.matcher(item.getValue().getName());
+                        if (matcher.find()) {
+                            searchResults.add(item);
+                        }
+                    });
+
+                } catch (PatternSyntaxException e) {
+                    return;
                 }
-            });
+
+            } else {
+                TreeUtils.preOrderTreeViewTraversal(root, item -> {
+                    if (item.getValue().getName().toLowerCase().contains(searchTerm.toLowerCase())) {
+                        searchResults.add(item);
+                    }
+                });
+            }
+
+
 
             if (!searchResults.isEmpty()) {
                 currentSearchIndex.set(0);

@@ -27,14 +27,26 @@
    <top>
       <BorderPane BorderPane.alignment="CENTER">
          <center>
-            <VBox fx:id="findBox">
+            <VBox fx:id="findBox" spacing="5.0">
                <children>
-                  <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts or concepts">
-                     <VBox.margin>
-                        <Insets left="5.0" right="5.0" top="5.0" />
-                     </VBox.margin>
-                  </TextField>
-                  <HBox alignment="CENTER_LEFT">
+                  <HBox spacing="5.0">
+                     <children>
+                        <TextField fx:id="textFieldSearchBar" promptText="Search for anatomy parts or concepts" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </TextField>
+                        <ToggleButton fx:id="regexToggleButton" mnemonicParsing="false" text=".*">
+                           <tooltip>
+                              <Tooltip text="Use regex to search the trees" />
+                           </tooltip>
+                        </ToggleButton>
+                     </children>
+                     <padding>
+                        <Insets left="5.0" right="5.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <ChoiceBox fx:id="searchChoice" prefWidth="80.0">
                         <items>
                            <FXCollections fx:factory="observableArrayList">
@@ -43,7 +55,7 @@
                            </FXCollections>
                         </items>
                         <HBox.margin>
-                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           <Insets />
                         </HBox.margin>
                         <tooltip>
                            <Tooltip text="Select at tree that should be searched" />
@@ -51,26 +63,32 @@
                      </ChoiceBox>
                      <Button fx:id="buttonFindNext" disable="true" mnemonicParsing="false" text="Next">
                         <HBox.margin>
-                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           <Insets />
                         </HBox.margin>
                      </Button>
                      <Button fx:id="buttonFindFirst" disable="true" mnemonicParsing="false" text="First">
                         <HBox.margin>
-                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           <Insets />
                         </HBox.margin>
                      </Button>
                      <Button fx:id="buttonFindAll" disable="true" mnemonicParsing="false" text="All">
                         <HBox.margin>
-                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           <Insets />
                         </HBox.margin>
                      </Button>
                      <Label fx:id="searchHitLabel" disable="true" text="0 / 0 hits">
                         <HBox.margin>
-                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           <Insets />
                         </HBox.margin>
                      </Label>
+                     <VBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </VBox.margin>
                   </HBox>
                </children>
+               <BorderPane.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </BorderPane.margin>
             </VBox>
          </center>
          <top>
@@ -199,7 +217,7 @@
                <bottom>
                   <VBox BorderPane.alignment="CENTER">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="# Selected Concepts" maxWidth="Infinity">
+                        <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Concepts">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font></Label>
@@ -207,10 +225,10 @@
                         </Label>
                         <Label fx:id="numberSelectedConceptsIsALabel" text="is-a:">
                         <font>
-                           <Font name="Monospaced"/>
+                           <Font name="Monospaced" />
                         </font>
                         </Label>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="# Selected Meshes" maxWidth="Infinity">
+                        <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Meshes">
                            <padding>
                               <Insets top="5.0" />
                            </padding>
@@ -219,7 +237,7 @@
                            </font></Label>
                         <Label fx:id="numberSelectedMeshesLabel" text="model:">
                         <font>
-                           <Font name="Monospaced"/>
+                           <Font name="Monospaced" />
                         </font>
                         </Label>
                      </children>
