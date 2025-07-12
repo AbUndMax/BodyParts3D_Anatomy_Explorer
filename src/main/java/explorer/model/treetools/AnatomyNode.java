@@ -1,4 +1,4 @@
-package explorer.model;
+package explorer.model.treetools;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

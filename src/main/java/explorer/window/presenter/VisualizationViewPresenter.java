@@ -1,6 +1,6 @@
 package explorer.window.presenter;
 
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
 import explorer.window.GuiRegistry;

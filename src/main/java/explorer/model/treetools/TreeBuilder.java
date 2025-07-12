@@ -1,6 +1,5 @@
 package explorer.model.treetools;
 
-import explorer.model.AnatomyNode;
 import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;

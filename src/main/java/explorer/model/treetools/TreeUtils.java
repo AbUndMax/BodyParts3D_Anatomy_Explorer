@@ -1,6 +1,5 @@
 package explorer.model.treetools;
 
-import explorer.model.AnatomyNode;
 import javafx.scene.control.TreeItem;
 import java.util.function.Consumer;
 

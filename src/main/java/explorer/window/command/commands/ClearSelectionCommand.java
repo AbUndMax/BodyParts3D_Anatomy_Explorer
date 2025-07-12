@@ -1,6 +1,6 @@
 package explorer.window.command.commands;
 
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import explorer.window.command.Command;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.scene.control.TextField;

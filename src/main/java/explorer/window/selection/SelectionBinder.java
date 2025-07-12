@@ -1,6 +1,6 @@
 package explorer.window.selection;
 
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.collections.ListChangeListener;

@@ -3,7 +3,6 @@ package explorer.model.treetools;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import explorer.model.AnatomyNode;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

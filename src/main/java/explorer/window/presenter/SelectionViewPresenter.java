@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AiApiService;
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.model.treetools.KryoUtils;
 import explorer.window.GuiRegistry;

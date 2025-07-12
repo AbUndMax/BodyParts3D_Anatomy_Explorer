@@ -1,6 +1,6 @@
 package explorer.window.vistools;
 
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.selection.MeshSelectionManager;
 import javafx.application.Platform;

@@ -1,6 +1,6 @@
 package explorer.window.controller;
 
-import explorer.model.AnatomyNode;
+import explorer.model.treetools.AnatomyNode;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
