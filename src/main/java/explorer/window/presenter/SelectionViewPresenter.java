@@ -17,7 +17,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
 import javafx.util.Duration;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -142,7 +141,7 @@ public class SelectionViewPresenter {
                 controller.getTreeViewPartOf().getSelectionModel().clearSelection();
             }
             else {
-                search.performSearch(newValue, treeOfChoice(registry), useRegexToggle.isSelected());
+                search.performSearch(newValue, treeOfChoice(), useRegexToggle.isSelected());
                 if (search.getNumberOfHits() > 0) {
                     nextButton.setDisable(false);
                     firstButton.setDisable(false);
@@ -157,12 +156,6 @@ public class SelectionViewPresenter {
 
         // setup of the AI search button
         AiApiService aiApiService = new AiApiService();
-        aiApiService.setOnSucceeded(event -> resetAiButtonAnimation(aiButton, "✓"));
-        aiApiService.setOnFailed(event -> resetAiButtonAnimation(aiButton, "✕"));
-        aiApiService.setOnCancelled(event -> {
-            aiButton.setGraphic(null);
-            aiButton.setText("AI");
-        });
 
         aiButton.setOnAction(e -> {
             if (aiApiService.isRunning()) {
@@ -184,17 +177,28 @@ public class SelectionViewPresenter {
             }
         });
 
+        aiApiService.setOnFailed(event -> resetAiButtonAnimation(aiButton, "✕"));
+        aiApiService.setOnCancelled(event -> {
+            aiButton.setGraphic(null);
+            aiButton.setText("AI");
+        });
+        aiApiService.setOnSucceeded(event -> {
+            resetAiButtonAnimation(aiButton, "✓");
+            useRegexToggle.setSelected(true);
+            search.performSearch(aiApiService.getValue(), treeOfChoice(), useRegexToggle.isSelected());
+        });
+
         // search control buttons
         nextButton.setOnAction(e -> {
-            search.showNextResult(treeOfChoice(registry));
+            search.showNextResult(treeOfChoice());
         });
 
         firstButton.setOnAction(e -> {
-            search.showFirstResult(treeOfChoice(registry));
+            search.showFirstResult(treeOfChoice());
         });
 
         allButton.setOnAction(e -> {
-            search.showAllResults(treeOfChoice(registry));
+            search.showAllResults(treeOfChoice());
         });
 
         hitLabel.textProperty().bind(Bindings.createStringBinding(() ->
@@ -270,14 +274,13 @@ public class SelectionViewPresenter {
     /**
      * Returns the TreeView based on the user's choice in the search ChoiceBox.
      *
-     * @param registry the GuiRegistry providing access to controllers
      * @return the selected TreeView (either isA or partOf)
      */
-    private TreeView<AnatomyNode> treeOfChoice(GuiRegistry registry) {
+    private TreeView<AnatomyNode> treeOfChoice() {
         ChoiceBox<String> choiceBox = controller.getSearchChoice();
 
-        TreeView<AnatomyNode> isATree = registry.getSelectionViewController().getTreeViewIsA();
-        TreeView<AnatomyNode> partOfTree = registry.getSelectionViewController().getTreeViewPartOf();
+        TreeView<AnatomyNode> isATree = controller.getTreeViewIsA();
+        TreeView<AnatomyNode> partOfTree = controller.getTreeViewPartOf();
 
         return choiceBox.getValue().equals("part-of") ? partOfTree : isATree;
     }

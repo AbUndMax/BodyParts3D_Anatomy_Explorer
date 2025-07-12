@@ -3,18 +3,22 @@ package explorer.model;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-import java.util.List;
-
-public class AiApiService extends Service<List<String>> {
+public class AiApiService extends Service<String> {
 
     @Override
-    public Task<List<String>> createTask() {
-        return new Task<List<String>>() {
+    public Task<String> createTask() {
+        return new Task<String>() {
+
+            // TODO: implement AI API call
+            // advice the api to generate a full Regex expression that matches all nodes
+            // that fits the user description query
 
             @Override
-            protected List<String> call() throws Exception {
+            protected String call() throws Exception {
                 Thread.sleep(1000);
-                return List.of("12", "13", "14");
+
+                // return the regular expression
+                return "REGEX STRING";
             }
         };
     }
