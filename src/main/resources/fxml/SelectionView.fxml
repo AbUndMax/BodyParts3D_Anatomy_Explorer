@@ -25,7 +25,7 @@
                               <Tooltip text="Use regex to search the trees" />
                            </tooltip>
                         </ToggleButton>
-                        <Button fx:id="aiButton" mnemonicParsing="false" prefWidth="30.0" text="AI">
+                        <Button fx:id="aiButton" maxWidth="30.0" minWidth="30.0" mnemonicParsing="false" prefWidth="30.0" text="AI">
                            <tooltip>
                               <Tooltip text="Use the Searchbar as a prompt-box and let an AI select concepts based on your prompt" />
                            </tooltip>

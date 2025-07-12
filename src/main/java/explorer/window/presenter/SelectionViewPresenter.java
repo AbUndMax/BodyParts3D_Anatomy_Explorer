@@ -6,12 +6,16 @@ import explorer.model.treetools.TreeUtils;
 import explorer.model.treetools.KryoUtils;
 import explorer.window.GuiRegistry;
 import explorer.window.controller.SelectionViewController;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
+import javafx.util.Duration;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -153,21 +157,29 @@ public class SelectionViewPresenter {
 
         // setup of the AI search button
         AiApiService aiApiService = new AiApiService();
-        aiApiService.setOnSucceeded(event -> resetAiButton(aiButton));
-        aiApiService.setOnCancelled(event -> resetAiButton(aiButton));
-        aiApiService.setOnFailed(event -> resetAiButton(aiButton));
+        aiApiService.setOnSucceeded(event -> resetAiButtonAnimation(aiButton, "✓"));
+        aiApiService.setOnFailed(event -> resetAiButtonAnimation(aiButton, "✕"));
+        aiApiService.setOnCancelled(event -> {
+            aiButton.setGraphic(null);
+            aiButton.setText("AI");
+        });
 
         aiButton.setOnAction(e -> {
             if (aiApiService.isRunning()) {
                 aiApiService.cancel();
 
             } else {
-                ProgressIndicator spinner = new ProgressIndicator();
-                spinner.setPrefSize(16, 16);
-                spinner.setMouseTransparent(true);
+                Platform.runLater(() -> {
+                    ProgressIndicator spinner = new ProgressIndicator();
+                    spinner.setMinSize(15, 15);
+                    spinner.setPrefSize(15, 15);
+                    spinner.setMaxSize(15, 15);
+                    spinner.setMouseTransparent(true);
+                    aiButton.setText(null);
+                    aiButton.setGraphic(null);
+                    aiButton.setGraphic(spinner);
+                });
 
-                aiButton.setText("");
-                aiButton.setGraphic(spinner);
                 aiApiService.restart();
             }
         });
@@ -192,13 +204,33 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Resets the AI button to its default state.
+     * Resets the AI button to its default state and shows a finisher label on the button with a fading animation.
      *
      * @param aiButton the AI button to reset
      */
-    private void resetAiButton(Button aiButton) {
+    private void resetAiButtonAnimation(Button aiButton, String notification) {
+        aiButton.setMouseTransparent(true);
+
+        Label aiLabel = new Label(notification);
         aiButton.setGraphic(null);
-        aiButton.setText("AI");
+        aiButton.setGraphic(aiLabel);
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        FadeTransition fade = new FadeTransition(Duration.seconds(1), aiLabel);
+
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+
+        pause.setOnFinished(pauseEvent -> fade.play());
+
+        fade.setOnFinished(fadeEvent -> {
+            aiButton.setGraphic(null);
+            aiButton.setText(null);
+            aiButton.setText("AI");
+            aiButton.setMouseTransparent(false);
+        });
+
+        pause.play();
     }
 
     /**

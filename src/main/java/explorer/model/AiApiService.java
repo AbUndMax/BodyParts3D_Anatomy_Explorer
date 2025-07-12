@@ -13,7 +13,7 @@ public class AiApiService extends Service<List<String>> {
 
             @Override
             protected List<String> call() throws Exception {
-                Thread.sleep(6000);
+                Thread.sleep(1000);
                 return List.of("12", "13", "14");
             }
         };
