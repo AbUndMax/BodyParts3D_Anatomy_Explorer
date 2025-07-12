@@ -10,6 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.stage.Stage;
 
 import java.util.Optional;
 
@@ -112,6 +113,12 @@ public class MainViewPresenter {
 
 
         // VIEW
+        mainController.getFullScreenMenuItem().setOnAction(event -> {
+            ((Stage) registry.getRoot().getScene().getWindow()).setFullScreen(true);
+        });
+
+
+        // TREEVIEW
         mainController.getMenuButtonExpandIsA().setOnAction(event -> {
             registry.getSelectionViewPresenter().expandIsATree();
         });

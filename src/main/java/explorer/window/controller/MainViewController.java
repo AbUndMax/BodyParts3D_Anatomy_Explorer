@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 
@@ -94,10 +95,20 @@ public class MainViewController {
     @FXML
     private MenuItem menuButtonInvalidConfig;
 
+    @FXML
+    private MenuItem fullScreenMenuItem;
+
+    @FXML
+    private RadioMenuItem lightModeMenuItem;
+
+    @FXML
+    private RadioMenuItem darkModeMenuItem;
+
     // Controller getters
     public SelectionViewController getSelectionViewController() {
         return selectionController;
     }
+
     public VisualizationViewController getVisualizationViewController() {
         return visualizationController;
     }
@@ -192,6 +203,18 @@ public class MainViewController {
 
     public MenuItem getMenuButtonRedo() {
         return menuButtonRedo;
+    }
+
+    public MenuItem getFullScreenMenuItem() {
+        return fullScreenMenuItem;
+    }
+
+    public RadioMenuItem getLightModeMenuItem() {
+        return lightModeMenuItem;
+    }
+
+    public RadioMenuItem getDarkModeMenuItem() {
+        return darkModeMenuItem;
     }
 
     /**

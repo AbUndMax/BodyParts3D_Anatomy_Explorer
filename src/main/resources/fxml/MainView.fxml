@@ -3,8 +3,10 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -42,6 +44,18 @@
                   </MenuItem>
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="View">
+               <items>
+                  <MenuItem fx:id="fullScreenMenuItem" mnemonicParsing="false" text="Full Screen" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <RadioMenuItem fx:id="lightModeMenuItem" mnemonicParsing="false" selected="true" text="Light Mode">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="theme" />
+                     </toggleGroup>
+                  </RadioMenuItem>
+                  <RadioMenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" text="Dark Mode" toggleGroup="$theme" />
+               </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="TreeView">
               <items>
                   <MenuItem fx:id="menuButtonExpandPartOf" mnemonicParsing="false" text="Expand part-of">
