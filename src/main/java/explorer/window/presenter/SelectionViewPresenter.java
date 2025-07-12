@@ -1,5 +1,6 @@
 package explorer.window.presenter;
 
+import explorer.model.AiApiService;
 import explorer.model.AnatomyNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.model.treetools.KryoUtils;
@@ -12,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -111,7 +113,8 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Sets up the search bar, find buttons, and hit count label for searching AnatomyNode names.
+     * Sets up the search bar, AI button, Regex Button as well as
+     * find buttons, and hit count label for searching AnatomyNode names.
      *
      * @param registry the GuiRegistry providing access to selection view controls and TreeViews
      */
@@ -122,10 +125,12 @@ public class SelectionViewPresenter {
         Button allButton = controller.getButtonFindAll();
         Label hitLabel = controller.getSearchHitLabel();
         ToggleButton useRegexToggle = controller.getRegexToggleButton();
+        Button aiButton = controller.getAiButton();
 
 
         Search search = new Search();
 
+        // setup of the search bar
         searchBar.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.isEmpty()) {
                 search.resetSearch();
@@ -146,6 +151,28 @@ public class SelectionViewPresenter {
             }
         });
 
+        // setup of the AI search button
+        AiApiService aiApiService = new AiApiService();
+        aiApiService.setOnSucceeded(event -> resetAiButton(aiButton));
+        aiApiService.setOnCancelled(event -> resetAiButton(aiButton));
+        aiApiService.setOnFailed(event -> resetAiButton(aiButton));
+
+        aiButton.setOnAction(e -> {
+            if (aiApiService.isRunning()) {
+                aiApiService.cancel();
+
+            } else {
+                ProgressIndicator spinner = new ProgressIndicator();
+                spinner.setPrefSize(16, 16);
+                spinner.setMouseTransparent(true);
+
+                aiButton.setText("");
+                aiButton.setGraphic(spinner);
+                aiApiService.restart();
+            }
+        });
+
+        // search control buttons
         nextButton.setOnAction(e -> {
             search.showNextResult(treeOfChoice(registry));
         });
@@ -162,6 +189,16 @@ public class SelectionViewPresenter {
             (search.getCurrentSearchIndex() + 1) + " / " + search.getNumberOfHits() + " hits",
              search.currentSearchIndexProperty(), search.getSearchResults()
         ));
+    }
+
+    /**
+     * Resets the AI button to its default state.
+     *
+     * @param aiButton the AI button to reset
+     */
+    private void resetAiButton(Button aiButton) {
+        aiButton.setGraphic(null);
+        aiButton.setText("AI");
     }
 
     /**

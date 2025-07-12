@@ -90,6 +90,9 @@ public class SelectionViewController {
     @FXML
     private ToggleButton regexToggleButton;
 
+    @FXML
+    private Button aiButton;
+
     public MenuItem getCollapseMenuItem() {
         return CollapseMenuItem;
     }
@@ -196,6 +199,10 @@ public class SelectionViewController {
 
     public ToggleButton getRegexToggleButton() {
         return regexToggleButton;
+    }
+
+    public Button getAiButton() {
+        return aiButton;
     }
 
     /**
