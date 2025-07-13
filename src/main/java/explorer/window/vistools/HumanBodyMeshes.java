@@ -109,7 +109,7 @@ public class HumanBodyMeshes {
      * @param progressCallback a callback that receives the current progress and the total number of files to load.
      */
     public void loadMeshes(String wavefrontFolder, BiConsumer<Integer, Integer> progressCallback) {
-        //TODO move .obj files in resources and apply grouping
+        //TODO move .obj files in resources and apply grouping after project finished
         File folder = new File(wavefrontFolder);
         File[] objFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".obj"));
         if (objFiles == null || objFiles.length == 0) return;
@@ -170,8 +170,8 @@ public class HumanBodyMeshes {
                 MeshView mesh = fileIdToMeshMap.get(fileID);
                 if (mesh.getUserData() instanceof HashSet<?> userData) {
                     @SuppressWarnings("unchecked") // not ideal, but since we won't reuse the userData it suffices
-                    HashSet<String> names = (HashSet<String>) userData;
-                    names.add(anatomyNode.getName());
+                    HashSet<String> conceptNames = (HashSet<String>) userData;
+                    conceptNames.add(anatomyNode.getName());
                 }
             }
         }
