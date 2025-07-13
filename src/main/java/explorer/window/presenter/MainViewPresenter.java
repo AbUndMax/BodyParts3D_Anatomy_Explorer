@@ -5,13 +5,20 @@ import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
 import explorer.window.controller.MainViewController;
+import explorer.window.controller.NodeInfoViewController;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,6 +30,7 @@ import java.util.Optional;
 public class MainViewPresenter {
 
     private final MainViewController mainController;
+    private final CommandManager commandManager;
 
     /**
      * Constructs a MainViewPresenter and initializes menu button handlers.
@@ -31,6 +39,7 @@ public class MainViewPresenter {
      */
     public MainViewPresenter(GuiRegistry registry) {
         mainController = registry.getMainViewController();
+        commandManager = registry.getCommandManager();
         setupMenuButtons(registry);
     }
 
@@ -46,34 +55,11 @@ public class MainViewPresenter {
     private void setupMenuButtons(GuiRegistry registry) {
 
         // EXPLORER
-        /*
-        instead of an "open" menuItem I decided to implement it in a different way for several reasons:
-        - First: I designed the program to work exclusively on the initially loaded humanBody instance.
-        - Second: It was not meant to load "new" or even different 3D objects since this would not match
-                    the treeViews.
-        - Third: I won't refactor this design choice since this would mean to manage the Listeners
-                    on my HumanBody instance differently and would have to be rehooked onto the new instance
-                    every time a new HumanBody is loaded.
-         */
         mainController.getMenuButtonInvalidConfig().setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Config Path Invalidation");
-            alert.setContentText("You are about to delete the config Path to the BodyParts3D wavefront folder.\n\n" +
-                                         "This action will close the application.\n" +
-                                         "On restart you are asked to set a new Path to the 'isa_BP3D_4.0_obj_99' " +
-                                         "folder.");
-
-            ButtonType continueButton = new ButtonType("Continue");
-            ButtonType abortButton = new ButtonType("Abort", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-            alert.getButtonTypes().setAll(continueButton, abortButton);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == continueButton) {
-                AppConfig.invalidateLastPath();
-                System.exit(0);
-            }
+            invalidateConfigHandler();
+        });
+        mainController.getMenuButtonClose().setOnAction(e -> {
+            Platform.exit();
         });
 
 
@@ -81,36 +67,7 @@ public class MainViewPresenter {
         mainController.getMenuButtonResetSelection().setOnAction(event -> {
             registry.getVisualizationViewController().getClearSelectionButton().fire();
         });
-
-        MenuItem undoMenu = mainController.getMenuButtonUndo();
-        MenuItem redoMenu = mainController.getMenuButtonRedo();
-        CommandManager commandManager = registry.getCommandManager();
-
-        // Bind Undo menu label to last undoable command
-        undoMenu.textProperty().bind(Bindings.createStringBinding(()  -> {
-            Command cmd = commandManager.getLastUndoCommand().getValue();
-            return cmd != null ? "Undo: " + cmd.name() : "Undo";
-        }, commandManager.getLastUndoCommand()));
-
-        undoMenu.disableProperty().bind(commandManager.getLastUndoCommand().isNull());
-
-        // Execute undo when Undo menu is selected
-        undoMenu.setOnAction(event -> {
-            commandManager.undo();
-        });
-
-        // Bind Redo menu label to last redoable command
-        redoMenu.textProperty().bind(Bindings.createStringBinding(() -> {
-            Command cmd = commandManager.getLastRedoCommand().getValue();
-            return cmd != null ? "Redo: " + cmd.name() : "Redo";
-        }, commandManager.getLastRedoCommand()));
-
-        redoMenu.disableProperty().bind(commandManager.getLastRedoCommand().isNull());
-
-        // Execute redo when Redo menu is selected
-        redoMenu.setOnAction(event -> {
-            commandManager.redo();
-        });
+        setupUndoRedoItems(registry);
 
 
         // VIEW
@@ -127,6 +84,12 @@ public class MainViewPresenter {
             registry.getMainScene().getStylesheets().add(Objects.requireNonNull(
                     getClass().getResource("/themes/darkMode.css")).toExternalForm());
         });
+        mainController.getMenuButtonShowSelectionList().setOnAction(event -> {
+            registry.getSelectionViewController().getSelectionListToggle().fire();
+        });
+        mainController.getMenuItemShowFindPane().setOnAction(event -> {
+            registry.getSelectionViewController().getFindConceptsToggle().fire();
+        });
 
 
         // TREEVIEW
@@ -142,8 +105,8 @@ public class MainViewPresenter {
         mainController.getMenuButtonCollapsePartOf().setOnAction(event -> {
             registry.getSelectionViewPresenter().collapsePartOfTree();
         });
-        mainController.getMenuButtonShowSelectionList().setOnAction(event -> {
-            registry.getSelectionViewController().getSelectionListToggle().fire();
+        mainController.getNodeInformationsMenuItem().setOnAction(event -> {
+            nodeInformationHandler(registry);
         });
 
 
@@ -183,5 +146,111 @@ public class MainViewPresenter {
         mainController.getMenuButtonZoomOut().setOnAction(event -> {
             registry.getVisualizationViewPresenter().zoomOutContentGroup(commandManager);
         });
+
+
+        // HELP
+        mainController.getMenuButtonAbout().setOnAction(e -> {
+            aboutHandler();
+        });
+    }
+
+    private void invalidateConfigHandler() {
+
+        /*
+        instead of an "open" menuItem I decided to implement it in a different way for several reasons:
+        - First: I designed the program to work exclusively on the initially loaded humanBody instance.
+        - Second: It was not meant to load "new" or even different 3D objects since this would not match
+                    the treeViews.
+        - Third: I won't refactor this design choice since this would mean to manage the Listeners
+                    on my HumanBody instance differently and would have to be rehooked onto the new instance
+                    every time a new HumanBody is loaded.
+         */
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText("Config Path Invalidation");
+        alert.setContentText("You are about to delete the config Path to the BodyParts3D wavefront folder.\n\n" +
+                                     "This action will close the application.\n" +
+                                     "On restart you are asked to set a new Path to the 'isa_BP3D_4.0_obj_99' " +
+                                     "folder.");
+
+        ButtonType continueButton = new ButtonType("Continue");
+        ButtonType abortButton = new ButtonType("Abort", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(continueButton, abortButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == continueButton) {
+            AppConfig.invalidateLastPath();
+            Platform.exit();
+        }
+    }
+
+    private void setupUndoRedoItems(GuiRegistry registry) {
+
+        MenuItem undoMenu = mainController.getMenuButtonUndo();
+        MenuItem redoMenu = mainController.getMenuButtonRedo();
+
+        // Bind Undo menu label to last undoable command
+        undoMenu.textProperty().bind(Bindings.createStringBinding(()  -> {
+            Command cmd = commandManager.getLastUndoCommand().getValue();
+            return cmd != null ? "Undo: " + cmd.name() : "Undo";
+        }, commandManager.getLastUndoCommand()));
+
+        undoMenu.disableProperty().bind(commandManager.getLastUndoCommand().isNull());
+
+        // Execute undo when Undo menu is selected
+        undoMenu.setOnAction(event -> {
+            commandManager.undo();
+        });
+
+        // Bind Redo menu label to last redoable command
+        redoMenu.textProperty().bind(Bindings.createStringBinding(() -> {
+            Command cmd = commandManager.getLastRedoCommand().getValue();
+            return cmd != null ? "Redo: " + cmd.name() : "Redo";
+        }, commandManager.getLastRedoCommand()));
+
+        redoMenu.disableProperty().bind(commandManager.getLastRedoCommand().isNull());
+
+        // Execute redo when Redo menu is selected
+        redoMenu.setOnAction(event -> {
+            commandManager.redo();
+        });
+    }
+
+    private void nodeInformationHandler(GuiRegistry registry) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NodeInfoView.fxml"));
+            Parent root = loader.load();
+
+            NodeInfoViewController controller = loader.getController();
+            NodeInfoViewPresenter presenter = new NodeInfoViewPresenter(controller, registry);
+
+            Stage infoStage = new Stage();
+            infoStage.setTitle("Node Information");
+            infoStage.setScene(new Scene(root));
+            infoStage.initModality(Modality.APPLICATION_MODAL);
+            infoStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void aboutHandler() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("Anatomy Explorer    ᕙ(  •̀ ᗜ •́  )ᕗ");
+        alert.setContentText("Implemented by Niklas Gerbes! \n" +
+                                     "This app is the final project of the summer term course \n" +
+                                     "\"Advanced Java for Bioinformatics\" \n" +
+                                     "2025 U. Tübingen by Prof. D. Huson \n\n" +
+                                     "The Explorer is based on \"BodyParts3D\":\n" +
+                                     "Mitsuhashi N, Fujieda K, Tamura T, \n" +
+                                     "Kawamoto S, Takagi T, Okubo K.\n" +
+                                     "BodyParts3D: 3D structure database for anatomical concepts.\n" +
+                                     "Nucleic Acids Res. 2008 Oct 3.\n" +
+                                     "PMID: 18835852");
+        alert.showAndWait();
     }
 }

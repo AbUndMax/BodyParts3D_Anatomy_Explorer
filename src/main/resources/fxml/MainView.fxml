@@ -11,7 +11,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="820.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.MainViewController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+            minHeight="600.0" minWidth="820.0" prefHeight="700.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="explorer.window.controller.MainViewController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -54,6 +57,16 @@
                      </toggleGroup>
                   </RadioMenuItem>
                   <RadioMenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" text="Dark Mode" toggleGroup="$theme" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Toggle Selection List">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuItemShowFindPane" mnemonicParsing="false" text="Toggle Find Concepts">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="TreeView">
@@ -76,10 +89,7 @@
                         <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
                      </accelerator></MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Toggle Selection List">
-                     <accelerator>
-                        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-                     </accelerator></MenuItem>
+                  <MenuItem fx:id="nodeInformationsMenuItem" mnemonicParsing="false" text="Node Informations" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Transformations">
