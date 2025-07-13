@@ -104,6 +104,7 @@ public class VisualizationViewPresenter {
      */
     private Group setupVisualisationPane(CommandManager commandManager) {
         Pane visualizationPane = controller.getVisualizationPane();
+        visualizationPane.getStyleClass().add("visualization-pane");
         Group contentGroup = new Group();
         Group root3d = new Group(contentGroup);
 
@@ -113,7 +114,7 @@ public class VisualizationViewPresenter {
         subScene.widthProperty().bind(visualizationPane.widthProperty());
         subScene.heightProperty().bind(visualizationPane.heightProperty());
         // set subScene background
-        subScene.setFill(Color.LIGHTBLUE);
+        subScene.setFill(Color.TRANSPARENT);
 
         // add camera
         subScene.setCamera(camera);

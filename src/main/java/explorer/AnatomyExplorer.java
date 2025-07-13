@@ -10,9 +10,16 @@ public class AnatomyExplorer extends Application {
         var registry = new GuiRegistry();
 
         primaryStage.setTitle("Anatomy Explorer");
-        primaryStage.setScene(new javafx.scene.Scene(registry.getRoot(), 1000, 700));
+        primaryStage.setScene(registry.getMainScene());
+
         primaryStage.setMinWidth(820);
+        primaryStage.setWidth(1000);
         primaryStage.setMinHeight(650);
+        primaryStage.setHeight(700);
+
+        // set lightMode by default
+        registry.getMainViewController().getLightModeMenuItem().fire();
+
         primaryStage.show();
     }
 }

@@ -12,6 +12,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -115,6 +116,16 @@ public class MainViewPresenter {
         // VIEW
         mainController.getFullScreenMenuItem().setOnAction(event -> {
             ((Stage) registry.getRoot().getScene().getWindow()).setFullScreen(true);
+        });
+        mainController.getLightModeMenuItem().setOnAction(event -> {
+            registry.getMainScene().getStylesheets().clear();
+            registry.getMainScene().getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/themes/lightMode.css")).toExternalForm());
+        });
+        mainController.getDarkModeMenuItem().setOnAction(event -> {
+            registry.getMainScene().getStylesheets().clear();
+            registry.getMainScene().getStylesheets().add(Objects.requireNonNull(
+                    getClass().getResource("/themes/darkMode.css")).toExternalForm());
         });
 
 

@@ -8,12 +8,14 @@ import explorer.window.presenter.VisualizationViewPresenter;
 import explorer.window.selection.SelectionBinder;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 
 import java.io.IOException;
 import java.net.URL;
 
 public class GuiRegistry {
     private final Parent root;
+    private final Scene mainScene;
     private final MainViewController mainViewController;
     private final SelectionViewController selectionViewController;
     private final VisualizationViewController visualizationViewController;
@@ -30,6 +32,7 @@ public class GuiRegistry {
         URL mainFXML = getClass().getResource("/fxml/MainView.fxml");
         FXMLLoader loader = new FXMLLoader(mainFXML);
         root = loader.load();
+        mainScene = new Scene(root);
 
         mainViewController = loader.getController();
         selectionViewController = mainViewController.getSelectionViewController();
@@ -43,6 +46,10 @@ public class GuiRegistry {
 
     public Parent getRoot() {
         return root;
+    }
+
+    public Scene getMainScene() {
+        return mainScene;
     }
 
     public MainViewController getMainViewController() {

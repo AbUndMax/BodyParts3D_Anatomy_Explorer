@@ -4,9 +4,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.objenesis.strategy.StdInstantiatorStrategy;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.ArrayList;
 
 public class KryoUtils {
@@ -18,7 +17,7 @@ public class KryoUtils {
      *
      * @return the deserialized AnatomyNode tree, or null if loading fails
      */
-    public static AnatomyNode loadTreeFromKryo(String kryoFilePath) {
+    public static AnatomyNode loadTreeFromKryo(String resourceKryoPath) {
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 
@@ -27,8 +26,13 @@ public class KryoUtils {
         kryo.register(ArrayList.class);
         kryo.register(String.class);
 
-        try (Input input = new Input(new FileInputStream(kryoFilePath))) {
-            return kryo.readObject(input, AnatomyNode.class);
+        try (InputStream input = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
+            // TODO: need better logging
+            if (input == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
+
+            Input inputKryo = new Input(input);
+            return kryo.readObject(inputKryo, AnatomyNode.class);
+
         } catch (IOException e) {
             e.printStackTrace();
             return null;

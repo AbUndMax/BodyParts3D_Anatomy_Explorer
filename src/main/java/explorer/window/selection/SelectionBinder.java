@@ -224,6 +224,7 @@ public class SelectionBinder {
      * @param treeView the TreeView containing the item
      */
     public void selectAllBelow(TreeItem<AnatomyNode> item, TreeView<AnatomyNode> treeView) {
+        if (item == null) return;
         TreeViewBinding binding = treeViewBindings.get(treeView);
 
         // Temporarily disable sync to perform batch selection

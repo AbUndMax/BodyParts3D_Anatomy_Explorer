@@ -57,8 +57,9 @@ public class SelectionViewPresenter {
         TreeView<AnatomyNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
         TreeView<AnatomyNode> treeViewPartOf = registry.getSelectionViewController().getTreeViewPartOf();
 
-        setupTreeView(treeViewIsA, "src/main/resources/serializedTrees/isA_tree.kryo");
-        setupTreeView(treeViewPartOf, "src/main/resources/serializedTrees/partOf_tree.kryo");
+
+        setupTreeView(treeViewIsA, "/serializedTrees/isA_tree.kryo");
+        setupTreeView(treeViewPartOf, "/serializedTrees/partOf_tree.kryo");
 
         // default is partOf tree
         lastFocusedTreeView = treeViewPartOf;
