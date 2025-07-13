@@ -186,7 +186,7 @@ public class SelectionViewPresenter {
         aiApiService.setOnSucceeded(event -> {
             resetAiButtonAnimation(aiButton, "✓");
             useRegexToggle.setSelected(true);
-            search.performSearch(aiApiService.getValue(), treeOfChoice(), useRegexToggle.isSelected());
+            searchBar.setText(aiApiService.getValue());
         });
 
         // search control buttons

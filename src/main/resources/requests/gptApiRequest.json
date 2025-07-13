@@ -7,7 +7,7 @@
     },
     {
       "role": "user",
-      "content": "{{terms}}\n\n{{query}}"
+      "content": "{{terms}}\n\nquery: {{query}}"
     }
   ]
 }
