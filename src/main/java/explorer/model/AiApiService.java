@@ -15,10 +15,10 @@ public class AiApiService extends Service<String> {
 
             @Override
             protected String call() throws Exception {
-                Thread.sleep(1000);
+                Thread.sleep(4000);
 
                 // return the regular expression
-                return "REGEX STRING";
+                return "tre?";
             }
         };
     }
