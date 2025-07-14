@@ -77,6 +77,31 @@ per KeyFrame.
 I tried this option and while it showed the progress on how the meshes are added, the GUI stayed unresponsive.
 
 
+### Invalidate Configs instead of "File" -> "Open"
+
+Instead of letting the user manually load different 3D models through a classic “Open…” dialog, 
+I designed the application to always work with one the initially loaded HumanBody instance. T
+hat decision was made for three main reasons:
+1.	Single-model architecture: 
+        The program is built around a single, consistent anatomical dataset. 
+        Loading another would break this assumption.
+2.	Consistency with the UI:
+        The tree views (like the “is-a” or “part-of” hierarchy) are directly linked to this one model.
+        Switching to a different model would require real-time rebinding and remapping,
+        which would add complexity and introduce error potential.
+3.	Simplified event binding:
+        Listeners and references are tightly connected to the first loaded HumanBody.
+        Replacing it would mean carefully unhooking and rehooking many components every time.
+
+Instead of dynamically switching models at runtime, I added a configuration mechanism: 
+when the saved path to the 3D model (the isa_BP3D_4.0_obj_99 folder) 
+becomes invalid the app doesn’t just break silently. 
+On startup the user is then prompted to re-select the correct folder.
+This happens via an overlay UI that disables further interaction until a valid path is chosen. 
+Once the new folder is selected, the app saves the new path and continues to load the anatomical model.
+This keeps everything simple, stable, and predictable, while still offering a fallback for broken config paths.
+
+
 ### Structuring the GUI in three main Components: 'MainView', 'SelectionView' and 'VisualizationView'
 
 

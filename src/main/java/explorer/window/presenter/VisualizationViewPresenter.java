@@ -49,16 +49,17 @@ public class VisualizationViewPresenter {
     // registry for all important and central presenter / manager classes
     private final GuiRegistry registry;
 
-    // controller of this presenter class
+    // controller of this presenter class to access Nodes
     private final VisualizationViewController controller;
 
-    // constants copied from assignment06
     // initial view on the tripod is saved as Affine. It is also used as reset position.
     public static final Affine INITIAL_TRANSFORM = new Affine(
             1.0, 0.0, 0.0, 0.0,
             0.0, 0.0, -1.0, 0.0,
             0.0, 1.0, 0.0, 0.0
     );
+
+    // the rotation angle for one applied rotation step
     private static final int ROTATION_STEP = 10;
 
     // one camera instance on the subscene
@@ -113,7 +114,7 @@ public class VisualizationViewPresenter {
         var subScene = new SubScene(root3d, initWidth, initHeight, true, SceneAntialiasing.BALANCED);
         subScene.widthProperty().bind(visualizationPane.widthProperty());
         subScene.heightProperty().bind(visualizationPane.heightProperty());
-        // set subScene background
+        // set subScene background transparent and control the color via the visualizationPane in the css files
         subScene.setFill(Color.TRANSPARENT);
 
         // add camera

@@ -23,13 +23,15 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Presenter for the main application view.
- * Responsible for configuring menu button actions, binding UI controls to command logic,
- * and handling application-level actions such as undo/redo and configuration management.
+ * Presenter for the main application view, managing UI interactions,
+ * command bindings, and application-level actions such as undo/redo and configuration management.
  */
 public class MainViewPresenter {
 
+    //Controller for accessing Nodes.
     private final MainViewController mainController;
+
+    //Command manager for handling undo/redo logic.
     private final CommandManager commandManager;
 
     /**
@@ -154,6 +156,10 @@ public class MainViewPresenter {
         });
     }
 
+    /**
+     * Handles the action of invalidating the configuration path.
+     * Shows a warning dialog and exits the application upon confirmation.
+     */
     private void invalidateConfigHandler() {
 
         /*
@@ -186,6 +192,12 @@ public class MainViewPresenter {
         }
     }
 
+    /**
+     * Configures the Undo and Redo menu items including dynamic text binding
+     * and enabling/disabling based on available commands.
+     *
+     * @param registry the GuiRegistry providing access to the command manager
+     */
     private void setupUndoRedoItems(GuiRegistry registry) {
 
         MenuItem undoMenu = mainController.getMenuButtonUndo();
@@ -218,6 +230,11 @@ public class MainViewPresenter {
         });
     }
 
+    /**
+     * Opens a modal dialog displaying node information using the NodeInfoView.
+     *
+     * @param registry the GuiRegistry providing access to controllers and styles
+     */
     private void nodeInformationHandler(GuiRegistry registry) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NodeInfoView.fxml"));
@@ -228,7 +245,12 @@ public class MainViewPresenter {
 
             Stage infoStage = new Stage();
             infoStage.setTitle("Node Information");
-            infoStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            if (mainController.getDarkModeMenuItem().isSelected()) {
+                scene.getStylesheets().add(Objects.requireNonNull(
+                        getClass().getResource("/themes/darkMode.css")).toExternalForm());
+            }
+            infoStage.setScene(scene);
             infoStage.initModality(Modality.APPLICATION_MODAL);
             infoStage.show();
 
@@ -237,6 +259,9 @@ public class MainViewPresenter {
         }
     }
 
+    /**
+     * Displays an informational dialog with app credits and project details.
+     */
     private void aboutHandler() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
