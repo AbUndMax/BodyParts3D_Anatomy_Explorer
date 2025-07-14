@@ -2,11 +2,12 @@ module explorer {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
-    requires java.desktop;
     requires com.esotericsoftware.kryo;
     requires org.objenesis;
     requires java.prefs;
     requires jdk.compiler;
+    requires java.net.http;
+    requires com.fasterxml.jackson.databind;
 
     opens explorer.window to javafx.fxml;
     exports explorer;

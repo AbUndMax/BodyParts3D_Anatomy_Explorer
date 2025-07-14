@@ -174,6 +174,7 @@ public class SelectionViewPresenter {
                     aiButton.setGraphic(spinner);
                 });
 
+                aiApiService.setQuery(searchBar.getText(), controller.getSearchChoice().getValue());
                 aiApiService.restart();
             }
         });
@@ -191,15 +192,15 @@ public class SelectionViewPresenter {
 
         // search control buttons
         nextButton.setOnAction(e -> {
-            search.showNextResult(treeOfChoice());
+            search.selectNextResult(treeOfChoice());
         });
 
         firstButton.setOnAction(e -> {
-            search.showFirstResult(treeOfChoice());
+            search.selectFirstResult(treeOfChoice());
         });
 
         allButton.setOnAction(e -> {
-            search.showAllResults(treeOfChoice());
+            search.selectAllResults(treeOfChoice());
         });
 
         hitLabel.textProperty().bind(Bindings.createStringBinding(() ->
@@ -387,7 +388,7 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void showNextResult(TreeView<AnatomyNode> treeView) {
+        public void selectNextResult(TreeView<AnatomyNode> treeView) {
             if (searchResults.isEmpty()) return;
 
             currentSearchIndex.set((currentSearchIndex.get() + 1) % searchResults.size());
@@ -399,7 +400,7 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void showFirstResult(TreeView<AnatomyNode> treeView) {
+        public void selectFirstResult(TreeView<AnatomyNode> treeView) {
             if (searchResults.isEmpty()) return;
             currentSearchIndex.set(0);
             selectAndFocus(treeView, searchResults.get(currentSearchIndex.get()));
@@ -410,13 +411,14 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void showAllResults(TreeView<AnatomyNode> treeView) {
+        public void selectAllResults(TreeView<AnatomyNode> treeView) {
             if (searchResults.isEmpty()) return;
 
             MultipleSelectionModel<TreeItem<AnatomyNode>> selectionModel = treeView.getSelectionModel();
             selectionModel.clearSelection();
 
             for (TreeItem<AnatomyNode> item : searchResults) {
+                TreeUtils.collapseAllNodesUptToGivenNode(item);
                 selectionModel.select(item);
             }
 
