@@ -1,6 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AppConfig;
+import explorer.model.treetools.AnatomyNode;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
@@ -8,13 +9,11 @@ import explorer.window.controller.MainViewController;
 import explorer.window.controller.NodeInfoViewController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -240,10 +239,15 @@ public class MainViewPresenter {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NodeInfoView.fxml"));
             Parent root = loader.load();
 
-            NodeInfoViewController controller = loader.getController();
-            NodeInfoViewPresenter presenter = new NodeInfoViewPresenter(controller, registry);
+            NodeInfoViewController infoNodeController = loader.getController();
+
+            ObservableList<TreeItem<AnatomyNode>> selectedItems =
+                    registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
+
+            new NodeInfoViewPresenter(selectedItems, infoNodeController, registry);
 
             Stage infoStage = new Stage();
+            infoNodeController.getCloseNodeInfoButton().setOnAction(event -> infoStage.close());
             infoStage.setTitle("Node Information");
             Scene scene = new Scene(root);
             if (mainController.getDarkModeMenuItem().isSelected()) {

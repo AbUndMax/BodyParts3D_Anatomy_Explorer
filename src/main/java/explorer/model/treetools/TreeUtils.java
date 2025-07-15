@@ -48,4 +48,62 @@ public class TreeUtils {
             if (node != null) node.setExpanded(false);
         });
     }
+
+    /**
+     * Traverses the tree in a post-order manner, starting from the given node and applies
+     * the specified function to each node.
+     *
+     * imported and modified from assignment04
+     *
+     * @param node the root node of the subtree to be traversed in post-order
+     * @param function a Consumer function to be applied to each node during traversal
+     */
+    public static void postOrderTraversal(AnatomyNode node, Consumer<AnatomyNode> function) {
+        for (AnatomyNode child : node.getChildren()) {
+            postOrderTraversal(child, function);
+        }
+        function.accept(node);
+    }
+
+    /**
+     * Computes and returns the number of leaf nodes in a tree starting from the current node.
+     * A leaf node is defined as a node without any children.
+     *
+     * imported and modified from assignment04
+     *
+     * @return the total number of leaf nodes in the subtree rooted at the current node
+     */
+    public static int numberOfLeaves(AnatomyNode anatomyNode) {
+        int[] numberOfLeaves = {0};
+        TreeUtils.postOrderTraversal(anatomyNode, node -> {
+            if (node.isLeaf()) numberOfLeaves[0]++;
+        });
+        return numberOfLeaves[0];
+    }
+
+    /**
+     * Calculates the maximum horizontal depth of the tree starting from the given node.
+     * The horizontal depth is the number of internal nodes (with children)
+     * along the longest path from this node to a leaf.
+     *
+     * imported and modified from assignment04
+     *
+     * @param anatomyNode the starting node of the tree or subtree
+     * @return the maximum horizontal depth
+     */
+    public static int horizontalTreeDepth(AnatomyNode anatomyNode) {
+        if (anatomyNode == null || anatomyNode.getChildren().isEmpty()) {
+            return 1;
+        }
+
+        int maxDepth = 0;
+        for (AnatomyNode child : anatomyNode.getChildren()) {
+            int childDepth = horizontalTreeDepth(child);
+            if (childDepth > maxDepth) {
+                maxDepth = childDepth;
+            }
+        }
+
+        return 1 + maxDepth;
+    }
 }

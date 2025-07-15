@@ -149,8 +149,8 @@ public class VisualizationViewPresenter {
             TransformUtils.centerGroupToItself(anatomyGroup);
         });
 
-        // load the human body parts after the GUI is rendered
-        Platform.runLater(this::loadHumanBody);
+        // TODO load the human body parts after the GUI is rendered
+        // Platform.runLater(this::loadHumanBody);
         contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
 
         return contentGroup;
