@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.StackPane;
 
-public class NodeInfoViewController {
+public class ConceptInfoDialogController {
 
     @FXML
     private StackPane treePane;

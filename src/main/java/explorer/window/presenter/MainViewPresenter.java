@@ -6,7 +6,7 @@ import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
 import explorer.window.controller.MainViewController;
-import explorer.window.controller.NodeInfoViewController;
+import explorer.window.controller.ConceptInfoDialogController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
@@ -235,20 +235,24 @@ public class MainViewPresenter {
      * @param registry the GuiRegistry providing access to controllers and styles
      */
     private void nodeInformationHandler(GuiRegistry registry) {
+        ObservableList<TreeItem<AnatomyNode>> selectedItems =
+                registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
+
+        if (selectedItems.isEmpty()) {
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/NodeInfoView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ConceptInfoDialog.fxml"));
             Parent root = loader.load();
 
-            NodeInfoViewController infoNodeController = loader.getController();
+            ConceptInfoDialogController conceptInfoController = loader.getController();
 
-            ObservableList<TreeItem<AnatomyNode>> selectedItems =
-                    registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
-
-            new NodeInfoViewPresenter(selectedItems, infoNodeController, registry);
+            new ConceptInfoDialogPresenter(selectedItems, conceptInfoController, registry);
 
             Stage infoStage = new Stage();
-            infoNodeController.getCloseNodeInfoButton().setOnAction(event -> infoStage.close());
-            infoStage.setTitle("Node Information");
+            conceptInfoController.getCloseNodeInfoButton().setOnAction(event -> infoStage.close());
+            infoStage.setTitle("Concept Information");
             Scene scene = new Scene(root);
             if (mainController.getDarkModeMenuItem().isSelected()) {
                 scene.getStylesheets().add(Objects.requireNonNull(

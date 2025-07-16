@@ -5,10 +5,12 @@ import explorer.model.treetools.TreeUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.control.Tooltip;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -32,7 +34,7 @@ public class DrawCladogram {
      * @return a {@code Group} object containing JavaFX graphical elements representing the entire cladogram
      */
     public static Group apply(AnatomyNode root, Map<AnatomyNode, Point2D> nodePointMap) {
-        double lineSpacing = 14; // 12pt letters + 2px extra space
+        double lineSpacing = 20; // 12pt letters + 2px extra space
         int numberOfLeaves = TreeUtils.numberOfLeaves(root);
         double height = numberOfLeaves * lineSpacing;
 
@@ -68,21 +70,46 @@ public class DrawCladogram {
 
         //scale map to width and height
         Function<Point2D, Point2D> scaleFun = setupScaleFunction(nodePointMap.values(), width, height);
-        Map<AnatomyNode, Point2D> scaledMap = nodePointMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> scaleFun.apply(e.getValue())));
+        Map<AnatomyNode, Point2D> scaledMap =
+                nodePointMap.entrySet().stream().collect(
+                        Collectors.toMap(Map.Entry::getKey, e -> scaleFun.apply(e.getValue())));
 
         //generate the nodes, edges, labels
-        generateGroupsRec(root, nodes, edges, labels, scaledMap, height, numberOfLeaves);
-
-        nodes.getChildren().remove(1);
+        generateGroupsRec(root, nodes, edges, labels, scaledMap, height, numberOfLeaves, true);
 
         return new Group(nodes, edges, labels);
     }
 
 
-    public static void generateGroupsRec(AnatomyNode thisNode, Group nodes, Group edges, Group labels, Map<AnatomyNode, Point2D> nodePointMap, double height, int numberOfLeaves) {
+    /**
+     * Recursively generates graphical components (nodes, edges, and labels) for the cladogram.
+     * Adds a circle for each node, a label for each leaf, and lines connecting parent and child nodes.
+     *
+     * @param thisNode the current AnatomyNode being processed
+     * @param nodes the JavaFX group collecting all node (circle) elements
+     * @param edges the JavaFX group collecting all edge (line) elements
+     * @param labels the JavaFX group collecting all label (text) elements
+     * @param nodePointMap a map associating each node with its 2D position
+     * @param height the total height of the cladogram display area
+     * @param numberOfLeaves the number of leaf nodes in the tree
+     * @param isRoot indicates whether this node is the root of the tree
+     */
+    public static void generateGroupsRec(AnatomyNode thisNode, Group nodes, Group edges, Group labels,
+                                         Map<AnatomyNode, Point2D> nodePointMap, double height,
+                                         int numberOfLeaves, boolean isRoot) {
+        if (isRoot && !thisNode.getChildren().isEmpty()) {
+            Point2D rootPoint = nodePointMap.get(thisNode);
+            Point2D firstChildPoint = nodePointMap.get(thisNode.getChildren().getFirst());
+            double xTarget = firstChildPoint.getX();
+            Polyline rootLine = new Polyline(
+                    rootPoint.getX(), rootPoint.getY(),
+                    -xTarget, rootPoint.getY()
+            );
+            edges.getChildren().add(rootLine);
+        }
 
         //add circle to nodes-group
-        nodes.getChildren().add(createCircle(nodePointMap.get(thisNode)));
+        nodes.getChildren().add(createCircle(nodePointMap.get(thisNode), thisNode));
 
         // calculate font size
         double fontSize = calculateFontSize(height, numberOfLeaves);
@@ -90,21 +117,35 @@ public class DrawCladogram {
         if (thisNode.getChildren().isEmpty()) {
             //if this is a leaf, add text to labels-group
             labels.getChildren().add(createLabel(thisNode, nodePointMap.get(thisNode), fontSize));
-            return;
         } else {
             //for every child of this node: add an edge to it and recurse on it
             for (AnatomyNode child : thisNode.getChildren()) {
                 edges.getChildren().add(createEdge(nodePointMap.get(thisNode), nodePointMap.get(child)));
-                generateGroupsRec(child, nodes, edges, labels, nodePointMap, height, numberOfLeaves);
+                generateGroupsRec(child, nodes, edges, labels, nodePointMap, height, numberOfLeaves, false);
             }
         }
     }
 
+    /**
+     * Calculates the appropriate font size for leaf labels based on the overall height and
+     * the number of leaves to ensure clear and non-overlapping text.
+     *
+     * @param height the total height of the diagram
+     * @param numberOfLeaves the number of leaf nodes in the tree
+     * @return the calculated font size, capped at 12
+     */
     protected static double calculateFontSize(double height, int numberOfLeaves) {
         double spacing = height / numberOfLeaves;
         return Math.min(spacing * 0.8, 12);
     }
 
+    /**
+     * Finds and returns the longest node name from the provided node map.
+     * Used for determining label width requirements.
+     *
+     * @param nodePointMap map of nodes to their positions
+     * @return the longest node name string
+     */
     protected static String calculateLongestStringInMap(Map<AnatomyNode, Point2D> nodePointMap) {
         return nodePointMap.keySet().stream()
                 .map(AnatomyNode::getName)
@@ -116,13 +157,28 @@ public class DrawCladogram {
     /**
      * Below: some helper functions to create the javafx elements of the tree.
      */
+    /**
+     * Creates a polyline representing an edge between two nodes in the tree.
+     * The line moves horizontally and vertically to form an L-shape.
+     *
+     * @param a the starting point
+     * @param b the ending point
+     * @return a JavaFX Polyline connecting the two points
+     */
     public static Polyline createEdge(Point2D a, Point2D b) {
-
         return new Polyline(a.getX(), a.getY(), a.getX(), b.getY(), b.getX(), b.getY());
     }
 
+    /**
+     * Creates a JavaFX Text label for a leaf node and positions it to the right of the node.
+     *
+     * @param node the leaf node to be labeled
+     * @param p the 2D position of the node
+     * @param fontSize the font size to be used
+     * @return a configured Text object
+     */
     public static Text createLabel(AnatomyNode node, Point2D p, double fontSize) {
-        Text text = new Text(node.getName() + " ");
+        Text text = new Text(node.getName());
         text.applyCss();
 
         text.setFont(Font.font("Arial", fontSize));
@@ -130,18 +186,26 @@ public class DrawCladogram {
         Bounds bounds = text.getLayoutBounds();
         double textHeight = bounds.getHeight();
         double textOffset = bounds.getMinY();
-        text.setX(p.getX() + 4);
+        text.setX(p.getX() + 10);
         text.setY(p.getY() - (textHeight / 2) - textOffset);
 
         return text;
     }
 
-    public static Circle createCircle(Point2D p, double radius) {
-        return new Circle(p.getX(), p.getY(), radius);
-    }
-
-    public static Circle createCircle(Point2D p) {
-        return createCircle(p, 2);
+    /**
+     * Creates a JavaFX Circle representing a node.
+     * A tooltip is attached displaying the node's name.
+     *
+     * @param p the position of the node
+     * @param node the node to be represented
+     * @return a Circle object representing the node
+     */
+    public static Circle createCircle(Point2D p, AnatomyNode node) {
+        Circle circle = new Circle(p.getX(), p.getY(), 4);
+        Tooltip tooltip = new Tooltip(node.getName());
+        tooltip.setShowDelay(Duration.ZERO);
+        Tooltip.install(circle, tooltip);
+        return circle;
     }
 
     /**

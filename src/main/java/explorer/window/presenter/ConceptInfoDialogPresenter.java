@@ -3,7 +3,7 @@ package explorer.window.presenter;
 import explorer.model.Cladogram;
 import explorer.model.treetools.AnatomyNode;
 import explorer.window.GuiRegistry;
-import explorer.window.controller.NodeInfoViewController;
+import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -18,9 +18,9 @@ import java.util.Map;
  * Presenter class for the NodeInfo view.
  * Manages user interactions and visual updates of the cladogram based on selected nodes.
  */
-public class NodeInfoViewPresenter {
+public class ConceptInfoDialogPresenter {
 
-    private final NodeInfoViewController controller;
+    private final ConceptInfoDialogController controller;
     private final ObservableList<TreeItem<AnatomyNode>> selectedItems;
 
     /**
@@ -30,7 +30,7 @@ public class NodeInfoViewPresenter {
      * @param controller the controller managing the view
      * @param registry the global GUI registry (unused here, but available for future use)
      */
-    public NodeInfoViewPresenter(ObservableList<TreeItem<AnatomyNode>> selectedItems, NodeInfoViewController controller, GuiRegistry registry) {
+    public ConceptInfoDialogPresenter(ObservableList<TreeItem<AnatomyNode>> selectedItems, ConceptInfoDialogController controller, GuiRegistry registry) {
         this.controller = controller;
         this.selectedItems = selectedItems;
 
@@ -43,7 +43,7 @@ public class NodeInfoViewPresenter {
      * Always renders the cladogram of the first selected node.
      */
     private void setupTreeTap() {
-        if (selectedItems.size() != 1) {
+        if (selectedItems.size() > 1) {
             ChoiceBox<AnatomyNode> nodeChoiceBox = controller.getNodeChoiceBox();
 
             // Add all selected nodes to the choice box as selectable options

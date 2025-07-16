@@ -33,7 +33,7 @@ public class Cladogram {
                 leavesVisited[0]++;
             } else {
                 double y = computeYEqualLeafDepth(node, result);
-                result.put(node, new Point2D(0, y)); // x will be set in second pass
+                result.put(node, new Point2D(-1, y)); // x will be set in second pass
             }
         });
 
