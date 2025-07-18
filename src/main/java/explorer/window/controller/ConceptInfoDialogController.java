@@ -1,6 +1,6 @@
 package explorer.window.controller;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -12,7 +12,7 @@ public class ConceptInfoDialogController {
     private StackPane treePane;
 
     @FXML
-    private ChoiceBox<AnatomyNode> nodeChoiceBox;
+    private ChoiceBox<ConceptNode> nodeChoiceBox;
 
     @FXML
     private Button closeNodeInfoButton;
@@ -21,7 +21,7 @@ public class ConceptInfoDialogController {
         return treePane;
     }
 
-    public ChoiceBox<AnatomyNode> getNodeChoiceBox() {
+    public ChoiceBox<ConceptNode> getNodeChoiceBox() {
         return nodeChoiceBox;
     }
 

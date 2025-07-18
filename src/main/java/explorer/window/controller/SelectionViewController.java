@@ -1,6 +1,6 @@
 package explorer.window.controller;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -70,10 +70,10 @@ public class SelectionViewController {
     private MenuButton toggleMenuButton;
 
     @FXML
-    private TreeView<AnatomyNode> treeViewIsA;
+    private TreeView<ConceptNode> treeViewIsA;
 
     @FXML
-    private TreeView<AnatomyNode> treeViewPartOf;
+    private TreeView<ConceptNode> treeViewPartOf;
 
     @FXML
     private SplitPane treeViewSplitPane;
@@ -173,11 +173,11 @@ public class SelectionViewController {
         return toggleMenuButton;
     }
 
-    public TreeView<AnatomyNode> getTreeViewIsA() {
+    public TreeView<ConceptNode> getTreeViewIsA() {
         return treeViewIsA;
     }
 
-    public TreeView<AnatomyNode> getTreeViewPartOf() {
+    public TreeView<ConceptNode> getTreeViewPartOf() {
         return treeViewPartOf;
     }
 

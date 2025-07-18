@@ -1,6 +1,6 @@
 package explorer.window.vistools;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -33,7 +33,7 @@ public class DrawCladogram {
      * @param nodePointMap a map associating each node in the tree with a 2D point representing its position
      * @return a {@code Group} object containing JavaFX graphical elements representing the entire cladogram
      */
-    public static Group apply(AnatomyNode root, Map<AnatomyNode, Point2D> nodePointMap) {
+    public static Group apply(ConceptNode root, Map<ConceptNode, Point2D> nodePointMap) {
         double lineSpacing = 20; // 12pt letters + 2px extra space
         int numberOfLeaves = TreeUtils.numberOfLeaves(root);
         double height = numberOfLeaves * lineSpacing;
@@ -61,7 +61,7 @@ public class DrawCladogram {
      * @param height the desired height of the display space for the entire cladogram
      * @return a Group object containing graphical elements (nodes, edges, labels) for the visual representation of the cladogram
      */
-    public static Group apply(AnatomyNode root, Map<AnatomyNode, Point2D> nodePointMap, double width, double height) {
+    public static Group apply(ConceptNode root, Map<ConceptNode, Point2D> nodePointMap, double width, double height) {
         Group nodes = new Group();
         Group edges = new Group();
         Group labels = new Group();
@@ -70,7 +70,7 @@ public class DrawCladogram {
 
         //scale map to width and height
         Function<Point2D, Point2D> scaleFun = setupScaleFunction(nodePointMap.values(), width, height);
-        Map<AnatomyNode, Point2D> scaledMap =
+        Map<ConceptNode, Point2D> scaledMap =
                 nodePointMap.entrySet().stream().collect(
                         Collectors.toMap(Map.Entry::getKey, e -> scaleFun.apply(e.getValue())));
 
@@ -94,8 +94,8 @@ public class DrawCladogram {
      * @param numberOfLeaves the number of leaf nodes in the tree
      * @param isRoot indicates whether this node is the root of the tree
      */
-    public static void generateGroupsRec(AnatomyNode thisNode, Group nodes, Group edges, Group labels,
-                                         Map<AnatomyNode, Point2D> nodePointMap, double height,
+    public static void generateGroupsRec(ConceptNode thisNode, Group nodes, Group edges, Group labels,
+                                         Map<ConceptNode, Point2D> nodePointMap, double height,
                                          int numberOfLeaves, boolean isRoot) {
         if (isRoot && !thisNode.getChildren().isEmpty()) {
             Point2D rootPoint = nodePointMap.get(thisNode);
@@ -119,7 +119,7 @@ public class DrawCladogram {
             labels.getChildren().add(createLabel(thisNode, nodePointMap.get(thisNode), fontSize));
         } else {
             //for every child of this node: add an edge to it and recurse on it
-            for (AnatomyNode child : thisNode.getChildren()) {
+            for (ConceptNode child : thisNode.getChildren()) {
                 edges.getChildren().add(createEdge(nodePointMap.get(thisNode), nodePointMap.get(child)));
                 generateGroupsRec(child, nodes, edges, labels, nodePointMap, height, numberOfLeaves, false);
             }
@@ -146,9 +146,9 @@ public class DrawCladogram {
      * @param nodePointMap map of nodes to their positions
      * @return the longest node name string
      */
-    protected static String calculateLongestStringInMap(Map<AnatomyNode, Point2D> nodePointMap) {
+    protected static String calculateLongestStringInMap(Map<ConceptNode, Point2D> nodePointMap) {
         return nodePointMap.keySet().stream()
-                .map(AnatomyNode::getName)
+                .map(ConceptNode::getName)
                 .max(Comparator.comparingInt(String::length))
                 .orElse("");
     }
@@ -177,7 +177,7 @@ public class DrawCladogram {
      * @param fontSize the font size to be used
      * @return a configured Text object
      */
-    public static Text createLabel(AnatomyNode node, Point2D p, double fontSize) {
+    public static Text createLabel(ConceptNode node, Point2D p, double fontSize) {
         Text text = new Text(node.getName());
         text.applyCss();
 
@@ -200,7 +200,7 @@ public class DrawCladogram {
      * @param node the node to be represented
      * @return a Circle object representing the node
      */
-    public static Circle createCircle(Point2D p, AnatomyNode node) {
+    public static Circle createCircle(Point2D p, ConceptNode node) {
         Circle circle = new Circle(p.getX(), p.getY(), 4);
         Tooltip tooltip = new Tooltip(node.getName());
         tooltip.setShowDelay(Duration.ZERO);

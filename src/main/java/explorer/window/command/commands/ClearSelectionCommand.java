@@ -1,6 +1,6 @@
 package explorer.window.command.commands;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.window.command.Command;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.scene.control.TextField;
@@ -20,13 +20,13 @@ import java.util.List;
 public class ClearSelectionCommand implements Command {
 
     private final HumanBodyMeshes humanBodyMeshes;
-    private final TreeView<AnatomyNode> treeViewIsA;
-    private final TreeView<AnatomyNode> treeViewPartOf;
+    private final TreeView<ConceptNode> treeViewIsA;
+    private final TreeView<ConceptNode> treeViewPartOf;
     private final TextField searchBar;
 
     private final List<MeshView> previousMeshSelection = new ArrayList<>();
-    private final List<TreeItem<AnatomyNode>> previousIsASelection = new ArrayList<>();
-    private final List<TreeItem<AnatomyNode>> previousPartOfSelection = new ArrayList<>();
+    private final List<TreeItem<ConceptNode>> previousIsASelection = new ArrayList<>();
+    private final List<TreeItem<ConceptNode>> previousPartOfSelection = new ArrayList<>();
     private String previousSearchText = "";
 
     /**
@@ -37,8 +37,8 @@ public class ClearSelectionCommand implements Command {
      * @param treeViewPartOf the tree view showing "part-of" relationships
      * @param searchBar the search bar input field
      */
-    public ClearSelectionCommand(HumanBodyMeshes humanBodyMeshes, TreeView<AnatomyNode> treeViewIsA,
-                                 TreeView<AnatomyNode> treeViewPartOf, TextField searchBar) {
+    public ClearSelectionCommand(HumanBodyMeshes humanBodyMeshes, TreeView<ConceptNode> treeViewIsA,
+                                 TreeView<ConceptNode> treeViewPartOf, TextField searchBar) {
 
         this.humanBodyMeshes = humanBodyMeshes;
         previousMeshSelection.addAll(humanBodyMeshes.getSelectionModel().getSelectedItems());
@@ -79,11 +79,11 @@ public class ClearSelectionCommand implements Command {
             humanBodyMeshes.getSelectionModel().select(mesh);
         }
 
-        for (TreeItem<AnatomyNode> item : previousIsASelection) {
+        for (TreeItem<ConceptNode> item : previousIsASelection) {
             treeViewIsA.getSelectionModel().select(item);
         }
 
-        for (TreeItem<AnatomyNode> item : previousPartOfSelection) {
+        for (TreeItem<ConceptNode> item : previousPartOfSelection) {
             treeViewPartOf.getSelectionModel().select(item);
         }
 

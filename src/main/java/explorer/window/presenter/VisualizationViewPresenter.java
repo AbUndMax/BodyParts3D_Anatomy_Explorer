@@ -1,6 +1,6 @@
 package explorer.window.presenter;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.AppConfig;
 import explorer.model.ObjIO;
 import explorer.window.GuiRegistry;
@@ -427,8 +427,8 @@ public class VisualizationViewPresenter {
                 resetView(null); // initial reset should not used as Command
 
                 // bind the TreeViews to the MeshSelection
-                TreeView<AnatomyNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
-                TreeView<AnatomyNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
+                TreeView<ConceptNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
+                TreeView<ConceptNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
                 ListView<Label> listView = registry.getSelectionViewController().getSelectionListView();
                 // map FileIDs to Meshes
                 humanBodyMeshes.mapFileIDsToMeshes(isATreeView.getRoot(), partOfTreeView.getRoot());
@@ -526,11 +526,11 @@ public class VisualizationViewPresenter {
      * @return an ArrayList of MeshView objects to be displayed.
      */
     private HashSet<Node> selectedMeshes() {
-        ObservableList<TreeItem<AnatomyNode>> selectedItems =
+        ObservableList<TreeItem<ConceptNode>> selectedItems =
                 registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
         HashSet<Node> meshesToDraw = new HashSet<>();
         // Collect meshes corresponding to the selected nodes in the TreeView
-        for (TreeItem<AnatomyNode> selectedItem : selectedItems) {
+        for (TreeItem<ConceptNode> selectedItem : selectedItems) {
             meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
         }
         return meshesToDraw;

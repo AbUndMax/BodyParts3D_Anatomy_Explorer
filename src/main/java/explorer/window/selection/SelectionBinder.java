@@ -1,6 +1,6 @@
 package explorer.window.selection;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.collections.ListChangeListener;
@@ -24,7 +24,7 @@ public class SelectionBinder {
     private final ConcurrentHashMap<String, MeshView> fileIdToMeshMap;
 
     // maintain mapping from TreeView -> TreeViewBinding
-    private final Map<TreeView<AnatomyNode>, TreeViewBinding> treeViewBindings = new HashMap<>();
+    private final Map<TreeView<ConceptNode>, TreeViewBinding> treeViewBindings = new HashMap<>();
 
     /**
      * Constructs a SelectionBinder that synchronizes mesh selections between the underlying
@@ -43,14 +43,14 @@ public class SelectionBinder {
      *
      * @param treeView the TreeView displaying AnatomyNode items to bind.
      */
-    public void bindTreeView(TreeView<AnatomyNode> treeView) {
+    public void bindTreeView(TreeView<ConceptNode> treeView) {
         TreeViewBinding binding = new TreeViewBinding(treeView);
         treeViewBindings.put(treeView, binding);
 
-        MultipleSelectionModel<TreeItem<AnatomyNode>> multipleSelectionModel = treeView.getSelectionModel();
+        MultipleSelectionModel<TreeItem<ConceptNode>> multipleSelectionModel = treeView.getSelectionModel();
 
         // Push changes to the sourceOfTruth
-        multipleSelectionModel.getSelectedItems().addListener((ListChangeListener<TreeItem<AnatomyNode>>) change -> {
+        multipleSelectionModel.getSelectedItems().addListener((ListChangeListener<TreeItem<ConceptNode>>) change -> {
             if (binding.isSyncing) return;
             binding.isSyncing = true;
 
@@ -60,7 +60,7 @@ public class SelectionBinder {
             while (change.next()) {
                 // Remove mesh selections when tree nodes are deselected
                 if (change.wasRemoved()) {
-                    for (TreeItem<AnatomyNode> item : change.getRemoved()) {
+                    for (TreeItem<ConceptNode> item : change.getRemoved()) {
                         ArrayList<String> fileIDs = item.getValue().getFileIDs();
 
                         // collect the meshes that should be removed
@@ -73,7 +73,7 @@ public class SelectionBinder {
                 }
                 // Add mesh selections when tree nodes are selected
                 if (change.wasAdded()) {
-                    for (TreeItem<AnatomyNode> item : change.getAddedSubList()) {
+                    for (TreeItem<ConceptNode> item : change.getAddedSubList()) {
                         ArrayList<String> fileIDs = item.getValue().getFileIDs();
                         //DEBUG
                         //System.out.println("processing:" + item.getValue().getName());
@@ -125,14 +125,14 @@ public class SelectionBinder {
      * @param treeView the TreeView containing the TreeItem to select.
      * @param fileID the file ID associated with the TreeItem to select.
      */
-    private void selectNodeInTree(TreeView<AnatomyNode> treeView, String fileID) {
-        MultipleSelectionModel<TreeItem<AnatomyNode>> selectionModel = treeView.getSelectionModel();
-        TreeItem<AnatomyNode> root = treeView.getRoot();
+    private void selectNodeInTree(TreeView<ConceptNode> treeView, String fileID) {
+        MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
+        TreeItem<ConceptNode> root = treeView.getRoot();
         if (root == null) return;
 
-        Set<TreeItem<AnatomyNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
+        Set<TreeItem<ConceptNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToSelect != null) {
-            for (TreeItem<AnatomyNode> item : itemsToSelect) {
+            for (TreeItem<ConceptNode> item : itemsToSelect) {
                 // meshes are only represented DIRECTLY by leaves -> so only they get selected
                 if (item.getValue().isLeaf()) selectionModel.select(item);
             }
@@ -145,14 +145,14 @@ public class SelectionBinder {
      * @param treeView the TreeView containing the TreeItem to deselect.
      * @param fileID the file ID associated with the TreeItem to deselect.
      */
-    private void deselectNodeInTree(TreeView<AnatomyNode> treeView, String fileID) {
-        MultipleSelectionModel<TreeItem<AnatomyNode>> selectionModel = treeView.getSelectionModel();
-        TreeItem<AnatomyNode> root = treeView.getRoot();
+    private void deselectNodeInTree(TreeView<ConceptNode> treeView, String fileID) {
+        MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
+        TreeItem<ConceptNode> root = treeView.getRoot();
         if (root == null) return;
 
-        Set<TreeItem<AnatomyNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
+        Set<TreeItem<ConceptNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToDeSelect != null) {
-            for (TreeItem<AnatomyNode> item : itemsToDeSelect) {
+            for (TreeItem<ConceptNode> item : itemsToDeSelect) {
                 int index = treeView.getRow(item);
                 selectionModel.clearSelection(index);
             }
@@ -223,14 +223,14 @@ public class SelectionBinder {
      * @param item the TreeItem subtree root to select
      * @param treeView the TreeView containing the item
      */
-    public void selectAllBelow(TreeItem<AnatomyNode> item, TreeView<AnatomyNode> treeView) {
+    public void selectAllBelow(TreeItem<ConceptNode> item, TreeView<ConceptNode> treeView) {
         if (item == null) return;
         TreeViewBinding binding = treeViewBindings.get(treeView);
 
         // Temporarily disable sync to perform batch selection
         binding.isSyncing = true;
         ArrayList<MeshView> meshesToSelect = new ArrayList<>();
-        MultipleSelectionModel<TreeItem<AnatomyNode>> selModel = treeView.getSelectionModel();
+        MultipleSelectionModel<TreeItem<ConceptNode>> selModel = treeView.getSelectionModel();
         selModel.clearSelection();
 
         // Traverse subtree to collect and select nodes and meshes
@@ -252,9 +252,9 @@ public class SelectionBinder {
      * Facilitates selection synchronization between mesh model and tree UI.
      */
     private static class TreeViewBinding {
-        private final TreeView<AnatomyNode> treeView;
+        private final TreeView<ConceptNode> treeView;
         // map fileID to TreeItem -> Set of Nodes is used because one FileID can be associated with multiple Items
-        private final Map<String, Set<TreeItem<AnatomyNode>>> fileIdToTreeItem = new HashMap<>();
+        private final Map<String, Set<TreeItem<ConceptNode>>> fileIdToTreeItem = new HashMap<>();
         private boolean isSyncing = false;
 
         /**
@@ -262,7 +262,7 @@ public class SelectionBinder {
          *
          * @param treeView the TreeView to bind and map.
          */
-        TreeViewBinding(TreeView<AnatomyNode> treeView) {
+        TreeViewBinding(TreeView<ConceptNode> treeView) {
             this.treeView = treeView;
             mapTree(treeView.getRoot());
         }
@@ -272,18 +272,18 @@ public class SelectionBinder {
          *
          * @param current the current TreeItem being mapped.
          */
-        private void mapTree(TreeItem<AnatomyNode> current) {
+        private void mapTree(TreeItem<ConceptNode> current) {
             if (current == null) return;
             // Only map leaves so parents aren't selected for child fileIDs
             List<String> fileIDs = current.getValue().getFileIDs();
             if (fileIDs != null) {
                 for (String fileID : fileIDs) {
-                    Set<TreeItem<AnatomyNode>> set = fileIdToTreeItem
+                    Set<TreeItem<ConceptNode>> set = fileIdToTreeItem
                         .computeIfAbsent(fileID, k -> new HashSet<>());
                     set.add(current);
                 }
             }
-            for (TreeItem<AnatomyNode> child : current.getChildren()) {
+            for (TreeItem<ConceptNode> child : current.getChildren()) {
                 mapTree(child);
             }
         }

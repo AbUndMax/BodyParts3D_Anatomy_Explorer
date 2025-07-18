@@ -1,6 +1,6 @@
 package explorer.window.vistools;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.selection.MeshSelectionManager;
 import javafx.application.Platform;
@@ -152,7 +152,7 @@ public class HumanBodyMeshes {
      * @param isATreeRoot the root of the 'is-a' anatomy tree
      * @param partOfTreeRoot the root of the 'part-of' anatomy tree
      */
-    public void mapFileIDsToMeshes(TreeItem<AnatomyNode> isATreeRoot, TreeItem<AnatomyNode> partOfTreeRoot) {
+    public void mapFileIDsToMeshes(TreeItem<ConceptNode> isATreeRoot, TreeItem<ConceptNode> partOfTreeRoot) {
         TreeUtils.preOrderTreeViewTraversal(partOfTreeRoot, this::mapFileIDsToMeshes);
         TreeUtils.preOrderTreeViewTraversal(isATreeRoot, this::mapFileIDsToMeshes);
     }
@@ -163,15 +163,15 @@ public class HumanBodyMeshes {
      *
      * @param anatomyNodeTreeItem the TreeItem to process
      */
-    private void mapFileIDsToMeshes(TreeItem<AnatomyNode> anatomyNodeTreeItem) {
+    private void mapFileIDsToMeshes(TreeItem<ConceptNode> anatomyNodeTreeItem) {
         if (anatomyNodeTreeItem.isLeaf()) {
-            AnatomyNode anatomyNode = anatomyNodeTreeItem.getValue();
-            for (String fileID : anatomyNode.getFileIDs()) {
+            ConceptNode conceptNode = anatomyNodeTreeItem.getValue();
+            for (String fileID : conceptNode.getFileIDs()) {
                 MeshView mesh = fileIdToMeshMap.get(fileID);
                 if (mesh.getUserData() instanceof HashSet<?> userData) {
                     @SuppressWarnings("unchecked") // not ideal, but since we won't reuse the userData it suffices
                     HashSet<String> conceptNames = (HashSet<String>) userData;
-                    conceptNames.add(anatomyNode.getName());
+                    conceptNames.add(conceptNode.getName());
                 }
             }
         }

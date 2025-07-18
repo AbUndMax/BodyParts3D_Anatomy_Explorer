@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AiApiService;
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.model.treetools.KryoUtils;
 import explorer.window.GuiRegistry;
@@ -28,19 +28,19 @@ import java.util.regex.PatternSyntaxException;
  */
 public class SelectionViewPresenter {
 
-    private TreeView<AnatomyNode> lastFocusedTreeView = null;
+    private TreeView<ConceptNode> lastFocusedTreeView = null;
 
     /**
      * @return The currently selected item from the last focused TreeView
      */
-    private TreeItem<AnatomyNode> selectedItem() {
+    private TreeItem<ConceptNode> selectedItem() {
         return lastFocusedTreeView.getSelectionModel().getSelectedItem();
     }
 
     /**
      * @return the TreeView that most recently gained focus
      */
-    public TreeView<AnatomyNode> getLastFocusedTreeView() {
+    public TreeView<ConceptNode> getLastFocusedTreeView() {
         return lastFocusedTreeView;
     }
 
@@ -54,8 +54,8 @@ public class SelectionViewPresenter {
     public SelectionViewPresenter(GuiRegistry registry) {
         controller = registry.getSelectionViewController();
 
-        TreeView<AnatomyNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
-        TreeView<AnatomyNode> treeViewPartOf = registry.getSelectionViewController().getTreeViewPartOf();
+        TreeView<ConceptNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
+        TreeView<ConceptNode> treeViewPartOf = registry.getSelectionViewController().getTreeViewPartOf();
 
 
         setupTreeView(treeViewIsA, "/serializedTrees/isA_tree.kryo");
@@ -76,9 +76,9 @@ public class SelectionViewPresenter {
      * @param treeView the TreeView to initialize
      * @param kryoPath the path to the Kryo file containing the tree data
      */
-    private void setupTreeView(TreeView<AnatomyNode> treeView, String kryoPath) {
-        AnatomyNode root = KryoUtils.loadTreeFromKryo(kryoPath);
-        TreeItem<AnatomyNode> rootItem = createTreeItemsRec(root);
+    private void setupTreeView(TreeView<ConceptNode> treeView, String kryoPath) {
+        ConceptNode root = KryoUtils.loadTreeFromKryo(kryoPath);
+        TreeItem<ConceptNode> rootItem = createTreeItemsRec(root);
         treeView.setRoot(rootItem);
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         treeView.focusedProperty().addListener((obs, oldVal, newVal) -> {
@@ -92,10 +92,10 @@ public class SelectionViewPresenter {
      * @param treeRoot The root node of the AnatomyNode tree.
      * @return The corresponding TreeItem for the provided AnatomyNode.
      */
-    private static TreeItem<AnatomyNode> createTreeItemsRec(AnatomyNode treeRoot) {
-        TreeItem<AnatomyNode> item = new TreeItem<>(treeRoot);
+    private static TreeItem<ConceptNode> createTreeItemsRec(ConceptNode treeRoot) {
+        TreeItem<ConceptNode> item = new TreeItem<>(treeRoot);
         if (!treeRoot.getChildren().isEmpty()) {
-            for (AnatomyNode child : treeRoot.getChildren()) {
+            for (ConceptNode child : treeRoot.getChildren()) {
                 item.getChildren().add(createTreeItemsRec(child));
             }
         }
@@ -278,11 +278,11 @@ public class SelectionViewPresenter {
      *
      * @return the selected TreeView (either isA or partOf)
      */
-    private TreeView<AnatomyNode> treeOfChoice() {
+    private TreeView<ConceptNode> treeOfChoice() {
         ChoiceBox<String> choiceBox = controller.getSearchChoice();
 
-        TreeView<AnatomyNode> isATree = controller.getTreeViewIsA();
-        TreeView<AnatomyNode> partOfTree = controller.getTreeViewPartOf();
+        TreeView<ConceptNode> isATree = controller.getTreeViewIsA();
+        TreeView<ConceptNode> partOfTree = controller.getTreeViewPartOf();
 
         return choiceBox.getValue().equals("part-of") ? partOfTree : isATree;
     }
@@ -297,7 +297,7 @@ public class SelectionViewPresenter {
          *
          * @return The ObservableList of search result TreeItems.
          */
-        public ObservableList<TreeItem<AnatomyNode>> getSearchResults() {
+        public ObservableList<TreeItem<ConceptNode>> getSearchResults() {
             return searchResults;
         }
 
@@ -343,10 +343,10 @@ public class SelectionViewPresenter {
          * @param searchTerm The search term to look for in node names.
          * @param treeView The TreeView to search within.
          */
-        public void performSearch(String searchTerm, TreeView<AnatomyNode> treeView, boolean useRegex) {
+        public void performSearch(String searchTerm, TreeView<ConceptNode> treeView, boolean useRegex) {
             if (treeView == null || searchTerm.isEmpty()) return;
 
-            TreeItem<AnatomyNode> root = treeView.getRoot();
+            TreeItem<ConceptNode> root = treeView.getRoot();
 
             // reset search
             searchResults.clear();
@@ -388,7 +388,7 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void selectNextResult(TreeView<AnatomyNode> treeView) {
+        public void selectNextResult(TreeView<ConceptNode> treeView) {
             if (searchResults.isEmpty()) return;
 
             currentSearchIndex.set((currentSearchIndex.get() + 1) % searchResults.size());
@@ -400,7 +400,7 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void selectFirstResult(TreeView<AnatomyNode> treeView) {
+        public void selectFirstResult(TreeView<ConceptNode> treeView) {
             if (searchResults.isEmpty()) return;
             currentSearchIndex.set(0);
             selectAndFocus(treeView, searchResults.get(currentSearchIndex.get()));
@@ -411,13 +411,13 @@ public class SelectionViewPresenter {
          *
          * @param treeView The TreeView where the search results are displayed.
          */
-        public void selectAllResults(TreeView<AnatomyNode> treeView) {
+        public void selectAllResults(TreeView<ConceptNode> treeView) {
             if (searchResults.isEmpty()) return;
 
-            MultipleSelectionModel<TreeItem<AnatomyNode>> selectionModel = treeView.getSelectionModel();
+            MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
             selectionModel.clearSelection();
 
-            for (TreeItem<AnatomyNode> item : searchResults) {
+            for (TreeItem<ConceptNode> item : searchResults) {
                 TreeUtils.collapseAllNodesUptToGivenNode(item);
                 selectionModel.select(item);
             }
@@ -431,13 +431,13 @@ public class SelectionViewPresenter {
          * @param treeView the TreeView containing the item
          * @param item the TreeItem to select and focus
          */
-        private void selectAndFocus(TreeView<AnatomyNode> treeView, TreeItem<AnatomyNode> item) {
+        private void selectAndFocus(TreeView<ConceptNode> treeView, TreeItem<ConceptNode> item) {
             treeView.getSelectionModel().clearSelection();
             treeView.getSelectionModel().select(item);
             treeView.scrollTo(treeView.getRow(item));
         }
 
-        private final ObservableList<TreeItem<AnatomyNode>> searchResults =
+        private final ObservableList<TreeItem<ConceptNode>> searchResults =
                 javafx.collections.FXCollections.observableArrayList();
 
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);

@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.Cladogram;
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.window.GuiRegistry;
 import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class ConceptInfoDialogPresenter {
 
     private final ConceptInfoDialogController controller;
-    private final ObservableList<TreeItem<AnatomyNode>> selectedItems;
+    private final ObservableList<TreeItem<ConceptNode>> selectedItems;
 
     /**
      * Creates a new presenter for the NodeInfo view.
@@ -30,11 +30,16 @@ public class ConceptInfoDialogPresenter {
      * @param controller the controller managing the view
      * @param registry the global GUI registry (unused here, but available for future use)
      */
-    public ConceptInfoDialogPresenter(ObservableList<TreeItem<AnatomyNode>> selectedItems, ConceptInfoDialogController controller, GuiRegistry registry) {
+    public ConceptInfoDialogPresenter(ObservableList<TreeItem<ConceptNode>> selectedItems, ConceptInfoDialogController controller, GuiRegistry registry) {
         this.controller = controller;
         this.selectedItems = selectedItems;
 
         setupTreeTap();
+    }
+
+    //TODO
+    private void setupDiagramTap() {
+
     }
 
     /**
@@ -44,10 +49,10 @@ public class ConceptInfoDialogPresenter {
      */
     private void setupTreeTap() {
         if (selectedItems.size() > 1) {
-            ChoiceBox<AnatomyNode> nodeChoiceBox = controller.getNodeChoiceBox();
+            ChoiceBox<ConceptNode> nodeChoiceBox = controller.getNodeChoiceBox();
 
             // Add all selected nodes to the choice box as selectable options
-            for (TreeItem<AnatomyNode> item : selectedItems) {
+            for (TreeItem<ConceptNode> item : selectedItems) {
                 nodeChoiceBox.getItems().add(item.getValue());
             }
 
@@ -68,10 +73,10 @@ public class ConceptInfoDialogPresenter {
      *
      * @param selectedNode the root node of the tree to display
      */
-    private void redrawTreePane(AnatomyNode selectedNode) {
+    private void redrawTreePane(ConceptNode selectedNode) {
         StackPane treePane = controller.getTreePane();
 
-        Map<AnatomyNode, Point2D> map = Cladogram.layoutUniformEdgeLength(selectedNode);
+        Map<ConceptNode, Point2D> map = Cladogram.layoutUniformEdgeLength(selectedNode);
         Group group = DrawCladogram.apply(selectedNode, map);
 
         treePane.getChildren().clear();

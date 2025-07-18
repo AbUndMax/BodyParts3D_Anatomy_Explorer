@@ -17,12 +17,12 @@ public class KryoUtils {
      *
      * @return the deserialized AnatomyNode tree, or null if loading fails
      */
-    public static AnatomyNode loadTreeFromKryo(String resourceKryoPath) {
+    public static ConceptNode loadTreeFromKryo(String resourceKryoPath) {
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 
         // Registrierungen wie beim Speichern (optional, aber empfohlen)
-        kryo.register(AnatomyNode.class);
+        kryo.register(ConceptNode.class);
         kryo.register(ArrayList.class);
         kryo.register(String.class);
 
@@ -31,7 +31,7 @@ public class KryoUtils {
             if (input == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
 
             Input inputKryo = new Input(input);
-            return kryo.readObject(inputKryo, AnatomyNode.class);
+            return kryo.readObject(inputKryo, ConceptNode.class);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,13 +45,13 @@ public class KryoUtils {
      * @param tree the AnatomyNode tree to serialize
      * @param saveToPath the path where the Kryo file will be saved
      */
-    public static void freezeTree(AnatomyNode tree, String saveToPath) {
+    public static void freezeTree(ConceptNode tree, String saveToPath) {
         // setting strategy
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());  // Optional, wenn du final-Felder hast
 
         // register classes
-        kryo.register(AnatomyNode.class);
+        kryo.register(ConceptNode.class);
         kryo.register(ArrayList.class);
         kryo.register(String.class);
 

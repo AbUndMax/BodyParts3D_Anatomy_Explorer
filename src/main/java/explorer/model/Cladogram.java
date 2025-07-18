@@ -1,6 +1,6 @@
 package explorer.model;
 
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import javafx.geometry.Point2D;
 
@@ -22,8 +22,8 @@ public class Cladogram {
      * @return a mapping of each node in the tree to its assigned position as a 2D point,
      *         represented by {@link Point2D}
      */
-    public static Map<AnatomyNode, Point2D> layoutUniformEdgeLength(AnatomyNode root) {
-        Map<AnatomyNode, Point2D> result = new HashMap<>();
+    public static Map<ConceptNode, Point2D> layoutUniformEdgeLength(ConceptNode root) {
+        Map<ConceptNode, Point2D> result = new HashMap<>();
 
         // First postOrderTraversal for y coord calculation
         int[] leavesVisited = {0}; // Mutable counter using an array
@@ -52,9 +52,9 @@ public class Cladogram {
      * @param depth the depth of the current node (root starts at 0)
      * @param result the mapping from nodes to their current (x, y) positions
      */
-    private static void setXCoordinatesByDepth(AnatomyNode node, int depth, Map<AnatomyNode, Point2D> result) {
+    private static void setXCoordinatesByDepth(ConceptNode node, int depth, Map<ConceptNode, Point2D> result) {
         result.computeIfPresent(node, (k, oldPoint) -> new Point2D(depth, oldPoint.getY()));
-        for (AnatomyNode child : node.getChildren()) {
+        for (ConceptNode child : node.getChildren()) {
             setXCoordinatesByDepth(child, depth + 1, result);
         }
     }
@@ -67,10 +67,10 @@ public class Cladogram {
      * @param map a mapping of nodes to their respective points containing x and y coordinates
      * @return the average y-coordinate of the child nodes
      */
-    public static double computeYEqualLeafDepth(AnatomyNode node, Map<AnatomyNode, Point2D> map) {
+    public static double computeYEqualLeafDepth(ConceptNode node, Map<ConceptNode, Point2D> map) {
         double sum = 0;
         int counter = 0;
-        for (AnatomyNode child : node.getChildren()) {
+        for (ConceptNode child : node.getChildren()) {
             sum += map.get(child).getY();
             counter++;
         }

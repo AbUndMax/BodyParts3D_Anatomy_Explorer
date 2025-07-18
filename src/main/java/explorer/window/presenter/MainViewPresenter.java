@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AppConfig;
-import explorer.model.treetools.AnatomyNode;
+import explorer.model.treetools.ConceptNode;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
@@ -235,7 +235,7 @@ public class MainViewPresenter {
      * @param registry the GuiRegistry providing access to controllers and styles
      */
     private void nodeInformationHandler(GuiRegistry registry) {
-        ObservableList<TreeItem<AnatomyNode>> selectedItems =
+        ObservableList<TreeItem<ConceptNode>> selectedItems =
                 registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
 
         if (selectedItems.isEmpty()) {

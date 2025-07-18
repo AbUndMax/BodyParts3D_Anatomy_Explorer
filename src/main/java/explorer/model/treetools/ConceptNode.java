@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
  * Each node contains a concept ID, a name, associated file IDs, and child nodes.
  * Provides functionality to manage child nodes and to export the structure in Newick format.
  */
-public class AnatomyNode {
+public class ConceptNode {
 
     private String conceptID;
     private String name;
     private ArrayList<String> fileIDs;
-    private ArrayList<AnatomyNode> children;
+    private ArrayList<ConceptNode> children;
 
     /**
      * Constructs an AnatomyNode with the specified concept ID, name, child nodes, and file IDs.
@@ -23,7 +23,7 @@ public class AnatomyNode {
      * @param children the list of child nodes
      * @param fileIds the list of associated file IDs
      */
-    public AnatomyNode(String conceptId, String name, ArrayList<AnatomyNode> children, ArrayList<String> fileIds) {
+    public ConceptNode(String conceptId, String name, ArrayList<ConceptNode> children, ArrayList<String> fileIds) {
         this.conceptID = conceptId;
         this.name = name;
         this.children = children;
@@ -63,7 +63,7 @@ public class AnatomyNode {
     /**
      * @return the list of child nodes
      */
-    public ArrayList<AnatomyNode> getChildren() {
+    public ArrayList<ConceptNode> getChildren() {
         return children;
     }
 
@@ -99,7 +99,7 @@ public class AnatomyNode {
      *
      * @param children the new list of child nodes
      */
-    public void setChildren(ArrayList<AnatomyNode> children) {
+    public void setChildren(ArrayList<ConceptNode> children) {
         this.children = children;
     }
 
@@ -108,7 +108,7 @@ public class AnatomyNode {
      *
      * @param child the child node to add
      */
-    public void addChild(AnatomyNode child) {
+    public void addChild(ConceptNode child) {
         children.add(child);
     }
 
@@ -130,7 +130,7 @@ public class AnatomyNode {
      * @param node the root node for which the Newick representation is to be built
      * @return a String representing the subtree rooted at the given node in Newick format
      */
-    private String buildNewick(AnatomyNode node) {
+    private String buildNewick(ConceptNode node) {
         if (node.isLeaf()) {
             return node.name;
         } else {

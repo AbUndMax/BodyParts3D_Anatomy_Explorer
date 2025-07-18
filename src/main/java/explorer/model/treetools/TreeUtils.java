@@ -18,10 +18,10 @@ public class TreeUtils {
      * @param item the starting TreeItem for traversal
      * @param function a Consumer function to be applied to each visited TreeItem
      */
-    public static void preOrderTreeViewTraversal(TreeItem<AnatomyNode> item, Consumer<TreeItem<AnatomyNode>> function) {
+    public static void preOrderTreeViewTraversal(TreeItem<ConceptNode> item, Consumer<TreeItem<ConceptNode>> function) {
         function.accept(item);
         if (item != null) {
-            for (TreeItem<AnatomyNode> child : item.getChildren()) {
+            for (TreeItem<ConceptNode> child : item.getChildren()) {
                 preOrderTreeViewTraversal(child, function);
             }
         }
@@ -33,7 +33,7 @@ public class TreeUtils {
      *
      * @param item the TreeItem to be expanded, along with all its descendants
      */
-    public static void expandAllBelowGivenNode(TreeItem<AnatomyNode> item) {
+    public static void expandAllBelowGivenNode(TreeItem<ConceptNode> item) {
         preOrderTreeViewTraversal(item, node -> {
             if (node != null) node.setExpanded(true);
         });
@@ -43,7 +43,7 @@ public class TreeUtils {
      * Helper function to recursively collapse all nodes below the input node
      * @param item from which all nodes below get collapsed
      */
-    public static void collapseAllNodesUptToGivenNode(TreeItem<AnatomyNode> item) {
+    public static void collapseAllNodesUptToGivenNode(TreeItem<ConceptNode> item) {
         preOrderTreeViewTraversal(item, node -> {
             if (node != null) node.setExpanded(false);
         });
@@ -58,8 +58,8 @@ public class TreeUtils {
      * @param node the root node of the subtree to be traversed in post-order
      * @param function a Consumer function to be applied to each node during traversal
      */
-    public static void postOrderTraversal(AnatomyNode node, Consumer<AnatomyNode> function) {
-        for (AnatomyNode child : node.getChildren()) {
+    public static void postOrderTraversal(ConceptNode node, Consumer<ConceptNode> function) {
+        for (ConceptNode child : node.getChildren()) {
             postOrderTraversal(child, function);
         }
         function.accept(node);
@@ -73,9 +73,9 @@ public class TreeUtils {
      *
      * @return the total number of leaf nodes in the subtree rooted at the current node
      */
-    public static int numberOfLeaves(AnatomyNode anatomyNode) {
+    public static int numberOfLeaves(ConceptNode conceptNode) {
         int[] numberOfLeaves = {0};
-        TreeUtils.postOrderTraversal(anatomyNode, node -> {
+        TreeUtils.postOrderTraversal(conceptNode, node -> {
             if (node.isLeaf()) numberOfLeaves[0]++;
         });
         return numberOfLeaves[0];
@@ -88,16 +88,16 @@ public class TreeUtils {
      *
      * imported and modified from assignment04
      *
-     * @param anatomyNode the starting node of the tree or subtree
+     * @param conceptNode the starting node of the tree or subtree
      * @return the maximum horizontal depth
      */
-    public static int horizontalTreeDepth(AnatomyNode anatomyNode) {
-        if (anatomyNode == null || anatomyNode.getChildren().isEmpty()) {
+    public static int horizontalTreeDepth(ConceptNode conceptNode) {
+        if (conceptNode == null || conceptNode.getChildren().isEmpty()) {
             return 1;
         }
 
         int maxDepth = 0;
-        for (AnatomyNode child : anatomyNode.getChildren()) {
+        for (ConceptNode child : conceptNode.getChildren()) {
             int childDepth = horizontalTreeDepth(child);
             if (childDepth > maxDepth) {
                 maxDepth = childDepth;

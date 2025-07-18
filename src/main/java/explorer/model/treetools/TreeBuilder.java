@@ -32,7 +32,7 @@ class TreeBuilder {
         ArrayList<Relation> relations = loadRelationsFile(ISA_INCLUSION_RELATION_LIST_PATH);
         HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile(ISA_ELEMENTS_PARTS_PATH);
         String ROOT_CONCEPT = "FMA62955";
-        AnatomyNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
+        ConceptNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
         System.out.println(tree.toNewick()); // control tree
 
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/isA_tree.kryo");
@@ -49,7 +49,7 @@ class TreeBuilder {
         ArrayList<Relation> relations = loadRelationsFile(PARTOF_INCLUSION_RELATION_LIST_PATH);
         HashMap<String, ArrayList<String>> conceptIDToFileID = loadElementFile(PARTOF_ELEMENTS_PARTS_PATH);
         String ROOT_CONCEPT = "FMA20394";
-        AnatomyNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
+        ConceptNode tree = createTree(relations, conceptIDToFileID, ROOT_CONCEPT);
         System.out.println(tree.toNewick()); // control tree
         KryoUtils.freezeTree(tree, "src/main/resources/serializedTrees/partOf_tree.kryo");
     }
@@ -137,10 +137,10 @@ class TreeBuilder {
      *
      * SOURCE: assignment01
      */
-    private static AnatomyNode createTree(ArrayList<Relation> relations, HashMap<String,
+    private static ConceptNode createTree(ArrayList<Relation> relations, HashMap<String,
             ArrayList<String>> conceptIDToFileID, String rootConceptID) {
 
-        HashMap<String, AnatomyNode> idToNode = new HashMap<>();
+        HashMap<String, ConceptNode> idToNode = new HashMap<>();
 
         for (Relation relation : relations) {
             String parentID = relation.parentID();
@@ -148,12 +148,12 @@ class TreeBuilder {
             String childID = relation.childID();
             String childName = relation.childName();
 
-            AnatomyNode parentNode = idToNode.getOrDefault(parentID, new AnatomyNode(parentID,
+            ConceptNode parentNode = idToNode.getOrDefault(parentID, new ConceptNode(parentID,
                                                                                      parentName,
                                                                                      new ArrayList<>(),
                                                                                      conceptIDToFileID.get(parentID)));
 
-            AnatomyNode childNode = idToNode.getOrDefault(childID, new AnatomyNode(childID,
+            ConceptNode childNode = idToNode.getOrDefault(childID, new ConceptNode(childID,
                                                                                    childName,
                                                                                    new ArrayList<>(),
                                                                                    conceptIDToFileID.get(childID)));
