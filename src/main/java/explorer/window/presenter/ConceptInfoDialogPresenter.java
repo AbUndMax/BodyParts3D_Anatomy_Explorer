@@ -3,7 +3,6 @@ package explorer.window.presenter;
 import explorer.model.Cladogram;
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
-import explorer.window.GuiRegistry;
 import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
 import javafx.collections.FXCollections;
@@ -23,8 +22,9 @@ import javafx.util.StringConverter;
 import java.util.*;
 
 /**
- * Presenter class for the NodeInfo view.
- * Manages user interactions and visual updates of the cladogram based on selected nodes.
+ * Presenter class for the Concept Info Dialog view.
+ * Handles user interactions and visual updates for the concept information dialog,
+ * including chart displays and navigation between selected nodes.
  */
 public class ConceptInfoDialogPresenter {
 
@@ -32,11 +32,11 @@ public class ConceptInfoDialogPresenter {
     private final TreeItem<ConceptNode> treeViewRoot;
 
     /**
-     * Creates a new presenter for the NodeInfo view.
+     * Constructs a new presenter for the Concept Info Dialog view.
      *
      * @param selectedItems the currently selected tree items
+     * @param treeViewRoot the root of the concept tree
      * @param controller the controller managing the view
-     * @param registry the global GUI registry (unused here, but available for future use)
      */
     public ConceptInfoDialogPresenter(ObservableList<TreeItem<ConceptNode>> selectedItems,
                                       TreeItem<ConceptNode> treeViewRoot,
@@ -62,6 +62,13 @@ public class ConceptInfoDialogPresenter {
         redrawTreeTab(selectedItem);
     }
 
+    /**
+     * Configures the node choice box for switching between multiple selected nodes.
+     * Adds all selected nodes, sets up the string converter for display, and defines the action handler.
+     *
+     * @param nodeChoiceBox the ChoiceBox to configure
+     * @param selectedItems the items to populate the ChoiceBox with
+     */
     private void setupNodeChoiceBox(ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox, ObservableList<TreeItem<ConceptNode>> selectedItems) {
         // Add all selected nodes to the choice box as selectable options
         for (TreeItem<ConceptNode> item : selectedItems) {
@@ -94,6 +101,12 @@ public class ConceptInfoDialogPresenter {
         nodeChoiceBox.setVisible(true);
     }
 
+    /**
+     * Redraws and updates the Characteristics tab UI elements for the given node.
+     * Updates labels, calculates statistics, and refreshes the pie and bar charts.
+     *
+     * @param selectedItem the TreeItem representing the selected concept node
+     */
     private void redrawCharacteristicsTab(TreeItem<ConceptNode> selectedItem) {
         ConceptNode selectedConcept = selectedItem.getValue();
 
@@ -123,6 +136,12 @@ public class ConceptInfoDialogPresenter {
 
     }
 
+    /**
+     * Draws or updates the pie chart representing subtree coverage relative to the full tree.
+     * Configures data and tooltips for each pie section.
+     *
+     * @param subTreeSize the size of the currently selected subtree
+     */
     private void drawCoveragePie(int subTreeSize) {
         int totalTreeSize = TreeUtils.calculateTreeSize(treeViewRoot);
         PieChart coveragePie = controller.getSubtreeCoveragePieChart();
@@ -141,6 +160,13 @@ public class ConceptInfoDialogPresenter {
         }
     }
 
+    /**
+     * Draws or updates the bar chart showing the number of nodes per depth in the subtree.
+     * Maintains smooth animation by updating only necessary bars and removing deprecated ones.
+     *
+     * @param selectedItem the TreeItem for which to visualize the depth distribution
+     * @param depthFromRoot the depth of the selected node from the tree root
+     */
     private void drawNodePerDepthPlot(TreeItem<ConceptNode> selectedItem, int depthFromRoot) {
         // setup nodes per depth graph:
         // Key: depth, value: number of nodes
@@ -199,13 +225,18 @@ public class ConceptInfoDialogPresenter {
         }
     }
 
-    //TODO
+    /**
+     * Redraws the Node Degree Distribution tab for the given node.
+     *
+     * @param selectedItem the TreeItem whose degree distribution should be visualized
+     */
     private void redrawNodeDegDistTab(TreeItem<ConceptNode> selectedItem) {
-        
+        //TODO
     }
 
     /**
-     * Redraws the cladogram visualization for the given node.
+     * Redraws and updates the cladogram visualization for the given node.
+     * Clears and replaces the content of the tree pane with the current layout.
      *
      * @param selectedItem the root node of the tree to display
      */
