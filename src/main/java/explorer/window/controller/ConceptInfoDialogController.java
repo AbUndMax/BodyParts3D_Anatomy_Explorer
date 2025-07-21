@@ -8,6 +8,7 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.StackPane;
 
 public class ConceptInfoDialogController {
@@ -25,7 +26,7 @@ public class ConceptInfoDialogController {
     private Button closeNodeInfoButton;
 
     @FXML
-    private Label conceptBelowLabel;
+    private Label leavesBelowLabel;
 
     @FXML
     private BarChart<Number, Number> conceptsPerDepthBarChart;
@@ -34,7 +35,7 @@ public class ConceptInfoDialogController {
     private Label depthFromRootLabel;
 
     @FXML
-    private ChoiceBox<ConceptNode> nodeChoiceBox;
+    private ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox;
 
     @FXML
     private Label numberLeavesLabel;
@@ -64,7 +65,7 @@ public class ConceptInfoDialogController {
         return treePane;
     }
 
-    public ChoiceBox<ConceptNode> getNodeChoiceBox() {
+    public ChoiceBox<TreeItem<ConceptNode>> getNodeChoiceBox() {
         return nodeChoiceBox;
     }
 
@@ -84,8 +85,8 @@ public class ConceptInfoDialogController {
         return NumberOfSiblingsLabel;
     }
 
-    public Label getConceptBelowLabel() {
-        return conceptBelowLabel;
+    public Label getLeavesBelowLabel() {
+        return leavesBelowLabel;
     }
 
     public BarChart<Number, Number> getConceptsPerDepthBarChart() {

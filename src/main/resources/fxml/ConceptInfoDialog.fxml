@@ -149,9 +149,9 @@
                                                             <Tooltip text="Total Leaves of this Subtree." />
                                                          </tooltip>
                                                       </Label>
-                                                      <Label text="\% Concepts Below:">
+                                                      <Label text="\% Leaves of Total:">
                                                          <tooltip>
-                                                            <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." />
+                                                            <Tooltip text="Share of all leaves in the tree that are part of this node’s subtree." />
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -179,7 +179,7 @@
                                                             <Tooltip text="Total Leaves of this Subtree." />
                                                          </tooltip>
                                                       </Label>
-                                                      <Label fx:id="conceptBelowLabel" text="XXXXX">
+                                                      <Label fx:id="leavesBelowLabel" text="XXXXX">
                                                          <tooltip>
                                                             <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." />
                                                          </tooltip>

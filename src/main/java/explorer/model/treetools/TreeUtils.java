@@ -18,10 +18,10 @@ public class TreeUtils {
      * @param item the starting TreeItem for traversal
      * @param function a Consumer function to be applied to each visited TreeItem
      */
-    public static void preOrderTreeViewTraversal(TreeItem<ConceptNode> item, Consumer<TreeItem<ConceptNode>> function) {
+    public static <T> void preOrderTreeViewTraversal(TreeItem<T> item, Consumer<TreeItem<T>> function) {
         function.accept(item);
         if (item != null) {
-            for (TreeItem<ConceptNode> child : item.getChildren()) {
+            for (TreeItem<T> child : item.getChildren()) {
                 preOrderTreeViewTraversal(child, function);
             }
         }
@@ -33,7 +33,7 @@ public class TreeUtils {
      *
      * @param item the TreeItem to be expanded, along with all its descendants
      */
-    public static void expandAllBelowGivenNode(TreeItem<ConceptNode> item) {
+    public static <T> void expandAllBelowGivenNode(TreeItem<T> item) {
         preOrderTreeViewTraversal(item, node -> {
             if (node != null) node.setExpanded(true);
         });
@@ -43,7 +43,7 @@ public class TreeUtils {
      * Helper function to recursively collapse all nodes below the input node
      * @param item from which all nodes below get collapsed
      */
-    public static void collapseAllNodesUptToGivenNode(TreeItem<ConceptNode> item) {
+    public static <T> void collapseAllNodesUptToGivenNode(TreeItem<T> item) {
         preOrderTreeViewTraversal(item, node -> {
             if (node != null) node.setExpanded(false);
         });
@@ -106,4 +106,24 @@ public class TreeUtils {
 
         return 1 + maxDepth;
     }
+
+    public static <T> int calculateDepthToRoot(TreeItem<T> treeItem) {
+        return calculateDepthToRootRec(treeItem, 0);
+    }
+
+    private static <T> int calculateDepthToRootRec(TreeItem<T> treeItem, int currentDepth) {
+        if (treeItem.getParent() == null) {
+            return currentDepth;
+        } else {
+            return calculateDepthToRootRec(treeItem.getParent(), currentDepth + 1);
+        }
+    }
+
+    public static <T> int calculateTreeSize(TreeItem<T> treeItem) {
+        int[] currentSize = {0};
+        preOrderTreeViewTraversal(treeItem, node -> currentSize[0]++);
+        return currentSize[0];
+    }
+
+
 }
