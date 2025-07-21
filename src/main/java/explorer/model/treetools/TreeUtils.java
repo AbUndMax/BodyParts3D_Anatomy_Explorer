@@ -1,6 +1,9 @@
 package explorer.model.treetools;
 
 import javafx.scene.control.TreeItem;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 
@@ -125,5 +128,17 @@ public class TreeUtils {
         return currentSize[0];
     }
 
+    public static Map<Integer, Integer> countNodesPerDepth(TreeItem<ConceptNode> root) {
+        Map<Integer, Integer> depthCounts = new HashMap<>();
+        traverseDepth(root, 0, depthCounts);
+        return depthCounts;
+    }
+
+    private static void traverseDepth(TreeItem<ConceptNode> node, int depth, Map<Integer, Integer> depthCounts) {
+        depthCounts.put(depth, depthCounts.getOrDefault(depth, 0) + 1);
+        for (TreeItem<ConceptNode> child : node.getChildren()) {
+            traverseDepth(child, depth + 1, depthCounts);
+        }
+    }
 
 }

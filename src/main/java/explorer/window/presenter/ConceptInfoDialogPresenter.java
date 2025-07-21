@@ -6,15 +6,22 @@ import explorer.model.treetools.TreeUtils;
 import explorer.window.GuiRegistry;
 import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * Presenter class for the NodeInfo view.
@@ -98,12 +105,14 @@ public class ConceptInfoDialogPresenter {
         TreeItem<ConceptNode> parent = selectedItem.getParent();
         controller.getParentConceptLabel().setText(parent == null ? "No parent!" : parent.getValue().getName());
 
-        controller.getDepthFromRootLabel().setText(String.valueOf(TreeUtils.calculateDepthToRoot(selectedItem)));
+        int depthFromRoot = TreeUtils.calculateDepthToRoot(selectedItem);
+        controller.getDepthFromRootLabel().setText(String.valueOf(depthFromRoot));
         controller.getNumberOfChildsLabel().setText(String.valueOf(selectedConcept.getChildren().size()));
-        controller.getNumberOfSiblingsLabel().setText(String.valueOf(parent == null ? 0 : parent.getChildren().size()));
+        controller.getNumberOfSiblingsLabel().setText(String.valueOf(parent == null ? 0 : parent.getChildren().size() - 1));
         controller.getNumberOfMeshesLabel().setText(String.valueOf(selectedConcept.getFileIDs().size()));
 
-        controller.getSubtreeSizeLabel().setText(String.valueOf(TreeUtils.calculateTreeSize(selectedItem)));
+        int subTreeSize = TreeUtils.calculateTreeSize(selectedItem);
+        controller.getSubtreeSizeLabel().setText(String.valueOf(subTreeSize));
         controller.getSubtreeHeightLabel().setText(String.valueOf(TreeUtils.horizontalTreeDepth(selectedConcept)));
         int leavesInSubtree = TreeUtils.numberOfLeaves(selectedConcept);
         controller.getNumberLeavesLabel().setText(String.valueOf(leavesInSubtree));
@@ -111,6 +120,87 @@ public class ConceptInfoDialogPresenter {
         double percentage = ((double) leavesInSubtree / totalLeaves) * 100;
         controller.getLeavesBelowLabel().setText(String.format(percentage == 100 ? "%.0f %%" : "%.2f %%", percentage));
 
+
+        // setup of subtree coverage pieChart:
+        drawCoveragePie(subTreeSize);
+        drawNodePerDepthPlot(selectedItem, depthFromRoot);
+
+    }
+
+    private void drawCoveragePie(int subTreeSize) {
+        int totalTreeSize = TreeUtils.calculateTreeSize(treeViewRoot);
+        PieChart coveragePie = controller.getSubtreeCoveragePieChart();
+        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
+                new PieChart.Data("Subtree", subTreeSize),
+                new PieChart.Data("Rest", totalTreeSize - subTreeSize)
+        );
+
+        coveragePie.setData(pieData);
+
+        for (PieChart.Data data : pieData) {
+            double pct = data.getPieValue() / totalTreeSize * 100;
+            Tooltip tooltip = new Tooltip(String.format("%.2f %%", pct));
+            tooltip.setShowDelay(Duration.ZERO);
+            Tooltip.install(data.getNode(), tooltip);
+        }
+    }
+
+    private void drawNodePerDepthPlot(TreeItem<ConceptNode> selectedItem, int depthFromRoot) {
+        // setup nodes per depth graph:
+        // Key: depth, value: number of nodes
+        Map<Integer, Integer> nodesPerDepth = TreeUtils.countNodesPerDepth(selectedItem);
+        BarChart<String, Number> nodePerDepthChart = controller.getConceptsPerDepthBarChart();
+
+        // the following code was build with the help of AI and modified to get the wanted behavior of the animation!
+        XYChart.Series<String, Number> series;
+        // Sortiere of categories by ascending depth for initial draw
+        List<Integer> sortedDepths = new ArrayList<>(nodesPerDepth.keySet());
+        Collections.sort(sortedDepths);
+
+        // if the chart gets drawn the first time
+        if (nodePerDepthChart.getData().isEmpty()) {
+            series = new XYChart.Series<>();
+
+            // add the sorted depths to the series data
+            for (int depth : sortedDepths) {
+                String depthLabel = String.valueOf(depth + depthFromRoot);
+                series.getData().add(new XYChart.Data<>(depthLabel, nodesPerDepth.get(depth)));
+            }
+
+            nodePerDepthChart.getData().add(series);
+
+        // if the Plot was already once drawn:
+        // I update existing bars and remove bars that are not needed.
+        // this is necessary to make the animation smooth when changing between Concepts via the nodeChoiceBox
+        } else {
+            series = nodePerDepthChart.getData().getFirst();
+            // map the Charts for better access if I update them when changing between concepts
+            Map<String, XYChart.Data<String, Number>> dataMap = new HashMap<>();
+            for (XYChart.Data<String, Number> data : series.getData()) {
+                dataMap.put(data.getXValue(), data);
+            }
+
+            // save relevant depths for current Node -> this is used to distinguish between
+            // needed and deprecated bars (i.e. collect which bars should be drawn)
+            Set<String> validLabels = new HashSet<>();
+            for (int depth : sortedDepths) {
+                String depthLabel = String.valueOf(depth + depthFromRoot);
+                validLabels.add(depthLabel);
+
+                if (dataMap.containsKey(depthLabel)) {
+                    dataMap.get(depthLabel).setYValue(nodesPerDepth.get(depth));
+
+                } else {
+                    series.getData().add(new XYChart.Data<>(depthLabel, nodesPerDepth.get(depth)));
+                }
+            }
+
+            // dismiss bars that aren't part of the selected Concept
+            series.getData().removeIf(data -> !validLabels.contains(data.getXValue()));
+
+            // Sort the series list by depth
+            series.getData().sort(Comparator.comparingInt(d -> Integer.parseInt(d.getXValue())));
+        }
     }
 
     //TODO

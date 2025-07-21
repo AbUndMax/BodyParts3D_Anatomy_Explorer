@@ -20,13 +20,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.ConceptInfoDialogController">
+<StackPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="660.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.ConceptInfoDialogController">
    <children>
       <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0">
         <tabs>
             <Tab text="Characteristics">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0">
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -100,7 +100,7 @@
                                                       <Insets left="10.0" />
                                                    </HBox.margin>
                                                 </VBox>
-                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="45.0" spacing="10.0">
+                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="50.0" spacing="10.0">
                                                    <HBox.margin>
                                                       <Insets left="5.0" right="10.0" />
                                                    </HBox.margin>
@@ -151,7 +151,7 @@
                                                       </Label>
                                                       <Label text="\% Leaves of Total:">
                                                          <tooltip>
-                                                            <Tooltip text="Share of all leaves in the tree that are part of this node’s subtree." />
+                                                            <Tooltip text="Share of all leaves in the tree that are part of this concept’s subtree." />
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -159,9 +159,9 @@
                                                       <Insets left="10.0" />
                                                    </HBox.margin>
                                                 </VBox>
-                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="45.0" spacing="10.0">
+                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="55.0" spacing="10.0">
                                                    <HBox.margin>
-                                                      <Insets left="5.0" right="10.0" />
+                                                      <Insets left="5.0" right="5.0" />
                                                    </HBox.margin>
                                                    <children>
                                                       <Label fx:id="subtreeSizeLabel" text="XXXXX">
@@ -198,12 +198,31 @@
                                           <Insets />
                                        </HBox.margin>
                                     </Separator>
-                                    <PieChart fx:id="subtreeCoveragePieChart" legendSide="RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="200.0" title="Subtree Coverage" />
+                                    <VBox>
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Subtree Coverage">
+                                                   <font>
+                                                      <Font size="18.0" />
+                                                   </font>
+                                                   <tooltip>
+                                                      <Tooltip text="Shows the percentage of all nodes in the tree that are part of this subtree." />
+                                                   </tooltip>
+                                                   <HBox.margin>
+                                                      <Insets bottom="5.0" top="10.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <PieChart fx:id="subtreeCoveragePieChart" legendSide="RIGHT" legendVisible="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="152.0" />
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
-                              <VBox>
+                              <VBox VBox.vgrow="ALWAYS">
                                  <children>
-                                    <Separator prefWidth="200.0" />
+                                    <Separator />
                                     <HBox alignment="CENTER">
                                        <children>
                                           <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Number of Concepts per Depth:">
@@ -211,27 +230,29 @@
                                                 <Font size="18.0" />
                                              </font>
                                              <HBox.margin>
-                                                <Insets bottom="10.0" top="10.0" />
+                                                <Insets bottom="5.0" top="10.0" />
                                              </HBox.margin>
+                                             <tooltip>
+                                                <Tooltip text="Displays the number of nodes per depth level in the subtree." />
+                                             </tooltip>
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <ScrollPane fitToHeight="true">
-                                      <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0">
-                                             <children>
-                                                <BarChart fx:id="conceptsPerDepthBarChart" maxHeight="-Infinity" minWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                  <xAxis>
-                                                    <CategoryAxis side="BOTTOM" />
-                                                  </xAxis>
-                                                  <yAxis>
-                                                    <NumberAxis side="LEFT" />
-                                                  </yAxis>
-                                                </BarChart>
-                                             </children>
-                                          </AnchorPane>
-                                      </content>
-                                    </ScrollPane>
+                                    <AnchorPane>
+                                       <children>
+                                          <BarChart fx:id="conceptsPerDepthBarChart" legendVisible="false" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <xAxis>
+                                              <CategoryAxis />
+                                            </xAxis>
+                                            <yAxis>
+                                              <NumberAxis lowerBound="1.0" prefWidth="40.0" side="RIGHT" tickLabelGap="10.0" />
+                                            </yAxis>
+                                             <padding>
+                                                <Insets right="35.0" />
+                                             </padding>
+                                          </BarChart>
+                                       </children>
+                                    </AnchorPane>
                                  </children>
                               </VBox>
                            </children>

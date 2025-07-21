@@ -29,7 +29,7 @@ public class ConceptInfoDialogController {
     private Label leavesBelowLabel;
 
     @FXML
-    private BarChart<Number, Number> conceptsPerDepthBarChart;
+    private BarChart<String, Number> conceptsPerDepthBarChart;
 
     @FXML
     private Label depthFromRootLabel;
@@ -89,7 +89,7 @@ public class ConceptInfoDialogController {
         return leavesBelowLabel;
     }
 
-    public BarChart<Number, Number> getConceptsPerDepthBarChart() {
+    public BarChart<String, Number> getConceptsPerDepthBarChart() {
         return conceptsPerDepthBarChart;
     }
 
