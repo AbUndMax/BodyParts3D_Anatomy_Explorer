@@ -249,7 +249,7 @@ public class MainViewPresenter {
 
             ConceptInfoDialogController conceptInfoController = loader.getController();
 
-            new ConceptInfoDialogPresenter(selectedItems, treeViewRoot, conceptInfoController, registry);
+            new ConceptInfoDialogPresenter(selectedItems, treeViewRoot, conceptInfoController);
 
             Stage infoStage = new Stage();
             conceptInfoController.getCloseNodeInfoButton().setOnAction(event -> infoStage.close());

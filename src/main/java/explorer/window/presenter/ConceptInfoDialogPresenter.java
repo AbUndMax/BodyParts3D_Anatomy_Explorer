@@ -16,7 +16,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -29,7 +28,6 @@ import java.util.*;
  */
 public class ConceptInfoDialogPresenter {
 
-    private final GuiRegistry registry;
     private final ConceptInfoDialogController controller;
     private final TreeItem<ConceptNode> treeViewRoot;
 
@@ -42,10 +40,9 @@ public class ConceptInfoDialogPresenter {
      */
     public ConceptInfoDialogPresenter(ObservableList<TreeItem<ConceptNode>> selectedItems,
                                       TreeItem<ConceptNode> treeViewRoot,
-                                      ConceptInfoDialogController controller, GuiRegistry registry) {
+                                      ConceptInfoDialogController controller) {
 
         this.controller = controller;
-        this.registry = registry;
         this.treeViewRoot = treeViewRoot;
 
         // get the selectedItem
@@ -97,7 +94,6 @@ public class ConceptInfoDialogPresenter {
         nodeChoiceBox.setVisible(true);
     }
 
-    //TODO
     private void redrawCharacteristicsTab(TreeItem<ConceptNode> selectedItem) {
         ConceptNode selectedConcept = selectedItem.getValue();
 
@@ -116,7 +112,7 @@ public class ConceptInfoDialogPresenter {
         controller.getSubtreeHeightLabel().setText(String.valueOf(TreeUtils.horizontalTreeDepth(selectedConcept)));
         int leavesInSubtree = TreeUtils.numberOfLeaves(selectedConcept);
         controller.getNumberLeavesLabel().setText(String.valueOf(leavesInSubtree));
-        double totalLeaves = TreeUtils.numberOfLeaves(treeViewRoot.getValue());
+        int totalLeaves = TreeUtils.numberOfLeaves(treeViewRoot.getValue());
         double percentage = ((double) leavesInSubtree / totalLeaves) * 100;
         controller.getLeavesBelowLabel().setText(String.format(percentage == 100 ? "%.0f %%" : "%.2f %%", percentage));
 
@@ -205,7 +201,7 @@ public class ConceptInfoDialogPresenter {
 
     //TODO
     private void redrawNodeDegDistTab(TreeItem<ConceptNode> selectedItem) {
-
+        
     }
 
     /**
