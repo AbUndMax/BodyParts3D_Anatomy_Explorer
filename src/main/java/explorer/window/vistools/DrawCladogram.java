@@ -6,6 +6,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
@@ -33,8 +34,8 @@ public class DrawCladogram {
      * @param nodePointMap a map associating each node in the tree with a 2D point representing its position
      * @return a {@code Group} object containing JavaFX graphical elements representing the entire cladogram
      */
-    public static Group apply(ConceptNode root, Map<ConceptNode, Point2D> nodePointMap) {
-        double lineSpacing = 20; // 12pt letters + 2px extra space
+    public static Group apply(ConceptNode root, Map<ConceptNode, Point2D> nodePointMap, StackPane pane) {
+        double lineSpacing = 20; // 12pt letters + 8px extra space
         int numberOfLeaves = TreeUtils.numberOfLeaves(root);
         double height = numberOfLeaves * lineSpacing;
 
@@ -43,8 +44,13 @@ public class DrawCladogram {
 
         double approxCharWidth = 7.0; // avg char width at 12pt
         double labelPadding = 10.0;
+        double paddingOfWindow = pane.getPadding().getLeft();
 
-        double width = TreeUtils.horizontalTreeDepth(root) * 0.8 + (maxNameLength * approxCharWidth) + labelPadding;
+        double width = TreeUtils.horizontalTreeDepth(root) * 0.8
+                + (maxNameLength * approxCharWidth)
+                + labelPadding
+                - paddingOfWindow;
+
         return apply(root, nodePointMap, width, height);
     }
 

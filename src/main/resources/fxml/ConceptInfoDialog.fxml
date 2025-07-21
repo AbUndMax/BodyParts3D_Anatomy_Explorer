@@ -22,7 +22,7 @@
 
 <StackPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.ConceptInfoDialogController">
    <children>
-      <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE">
+      <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0">
         <tabs>
             <Tab text="Characteristics">
               <content>
@@ -263,18 +263,22 @@
                            <content>
                               <StackPane fx:id="treePane">
                                  <padding>
-                                    <Insets bottom="20.0" left="40.0" right="40.0" top="40.0" />
+                                    <Insets bottom="20.0" left="30.0" right="30.0" top="30.0" />
                                  </padding>
                               </StackPane>
                            </content>
                         </ScrollPane>
-                        <ChoiceBox fx:id="nodeChoiceBox" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0" />
                      </children>
                   </AnchorPane>
                </content>
           </Tab>
         </tabs>
       </TabPane>
+      <ChoiceBox fx:id="nodeChoiceBox" maxWidth="295.0" minWidth="-Infinity" StackPane.alignment="TOP_RIGHT">
+         <StackPane.margin>
+            <Insets right="10.0" top="6.0" />
+         </StackPane.margin>
+      </ChoiceBox>
       <Button fx:id="closeNodeInfoButton" mnemonicParsing="false" text="Close" StackPane.alignment="BOTTOM_RIGHT">
          <StackPane.margin>
             <Insets bottom="20.0" right="20.0" />
