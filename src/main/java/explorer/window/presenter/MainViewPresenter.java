@@ -260,6 +260,8 @@ public class MainViewPresenter {
             }
             infoStage.setScene(scene);
             infoStage.initModality(Modality.APPLICATION_MODAL);
+            infoStage.setMinWidth(600);
+            infoStage.setMinHeight(420);
             infoStage.show();
 
         } catch (IOException e) {

@@ -1,22 +1,258 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.StackedBarChart?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<StackPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.ConceptInfoDialogController">
+<StackPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.ConceptInfoDialogController">
    <children>
       <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab text="Untitled Tab 1">
+            <Tab text="Characteristics">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <HBox>
+                                             <children>
+                                                <VBox alignment="TOP_RIGHT" spacing="5.0">
+                                                   <children>
+                                                      <Label text="Selected Concept:">
+                                                         <VBox.margin>
+                                                            <Insets />
+                                                         </VBox.margin>
+                                                         <tooltip>
+                                                            <Tooltip text="Concept from which this Window was opened." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Parent Concept:">
+                                                         <tooltip>
+                                                            <Tooltip text="Concept Name of Direct Parent" />
+                                                         </tooltip>
+                                                         <VBox.margin>
+                                                            <Insets />
+                                                         </VBox.margin>
+                                                      </Label>
+                                                   </children>
+                                                   <HBox.margin>
+                                                      <Insets bottom="20.0" left="20.0" top="20.0" />
+                                                   </HBox.margin>
+                                                </VBox>
+                                                <VBox maxWidth="210.0" spacing="5.0">
+                                                   <children>
+                                                      <Label fx:id="selectedConceptLabel" text="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
+                                                      <Label fx:id="parentConceptLabel" text="XXXXXXXXXXXXXXXXXXXX" />
+                                                   </children>
+                                                   <HBox.margin>
+                                                      <Insets bottom="20.0" left="5.0" top="20.0" />
+                                                   </HBox.margin>
+                                                </VBox>
+                                             </children>
+                                          </HBox>
+                                          <Separator prefWidth="200.0" />
+                                          <HBox>
+                                             <children>
+                                                <VBox alignment="TOP_RIGHT" maxHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
+                                                   <children>
+                                                      <Label text="Depth From Root:">
+                                                         <tooltip>
+                                                            <Tooltip text="Distance from the root node to this concept in number of edges." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Number of Childs:">
+                                                         <tooltip>
+                                                            <Tooltip text="Direct child nodes of this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Number of Siblings:">
+                                                         <tooltip>
+                                                            <Tooltip text="Other concepts that share the same parent node." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Number of Meshes:">
+                                                         <tooltip>
+                                                            <Tooltip text="Number of mesh elements linked to this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                   </children>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" />
+                                                   </HBox.margin>
+                                                </VBox>
+                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="45.0" spacing="10.0">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="10.0" />
+                                                   </HBox.margin>
+                                                   <children>
+                                                      <Label fx:id="depthFromRootLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Distance from the root node to this concept in number of edges." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="numberOfChildsLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Direct child nodes of this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="NumberOfSiblingsLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Other concepts that share the same parent node." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="NumberOfMeshesLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Number of mesh elements linked to this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                   </children>
+                                                </VBox>
+                                                <Separator orientation="VERTICAL">
+                                                   <HBox.margin>
+                                                      <Insets />
+                                                   </HBox.margin>
+                                                </Separator>
+                                                <VBox alignment="TOP_RIGHT" maxWidth="-Infinity" minWidth="-Infinity" spacing="10.0">
+                                                   <children>
+                                                      <Label text="Subtree Size:">
+                                                         <tooltip>
+                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Height of Subtree:">
+                                                         <tooltip>
+                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="Number of Leaves:">
+                                                         <tooltip>
+                                                            <Tooltip text="Total Leaves of this Subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label text="\% Concepts Below:">
+                                                         <tooltip>
+                                                            <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                   </children>
+                                                   <HBox.margin>
+                                                      <Insets left="10.0" />
+                                                   </HBox.margin>
+                                                </VBox>
+                                                <VBox maxWidth="-Infinity" minWidth="-Infinity" prefWidth="45.0" spacing="10.0">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="10.0" />
+                                                   </HBox.margin>
+                                                   <children>
+                                                      <Label fx:id="subtreeSizeLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="subtreeHeightLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="numberLeavesLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Total Leaves of this Subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                      <Label fx:id="conceptBelowLabel" text="XXXXX">
+                                                         <tooltip>
+                                                            <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." />
+                                                         </tooltip>
+                                                      </Label>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                             <VBox.margin>
+                                                <Insets bottom="10.0" top="10.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                    <Separator orientation="VERTICAL" prefHeight="200.0">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </Separator>
+                                    <PieChart fx:id="subtreeCoveragePieChart" legendSide="RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="200.0" title="Subtree Coverage" />
+                                 </children>
+                              </HBox>
+                              <VBox>
+                                 <children>
+                                    <Separator prefWidth="200.0" />
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <Label alignment="TOP_CENTER" contentDisplay="CENTER" text="Number of Concepts per Depth:">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                             <HBox.margin>
+                                                <Insets bottom="10.0" top="10.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <ScrollPane fitToHeight="true">
+                                      <content>
+                                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                                             <children>
+                                                <BarChart fx:id="conceptsPerDepthBarChart" maxHeight="-Infinity" minWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                  <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                  </xAxis>
+                                                  <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                  </yAxis>
+                                                </BarChart>
+                                             </children>
+                                          </AnchorPane>
+                                      </content>
+                                    </ScrollPane>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+          <Tab text="Node Deg. Dist.">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <StackedBarChart fx:id="NodeDegreeStackBarChart" layoutX="-6.0" layoutY="-16.0" title="Node Degree Distribution: Subtree vs. Full Relation Tree" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" tickLabelGap="0.0" upperBound="0.9" />
+                          </yAxis>
+                        </StackedBarChart>
+                     </children></AnchorPane>
             </content>
           </Tab>
           <Tab text="Concept Tree">
