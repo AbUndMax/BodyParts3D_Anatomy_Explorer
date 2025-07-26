@@ -79,8 +79,6 @@ public class AiApiService extends Service<String> {
                             .replace("{{terms}}", "[ " + String.join(", ", conceptTerms.get(selectedTree)) + " ]")
                             .replace("{{query}}", query);
 
-                    System.out.println(filledTemplate);
-
                     // instantiate the HTTP request
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(URI.create("http://134.2.9.180/v1/chat/completions"))

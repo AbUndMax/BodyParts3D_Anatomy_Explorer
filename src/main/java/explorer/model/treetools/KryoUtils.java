@@ -11,30 +11,59 @@ import java.util.*;
 
 public class KryoUtils {
 
-    private static Map<String, Map<Integer, Double>> lazyLoadedMap = new HashMap<String, Map<Integer, Double>>();
+    private static final Map<String, Object> cache = new HashMap<>();
 
     /**
-     * Loads and deserializes the "part-of" AnatomyNode tree from a Kryo file.
-     * The file must contain a previously serialized AnatomyNode tree.
-     * Uses the same class registrations as during serialization to ensure compatibility.
+     * Creates a new Kryo instance and registers the provided classes.
      *
-     * @return the deserialized AnatomyNode tree, or null if loading fails
+     * @param toRegister Classes to register with Kryo.
+     * @return Configured Kryo instance.
      */
-    public static ConceptNode thawTreeFromKryo(String resourceKryoPath) {
+    private static Kryo newKryo(Class<?>... toRegister) {
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+        for (Class<?> c : toRegister) kryo.register(c);
+        return kryo;
+    }
 
-        kryo.register(ConceptNode.class);
-        kryo.register(ArrayList.class);
-        kryo.register(String.class);
+    /**
+     * Serializes (freezes) an object to the specified file path using Kryo.
+     *
+     * @param obj        The object to serialize.
+     * @param saveToPath The path to save the serialized object.
+     * @param toRegister Classes to register with Kryo.
+     * @param <T>        The type of the object.
+     */
+    public static <T> void freezeObject(T obj, String saveToPath, Class<?>... toRegister) {
+        Kryo kryo = newKryo(toRegister);
+        try (Output output = new Output(new FileOutputStream(saveToPath))) {
+            kryo.writeObject(output, obj);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        try (InputStream input = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
-            // TODO: need better logging
-            if (input == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
-
-            Input inputKryo = new Input(input);
-            return kryo.readObject(inputKryo, ConceptNode.class);
-
+    /**
+     * Deserializes (thaws) an object from the specified resource path using Kryo.
+     * The resource path should be relative to the classpath, e.g. "/requests/conceptTerms.kryo".
+     *
+     * @param resourceKryoPath   The resource path of the serialized file (relative to classpath).
+     * @param clazz      The class of the object to deserialize.
+     * @param toRegister Classes to register with Kryo.
+     * @param <T>        The type of the object.
+     * @return The deserialized object, or null if deserialization fails or resource is not found.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T thawObject(String resourceKryoPath, Class<T> clazz, Class<?>... toRegister) {
+        Kryo kryo = newKryo(toRegister);
+        try (InputStream stream = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
+            if (stream == null) {
+                System.err.println("Resource not found: " + resourceKryoPath);
+                return null;
+            }
+            try (Input input = new Input(stream)) {
+                return (T) kryo.readObject(input, clazz);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -42,116 +71,78 @@ public class KryoUtils {
     }
 
     /**
-     * Serializes the given AnatomyNode tree to a file using Kryo for efficient deserialization later.
+     * Serializes a ConceptNode tree to the specified file path.
      *
-     * @param tree the AnatomyNode tree to serialize
-     * @param saveToPath the path where the Kryo file will be saved
+     * @param tree       The ConceptNode tree to serialize.
+     * @param saveToPath The path to save the serialized tree.
      */
     public static void freezeTree(ConceptNode tree, String saveToPath) {
-        // setting strategy
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
-
-        // register classes
-        kryo.register(ConceptNode.class);
-        kryo.register(ArrayList.class);
-        kryo.register(String.class);
-
-        // save to file
-        try (Output output = new Output(new FileOutputStream(saveToPath))) {
-            kryo.writeObject(output, tree);
-            System.out.println("Kryo file successfully generated!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        freezeObject(tree, saveToPath, ConceptNode.class, ArrayList.class, String.class);
     }
 
-    public static Map<Integer, Double> thawIntegerMapFromKryo(String resourceKryoPath) {
-        if (lazyLoadedMap.containsKey(resourceKryoPath)) {
-            return lazyLoadedMap.get(resourceKryoPath);
-        }
-
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
-
-        kryo.register(java.util.HashMap.class);
-        kryo.register(Double.class);
-        kryo.register(Integer.class);
-
-        try (InputStream stream = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
-            if (stream == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
-            Input inputKryo = new Input(stream);
-            @SuppressWarnings("unchecked")
-            Map<Integer, Double> loadedMap = kryo.readObject(inputKryo, HashMap.class);
-            lazyLoadedMap.put(resourceKryoPath, loadedMap);
-            return loadedMap;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    /**
+     * Deserializes a ConceptNode tree from the specified Kryo resource.
+     *
+     * @param resourcePath The resource path of the Kryo file (relative to classpath).
+     * @return The deserialized ConceptNode tree, or null if deserialization fails.
+     */
+    public static ConceptNode thawTreeFromKryo(String resourcePath) {
+        return thawObject(resourcePath, ConceptNode.class, ConceptNode.class, ArrayList.class, String.class);
     }
 
+    /**
+     * Serializes a Map<Integer, Double> to the specified file path.
+     *
+     * @param map        The map to serialize.
+     * @param saveToPath The path to save the serialized map.
+     */
     public static void freezeIntegerMap(Map<Integer, Double> map, String saveToPath) {
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
-
-        kryo.register(java.util.HashMap.class);
-        kryo.register(Double.class);
-        kryo.register(Integer.class);
-
-        try (Output output = new Output(new FileOutputStream(saveToPath))) {
-            kryo.writeObject(output, map);
-            System.out.println("Node degree map successfully serialized with Kryo.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        freezeObject(map, saveToPath, HashMap.class, Double.class, Integer.class);
     }
 
-    public static Map<String, List<String>> thawStringMapFromKryo(String resourceKryoPath) {
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
-
-        kryo.register(java.util.HashMap.class);
-        kryo.register(java.util.ArrayList.class);
-        kryo.register(String.class);
-
-        try (InputStream stream = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
-            if (stream == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
-            Input inputKryo = new Input(stream);
-            @SuppressWarnings("unchecked")
-            Map<String, List<String>> map = (Map<String, List<String>>) kryo.readObject(inputKryo, HashMap.class);
-            return map;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    /**
+     * Deserializes a Map<Integer, Double> from the specified Kryo resource, with caching.
+     *
+     * @param resourcePath The resource path of the Kryo file (relative to classpath).
+     * @return The deserialized map, or null if deserialization fails.
+     */
+    public static Map<Integer, Double> thawIntegerMapFromKryo(String resourcePath) {
+        // Uses cache to avoid redundant deserialization
+        if (cache.containsKey(resourcePath)) return (Map<Integer, Double>) cache.get(resourcePath);
+        Map<Integer, Double> map = thawObject(resourcePath, HashMap.class, HashMap.class, Double.class, Integer.class);
+        cache.put(resourcePath, map);
+        return map;
     }
 
+    /**
+     * Reads the JSON file containing the concept terms and serializes it to a Kryo file.
+     * The resulting file is written to "src/main/resources/requests/conceptTerms.kryo".
+     */
     public static void freezeConceptTermsMap() {
         ObjectMapper mapper = new ObjectMapper();
         InputStream termStream = Objects.requireNonNull(
                 KryoUtils.class.getResourceAsStream("/requests/conceptTerms.json"));
 
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> conceptTerms = null;
+        Map<String, List<String>> conceptTerms;
         try {
-            conceptTerms = mapper.readValue(termStream, Map.class);
+            // Read the JSON as a LinkedHashMap
+            conceptTerms = mapper.readValue(termStream, LinkedHashMap.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Kryo kryo = new Kryo();
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+        freezeObject(conceptTerms, "src/main/resources/requests/conceptTerms.kryo",
+                     LinkedHashMap.class, ArrayList.class, String.class);
+        System.out.println("conceptTerms.kryo successfully generated!");
+    }
 
-        kryo.register(java.util.LinkedHashMap.class);
-        kryo.register(java.util.ArrayList.class);
-        kryo.register(String.class);
-
-        try (Output output = new Output(new FileOutputStream("src/main/resources/requests/conceptTerms.kryo"))) {
-            kryo.writeObject(output, conceptTerms);
-            System.out.println("conceptTerms.kryo successfully generated!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    /**
+     * Deserializes a Map<String, List<String>> from the specified Kryo resource.
+     *
+     * @param resourcePath The resource path of the Kryo file (relative to classpath).
+     * @return The deserialized map, or null if deserialization fails.
+     */
+    public static Map<String, List<String>> thawStringMapFromKryo(String resourcePath) {
+        return thawObject(resourcePath, LinkedHashMap.class, LinkedHashMap.class, ArrayList.class, String.class);
     }
 }
