@@ -244,7 +244,8 @@ public class ConceptInfoDialogPresenter {
         Map<Integer, Double> subTreeData = TreeUtils.computeNormalizedNodeDegreeDistribution(selectedItem);
 
         List<Integer> allDegrees = new ArrayList<>();
-        int max = Math.max(Collections.max(fullTreeData.keySet()), Collections.max(subTreeData.keySet()));
+        // fullTree contains always all degrees. Subtree can only have a maxum thta is the same to the fullTree
+        int max = Collections.max(fullTreeData.keySet());
         for (int i = 0; i < max + 1; i++) {
             allDegrees.add(i);
         }
@@ -289,14 +290,18 @@ public class ConceptInfoDialogPresenter {
                 dataMap.put(data.getXValue(), data);
             }
 
+            Set<String> validKeys = new HashSet<>();
             for (XYChart.Data<String, Number> data : subSeries.getData()) {
                 String x = data.getXValue();
+                validKeys.add(x);
                 if (dataMap.containsKey(x)) {
                     dataMap.get(x).setYValue(data.getYValue());
                 } else {
                     existingSub.getData().add(new XYChart.Data<>(x, data.getYValue()));
                 }
             }
+            // Remove obsolete points not in current subSeries
+            existingSub.getData().removeIf(d -> !validKeys.contains(d.getXValue()));
         }
     }
 
@@ -325,8 +330,33 @@ public class ConceptInfoDialogPresenter {
             }
         }
 
-        nodeDegreeScatter.getData().clear();
-        nodeDegreeScatter.getData().addAll(fullSeries, subSeries);
+        ObservableList<XYChart.Series<Number, Number>> existingSeries = nodeDegreeScatter.getData();
+
+        // Same update pattern and logic like above with the histogram, but changed for scatterplot
+        if (existingSeries.isEmpty()) {
+            nodeDegreeScatter.getData().addAll(fullSeries, subSeries);
+        } else {
+            // Only update Subtree series (series index 1)
+            XYChart.Series<Number, Number> existingSub = existingSeries.get(1);
+
+            Map<Number, XYChart.Data<Number, Number>> dataMap = new HashMap<>();
+            for (XYChart.Data<Number, Number> data : existingSub.getData()) {
+                dataMap.put(data.getXValue(), data);
+            }
+
+            Set<Number> validKeys = new HashSet<>();
+            for (XYChart.Data<Number, Number> data : subSeries.getData()) {
+                Number x = data.getXValue();
+                validKeys.add(x);
+                if (dataMap.containsKey(x)) {
+                    dataMap.get(x).setYValue(data.getYValue());
+                } else {
+                    existingSub.getData().add(new XYChart.Data<>(x, data.getYValue()));
+                }
+            }
+            // Remove obsolete points not in current subSeries
+            existingSub.getData().removeIf(d -> !validKeys.contains(d.getXValue()));
+        }
     }
 
     /**
