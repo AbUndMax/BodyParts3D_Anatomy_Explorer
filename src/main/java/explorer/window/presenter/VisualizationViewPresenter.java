@@ -151,7 +151,7 @@ public class VisualizationViewPresenter {
 
         // load the human body parts after the GUI is rendered
         // TODO benchmark the loading -> how many resources are taken?
-        // Platform.runLater(this::loadHumanBody);
+        Platform.runLater(this::loadHumanBody);
         contentGroup.getTransforms().setAll(INITIAL_TRANSFORM);
 
         return contentGroup;
