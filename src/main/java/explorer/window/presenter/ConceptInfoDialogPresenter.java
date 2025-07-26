@@ -11,6 +11,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tooltip;
@@ -51,7 +52,7 @@ public class ConceptInfoDialogPresenter {
         // if there are multiple selected nodes,
         // setup a choiceBox that allows to switch between the multiple selected nodes
         if (selectedItems.size() > 1) {
-            ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox = controller.getNodeChoiceBox();
+            ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox = controller.getConceptChoiceBox();
             setupNodeChoiceBox(nodeChoiceBox, selectedItems);
             selectedItem = nodeChoiceBox.getValue();
         }
@@ -231,7 +232,98 @@ public class ConceptInfoDialogPresenter {
      * @param selectedItem the TreeItem whose degree distribution should be visualized
      */
     private void redrawNodeDegDistTab(TreeItem<ConceptNode> selectedItem) {
-        //TODO
+        Map<Integer, Double> fullTreeData = TreeUtils.computeNormalizedNodeDegreeDistribution(treeViewRoot);
+        Map<Integer, Double> subTreeData = TreeUtils.computeNormalizedNodeDegreeDistribution(selectedItem);
+
+        List<Integer> allDegrees = new ArrayList<>();
+        int max = Math.max(Collections.max(fullTreeData.keySet()), Collections.max(subTreeData.keySet()));
+        for (int i = 0; i < max + 1; i++) {
+            allDegrees.add(i);
+        }
+
+        drawHistogramPlot(selectedItem, allDegrees, fullTreeData, subTreeData);
+        drawLogLogPlot(selectedItem, allDegrees, fullTreeData, subTreeData);
+    }
+
+    private void drawHistogramPlot(TreeItem<ConceptNode> selectedItem,
+                                   List<Integer> allDegrees,
+                                   Map<Integer, Double> fullTreeData,
+                                   Map<Integer, Double> subTreeData) {
+
+        BarChart<String, Number> nodeDegreeHistogram = controller.getNodeDegreeHistogramChart();
+
+        XYChart.Series<String, Number> fullSeries = new XYChart.Series<>();
+        fullSeries.setName("Full Tree");
+
+        XYChart.Series<String, Number> subSeries = new XYChart.Series<>();
+        subSeries.setName("Subtree");
+
+        for (Integer degree : allDegrees) {
+            Double fullCount = fullTreeData.getOrDefault(degree, 0.0);
+            Double subCount = subTreeData.getOrDefault(degree, 0.0);
+            String degreeLabel = String.valueOf(degree);
+
+            fullSeries.getData().add(new XYChart.Data<>(degreeLabel, fullCount));
+            subSeries.getData().add(new XYChart.Data<>(degreeLabel, subCount));
+        }
+
+        // For animation again, actualize existing bars or add new ones
+        ObservableList<XYChart.Series<String, Number>> existingSeries = nodeDegreeHistogram.getData();
+
+        if (existingSeries.isEmpty()) {
+            nodeDegreeHistogram.getData().addAll(fullSeries, subSeries);
+
+        } else {
+            XYChart.Series<String, Number> existingSub = existingSeries.get(1);
+
+            // Helperfunction for actualizing purpose
+            java.util.function.BiConsumer<XYChart.Series<String, Number>, XYChart.Series<String, Number>> updateSeries = (target, source) -> {
+                Map<String, XYChart.Data<String, Number>> dataMap = new HashMap<>();
+                for (XYChart.Data<String, Number> data : target.getData()) {
+                    dataMap.put(data.getXValue(), data);
+                }
+
+                for (XYChart.Data<String, Number> data : source.getData()) {
+                    String x = data.getXValue();
+                    if (dataMap.containsKey(x)) {
+                        dataMap.get(x).setYValue(data.getYValue());
+                    } else {
+                        target.getData().add(new XYChart.Data<>(x, data.getYValue()));
+                    }
+                }
+            };
+
+            updateSeries.accept(existingSub, subSeries);
+        }
+    }
+
+    private void drawLogLogPlot(TreeItem<ConceptNode> selectedItem,
+                                List<Integer> allDegrees,
+                                Map<Integer, Double> fullTreeData,
+                                Map<Integer, Double> subTreeData) {
+
+        ScatterChart<Number, Number> nodeDegreeScatter = controller.getNodeDegreeLogLogChart();
+
+        XYChart.Series<Number, Number> fullSeries = new XYChart.Series<>();
+        fullSeries.setName("Full Tree");
+
+        XYChart.Series<Number, Number> subSeries = new XYChart.Series<>();
+        subSeries.setName("Subtree");
+
+        for (Integer k : allDegrees) {
+            double pkFull = fullTreeData.getOrDefault(k, 0.0);
+            double pkSub = subTreeData.getOrDefault(k, 0.0);
+
+            if (k > 0 && pkFull > 0) {
+                fullSeries.getData().add(new XYChart.Data<>(Math.log10(k), Math.log10(pkFull)));
+            }
+            if (k > 0 && pkSub > 0) {
+                subSeries.getData().add(new XYChart.Data<>(Math.log10(k), Math.log10(pkSub)));
+            }
+        }
+
+        nodeDegreeScatter.getData().clear();
+        nodeDegreeScatter.getData().addAll(fullSeries, subSeries);
     }
 
     /**

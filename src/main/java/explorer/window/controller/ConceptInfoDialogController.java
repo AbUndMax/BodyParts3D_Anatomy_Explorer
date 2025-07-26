@@ -1,10 +1,13 @@
 package explorer.window.controller;
 
 import explorer.model.treetools.ConceptNode;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -14,13 +17,22 @@ import javafx.scene.layout.StackPane;
 public class ConceptInfoDialogController {
 
     @FXML
-    private StackedBarChart<String, Number> NodeDegreeStackBarChart;
+    private BarChart<String, Number> nodeDegreeHistogramChart;
 
     @FXML
-    private Label NumberOfMeshesLabel;
+    private ScatterChart<Number, Number> nodeDegreeLogLogChart;
 
     @FXML
-    private Label NumberOfSiblingsLabel;
+    private ChoiceBox<ChartWrapper> plotChoiceBox;
+
+    @FXML
+    private Label plotTitle;
+
+    @FXML
+    private Label numberOfMeshesLabel;
+
+    @FXML
+    private Label numberOfSiblingsLabel;
 
     @FXML
     private Button closeNodeInfoButton;
@@ -35,7 +47,7 @@ public class ConceptInfoDialogController {
     private Label depthFromRootLabel;
 
     @FXML
-    private ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox;
+    private ChoiceBox<TreeItem<ConceptNode>> conceptChoiceBox;
 
     @FXML
     private Label numberLeavesLabel;
@@ -65,24 +77,24 @@ public class ConceptInfoDialogController {
         return treePane;
     }
 
-    public ChoiceBox<TreeItem<ConceptNode>> getNodeChoiceBox() {
-        return nodeChoiceBox;
+    public ChoiceBox<TreeItem<ConceptNode>> getConceptChoiceBox() {
+        return conceptChoiceBox;
     }
 
     public Button getCloseNodeInfoButton() {
         return closeNodeInfoButton;
     }
 
-    public StackedBarChart<String, Number> getNodeDegreeStackBarChart() {
-        return NodeDegreeStackBarChart;
+    public BarChart<String, Number> getNodeDegreeHistogramChart() {
+        return nodeDegreeHistogramChart;
     }
 
     public Label getNumberOfMeshesLabel() {
-        return NumberOfMeshesLabel;
+        return numberOfMeshesLabel;
     }
 
     public Label getNumberOfSiblingsLabel() {
-        return NumberOfSiblingsLabel;
+        return numberOfSiblingsLabel;
     }
 
     public Label getLeavesBelowLabel() {
@@ -126,6 +138,40 @@ public class ConceptInfoDialogController {
     }
 
     public void initialize() {
-        nodeChoiceBox.setVisible(false);
+        setupPlotChoiceBox();
+    }
+
+    public ScatterChart<Number, Number> getNodeDegreeLogLogChart() {
+        return nodeDegreeLogLogChart;
+    }
+
+    private void setupPlotChoiceBox() {
+        ObservableList<ChartWrapper> chartOptions = FXCollections.observableArrayList();
+        chartOptions.add(new ChartWrapper(nodeDegreeHistogramChart,
+                                          "Node Degree Distribution: Subtree vs. Full Relation Tree",
+                                          "Node Degree Histogram"));
+        chartOptions.add(new ChartWrapper(nodeDegreeLogLogChart,
+                                          "log-log Degree Distribution: Subtree vs. Full Relation Tree",
+                                          "Log-Log Degree Plot"));
+        plotChoiceBox.setItems(chartOptions);
+
+        plotChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null) {
+                oldValue.chart.setVisible(false);
+                oldValue.chart.setManaged(false);
+            }
+            newValue.chart.setVisible(true);
+            newValue.chart.setManaged(true);
+            plotTitle.setText(newValue.title);
+        });
+
+        plotChoiceBox.setValue(chartOptions.getFirst());
+    }
+
+    private record ChartWrapper(Chart chart, String title, String choiceBoxString) {
+        @Override
+        public String toString() {
+            return choiceBoxString;
+        }
     }
 }

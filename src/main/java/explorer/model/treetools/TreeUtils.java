@@ -141,4 +141,18 @@ public class TreeUtils {
         }
     }
 
+    public static <T> Map<Integer, Double> computeNormalizedNodeDegreeDistribution(TreeItem<T> root) {
+        Map<Integer, Double> degreeCounts = new HashMap<>();
+        int[] currentSize = {0};
+
+        TreeUtils.preOrderTreeViewTraversal(root, node -> {
+            int degree = node.getChildren().size();
+            degreeCounts.put(degree, degreeCounts.getOrDefault(degree, 0.0) + 1);
+            currentSize[0]++;
+        });
+
+        degreeCounts.replaceAll((d, v) -> degreeCounts.get(d) / currentSize[0]);
+
+        return degreeCounts;
+    }
 }
