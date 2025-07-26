@@ -289,14 +289,14 @@
                                     <Insets top="30.0" />
                                  </StackPane.margin>
                               </BarChart>
-                              <ChoiceBox fx:id="plotChoiceBox" prefWidth="150.0" StackPane.alignment="TOP_RIGHT">
+                              <ChoiceBox fx:id="plotChoiceBox" prefWidth="140.0" StackPane.alignment="TOP_RIGHT">
                                  <StackPane.margin>
                                     <Insets right="20.0" top="10.0" />
                                  </StackPane.margin>
                               </ChoiceBox>
                            </children>
                         </StackPane>
-                        <Label fx:id="plotTitle" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" prefWidth="460.0" text="PLOT_TITLE">
+                        <Label fx:id="plotTitle" alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" prefWidth="470.0" text="PLOT_TITLE">
                            <font>
                               <Font size="18.0" />
                            </font>

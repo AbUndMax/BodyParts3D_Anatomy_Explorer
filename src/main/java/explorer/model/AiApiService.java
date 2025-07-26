@@ -1,7 +1,6 @@
 package explorer.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import explorer.model.treetools.KryoUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 

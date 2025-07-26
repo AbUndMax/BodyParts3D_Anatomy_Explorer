@@ -3,7 +3,7 @@ package explorer.window.presenter;
 import explorer.model.AiApiService;
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
-import explorer.model.treetools.KryoUtils;
+import explorer.model.KryoUtils;
 import explorer.window.GuiRegistry;
 import explorer.window.controller.SelectionViewController;
 import javafx.animation.FadeTransition;

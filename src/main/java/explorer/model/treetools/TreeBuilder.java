@@ -1,5 +1,7 @@
 package explorer.model.treetools;
 
+import explorer.model.KryoUtils;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.ArrayList;

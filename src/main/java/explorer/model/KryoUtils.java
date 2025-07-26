@@ -1,9 +1,10 @@
-package explorer.model.treetools;
+package explorer.model;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import explorer.model.treetools.ConceptNode;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.io.*;

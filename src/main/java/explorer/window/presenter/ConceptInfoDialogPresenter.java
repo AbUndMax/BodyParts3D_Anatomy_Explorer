@@ -2,7 +2,7 @@ package explorer.window.presenter;
 
 import explorer.model.Cladogram;
 import explorer.model.treetools.ConceptNode;
-import explorer.model.treetools.KryoUtils;
+import explorer.model.KryoUtils;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
@@ -33,6 +33,8 @@ public class ConceptInfoDialogPresenter {
 
     private final ConceptInfoDialogController controller;
     private final TreeView<ConceptNode> treeView;
+    private final List<String> depthRange = new ArrayList<>();
+
 
     /**
      * Constructs a new presenter for the Concept Info Dialog view.
@@ -57,6 +59,24 @@ public class ConceptInfoDialogPresenter {
             ChoiceBox<TreeItem<ConceptNode>> nodeChoiceBox = controller.getConceptChoiceBox();
             setupNodeChoiceBox(nodeChoiceBox, selectedItems);
             selectedItem = nodeChoiceBox.getValue();
+        }
+
+        // calculate Depth range
+        int maxDepth = Integer.MIN_VALUE;
+        int minDepth = Integer.MAX_VALUE;
+        for (TreeItem<ConceptNode> item : selectedItems) {
+            int currentMin = TreeUtils.calculateDepthToRoot(item);
+            int currentMax = currentMin + TreeUtils.horizontalTreeDepth(item.getValue());
+
+            if (currentMin < minDepth) {
+                minDepth = currentMin;
+            }
+            if (currentMax > maxDepth) {
+                maxDepth = currentMax;
+            }
+        }
+        for (int i = minDepth; i < maxDepth; i++) {
+            depthRange.add(String.valueOf(i));
         }
 
         // draw the Tabs
@@ -175,55 +195,49 @@ public class ConceptInfoDialogPresenter {
         // Key: depth, value: number of nodes
         Map<Integer, Integer> nodesPerDepth = TreeUtils.countNodesPerDepth(selectedItem);
         BarChart<String, Number> nodePerDepthChart = controller.getConceptsPerDepthBarChart();
+        ObservableList<XYChart.Series<String, Number>> existingSeries = nodePerDepthChart.getData();
 
-        // the following code was build with the help of AI and modified to get the wanted behavior of the animation!
         XYChart.Series<String, Number> series;
-        // Sortiere of categories by ascending depth for initial draw
-        List<Integer> sortedDepths = new ArrayList<>(nodesPerDepth.keySet());
-        Collections.sort(sortedDepths);
 
-        // if the chart gets drawn the first time
-        if (nodePerDepthChart.getData().isEmpty()) {
+        if (existingSeries.isEmpty()) {
             series = new XYChart.Series<>();
-
-            // add the sorted depths to the series data
-            for (int depth : sortedDepths) {
-                String depthLabel = String.valueOf(depth + depthFromRoot);
-                series.getData().add(new XYChart.Data<>(depthLabel, nodesPerDepth.get(depth)));
+            for (String depthLabel : depthRange) {
+                int originalDepth = Integer.parseInt(depthLabel) - depthFromRoot;
+                int count = nodesPerDepth.getOrDefault(originalDepth, 0);
+                series.getData().add(new XYChart.Data<>(depthLabel, count));
             }
-
             nodePerDepthChart.getData().add(series);
-
-        // if the Plot was already once drawn:
-        // I update existing bars and remove bars that are not needed.
-        // this is necessary to make the animation smooth when changing between Concepts via the nodeChoiceBox
         } else {
-            series = nodePerDepthChart.getData().getFirst();
-            // map the Charts for better access if I update them when changing between concepts
+            series = existingSeries.getFirst();
+
+            // Fast lookup for current chart data
             Map<String, XYChart.Data<String, Number>> dataMap = new HashMap<>();
             for (XYChart.Data<String, Number> data : series.getData()) {
                 dataMap.put(data.getXValue(), data);
             }
 
-            // save relevant depths for current Node -> this is used to distinguish between
-            // needed and deprecated bars (i.e. collect which bars should be drawn)
-            Set<String> validLabels = new HashSet<>();
-            for (int depth : sortedDepths) {
-                String depthLabel = String.valueOf(depth + depthFromRoot);
-                validLabels.add(depthLabel);
+            Set<String> validLabels = new HashSet<>(depthRange);
+
+            // Update existing bars or add new ones if missing
+            for (String depthLabel : depthRange) {
+                int originalDepth = Integer.parseInt(depthLabel) - depthFromRoot;
+                int count = nodesPerDepth.getOrDefault(originalDepth, 0);
 
                 if (dataMap.containsKey(depthLabel)) {
-                    dataMap.get(depthLabel).setYValue(nodesPerDepth.get(depth));
-
+                    dataMap.get(depthLabel).setYValue(count);
                 } else {
-                    series.getData().add(new XYChart.Data<>(depthLabel, nodesPerDepth.get(depth)));
+                    series.getData().add(new XYChart.Data<>(depthLabel, count));
                 }
             }
 
-            // dismiss bars that aren't part of the selected Concept
-            series.getData().removeIf(data -> !validLabels.contains(data.getXValue()));
+            // Instead of removing obsolete bars, set their Y value to 0
+            for (XYChart.Data<String, Number> data : series.getData()) {
+                if (!validLabels.contains(data.getXValue())) {
+                    data.setYValue(0);
+                }
+            }
 
-            // Sort the series list by depth
+            // Sort the series by depth
             series.getData().sort(Comparator.comparingInt(d -> Integer.parseInt(d.getXValue())));
         }
     }
@@ -300,8 +314,13 @@ public class ConceptInfoDialogPresenter {
                     existingSub.getData().add(new XYChart.Data<>(x, data.getYValue()));
                 }
             }
-            // Remove obsolete points not in current subSeries
-            existingSub.getData().removeIf(d -> !validKeys.contains(d.getXValue()));
+            // Remove obsolete bars not in current subSeries
+            // Set Y value to 0 for bars not in current subSeries
+            for (XYChart.Data<String, Number> data : existingSub.getData()) {
+                if (!validKeys.contains(data.getXValue())) {
+                    data.setYValue(0);
+                }
+            }
         }
     }
 

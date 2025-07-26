@@ -148,11 +148,11 @@ public class ConceptInfoDialogController {
     private void setupPlotChoiceBox() {
         ObservableList<ChartWrapper> chartOptions = FXCollections.observableArrayList();
         chartOptions.add(new ChartWrapper(nodeDegreeHistogramChart,
-                                          "Node Degree Distribution: Subtree vs. Full Relation Tree",
-                                          "Node Degree Histogram"));
+                                          "Subtree vs. Full Relation: Relative Node Degree Distribution",
+                                          "Relative Histogram"));
         chartOptions.add(new ChartWrapper(nodeDegreeLogLogChart,
-                                          "log-log Degree Distribution: Subtree vs. Full Relation Tree",
-                                          "Log-Log Degree Plot"));
+                                          "Subtree vs. Full Relation: log-log Node Degree Distribution",
+                                          "Log-Log Scatter"));
         plotChoiceBox.setItems(chartOptions);
 
         plotChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
