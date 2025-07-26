@@ -2,6 +2,7 @@ package explorer.window.presenter;
 
 import explorer.model.Cladogram;
 import explorer.model.treetools.ConceptNode;
+import explorer.model.treetools.KryoUtils;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.controller.ConceptInfoDialogController;
 import explorer.window.vistools.DrawCladogram;
@@ -16,6 +17,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -30,21 +32,21 @@ import java.util.*;
 public class ConceptInfoDialogPresenter {
 
     private final ConceptInfoDialogController controller;
-    private final TreeItem<ConceptNode> treeViewRoot;
+    private final TreeView<ConceptNode> treeView;
 
     /**
      * Constructs a new presenter for the Concept Info Dialog view.
      *
      * @param selectedItems the currently selected tree items
-     * @param treeViewRoot the root of the concept tree
+     * @param treeView the TreeView of concept tree
      * @param controller the controller managing the view
      */
     public ConceptInfoDialogPresenter(ObservableList<TreeItem<ConceptNode>> selectedItems,
-                                      TreeItem<ConceptNode> treeViewRoot,
+                                      TreeView<ConceptNode> treeView,
                                       ConceptInfoDialogController controller) {
 
         this.controller = controller;
-        this.treeViewRoot = treeViewRoot;
+        this.treeView = treeView;
 
         // get the selectedItem
         TreeItem<ConceptNode> selectedItem = selectedItems.getFirst();
@@ -126,7 +128,7 @@ public class ConceptInfoDialogPresenter {
         controller.getSubtreeHeightLabel().setText(String.valueOf(TreeUtils.horizontalTreeDepth(selectedConcept)));
         int leavesInSubtree = TreeUtils.numberOfLeaves(selectedConcept);
         controller.getNumberLeavesLabel().setText(String.valueOf(leavesInSubtree));
-        int totalLeaves = TreeUtils.numberOfLeaves(treeViewRoot.getValue());
+        int totalLeaves = TreeUtils.numberOfLeaves(treeView.getRoot().getValue());
         double percentage = ((double) leavesInSubtree / totalLeaves) * 100;
         controller.getLeavesBelowLabel().setText(String.format(percentage == 100 ? "%.0f %%" : "%.2f %%", percentage));
 
@@ -144,7 +146,7 @@ public class ConceptInfoDialogPresenter {
      * @param subTreeSize the size of the currently selected subtree
      */
     private void drawCoveragePie(int subTreeSize) {
-        int totalTreeSize = TreeUtils.calculateTreeSize(treeViewRoot);
+        int totalTreeSize = TreeUtils.calculateTreeSize(treeView.getRoot());
         PieChart coveragePie = controller.getSubtreeCoveragePieChart();
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
                 new PieChart.Data("Subtree", subTreeSize),
@@ -232,7 +234,13 @@ public class ConceptInfoDialogPresenter {
      * @param selectedItem the TreeItem whose degree distribution should be visualized
      */
     private void redrawNodeDegDistTab(TreeItem<ConceptNode> selectedItem) {
-        Map<Integer, Double> fullTreeData = TreeUtils.computeNormalizedNodeDegreeDistribution(treeViewRoot);
+        Map<Integer, Double> fullTreeData;
+        if (treeView.getId().equals("treeViewIsA")) {
+            fullTreeData = KryoUtils.thawIntegerMapFromKryo("/serializedMaps/isA_NodeDegrees.kryo");
+        } else {
+            fullTreeData = KryoUtils.thawIntegerMapFromKryo("/serializedMaps/partOf_NodeDegrees.kryo");
+        }
+
         Map<Integer, Double> subTreeData = TreeUtils.computeNormalizedNodeDegreeDistribution(selectedItem);
 
         List<Integer> allDegrees = new ArrayList<>();
@@ -276,24 +284,19 @@ public class ConceptInfoDialogPresenter {
         } else {
             XYChart.Series<String, Number> existingSub = existingSeries.get(1);
 
-            // Helperfunction for actualizing purpose
-            java.util.function.BiConsumer<XYChart.Series<String, Number>, XYChart.Series<String, Number>> updateSeries = (target, source) -> {
-                Map<String, XYChart.Data<String, Number>> dataMap = new HashMap<>();
-                for (XYChart.Data<String, Number> data : target.getData()) {
-                    dataMap.put(data.getXValue(), data);
-                }
+            Map<String, XYChart.Data<String, Number>> dataMap = new HashMap<>();
+            for (XYChart.Data<String, Number> data : existingSub.getData()) {
+                dataMap.put(data.getXValue(), data);
+            }
 
-                for (XYChart.Data<String, Number> data : source.getData()) {
-                    String x = data.getXValue();
-                    if (dataMap.containsKey(x)) {
-                        dataMap.get(x).setYValue(data.getYValue());
-                    } else {
-                        target.getData().add(new XYChart.Data<>(x, data.getYValue()));
-                    }
+            for (XYChart.Data<String, Number> data : subSeries.getData()) {
+                String x = data.getXValue();
+                if (dataMap.containsKey(x)) {
+                    dataMap.get(x).setYValue(data.getYValue());
+                } else {
+                    existingSub.getData().add(new XYChart.Data<>(x, data.getYValue()));
                 }
-            };
-
-            updateSeries.accept(existingSub, subSeries);
+            }
         }
     }
 

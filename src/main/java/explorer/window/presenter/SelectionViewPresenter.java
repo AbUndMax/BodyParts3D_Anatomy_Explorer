@@ -77,7 +77,7 @@ public class SelectionViewPresenter {
      * @param kryoPath the path to the Kryo file containing the tree data
      */
     private void setupTreeView(TreeView<ConceptNode> treeView, String kryoPath) {
-        ConceptNode root = KryoUtils.loadTreeFromKryo(kryoPath);
+        ConceptNode root = KryoUtils.thawTreeFromKryo(kryoPath);
         TreeItem<ConceptNode> rootItem = createTreeItemsRec(root);
         treeView.setRoot(rootItem);
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

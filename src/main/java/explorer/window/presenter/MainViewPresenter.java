@@ -243,13 +243,13 @@ public class MainViewPresenter {
         }
 
         try {
-            TreeItem<ConceptNode> treeViewRoot = registry.getSelectionViewPresenter().getLastFocusedTreeView().getRoot();
+            TreeView<ConceptNode> treeView = registry.getSelectionViewPresenter().getLastFocusedTreeView();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ConceptInfoDialog.fxml"));
             Parent root = loader.load();
 
             ConceptInfoDialogController conceptInfoController = loader.getController();
 
-            new ConceptInfoDialogPresenter(selectedItems, treeViewRoot, conceptInfoController);
+            new ConceptInfoDialogPresenter(selectedItems, treeView, conceptInfoController);
 
             Stage infoStage = new Stage();
             conceptInfoController.getCloseNodeInfoButton().setOnAction(event -> infoStage.close());
