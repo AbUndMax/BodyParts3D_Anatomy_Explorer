@@ -1,4 +1,4 @@
-package explorer.window.selection;
+package explorer.selection;
 
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;

@@ -1,7 +1,7 @@
 package explorer.window.command.commands;
 
 import explorer.window.command.Command;
-import explorer.window.selection.MeshSelectionManager;
+import explorer.selection.MeshSelectionManager;
 import javafx.scene.shape.MeshView;
 
 

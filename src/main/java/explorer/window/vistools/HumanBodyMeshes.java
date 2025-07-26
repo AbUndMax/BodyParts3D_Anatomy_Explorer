@@ -2,7 +2,7 @@ package explorer.window.vistools;
 
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
-import explorer.window.selection.MeshSelectionManager;
+import explorer.selection.MeshSelectionManager;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;

@@ -1,4 +1,4 @@
-package explorer.window.selection;
+package explorer.selection;
 
 import javafx.collections.*;
 import javafx.scene.shape.MeshView;

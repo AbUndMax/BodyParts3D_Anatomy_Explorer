@@ -5,7 +5,7 @@ import explorer.window.controller.*;
 import explorer.window.presenter.MainViewPresenter;
 import explorer.window.presenter.SelectionViewPresenter;
 import explorer.window.presenter.VisualizationViewPresenter;
-import explorer.window.selection.SelectionBinder;
+import explorer.selection.SelectionBinder;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
