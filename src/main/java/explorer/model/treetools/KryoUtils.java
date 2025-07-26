@@ -3,12 +3,11 @@ package explorer.model.treetools;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class KryoUtils {
 
@@ -79,9 +78,10 @@ public class KryoUtils {
         kryo.register(Double.class);
         kryo.register(Integer.class);
 
-        try (InputStream input = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
-            if (input == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
-            Input inputKryo = new Input(input);
+        try (InputStream stream = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
+            if (stream == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
+            Input inputKryo = new Input(stream);
+            @SuppressWarnings("unchecked")
             Map<Integer, Double> loadedMap = kryo.readObject(inputKryo, HashMap.class);
             lazyLoadedMap.put(resourceKryoPath, loadedMap);
             return loadedMap;
@@ -92,7 +92,6 @@ public class KryoUtils {
     }
 
     public static void freezeIntegerMap(Map<Integer, Double> map, String saveToPath) {
-
         Kryo kryo = new Kryo();
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
 
@@ -103,6 +102,54 @@ public class KryoUtils {
         try (Output output = new Output(new FileOutputStream(saveToPath))) {
             kryo.writeObject(output, map);
             System.out.println("Node degree map successfully serialized with Kryo.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Map<String, List<String>> thawStringMapFromKryo(String resourceKryoPath) {
+        Kryo kryo = new Kryo();
+        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+
+        kryo.register(java.util.HashMap.class);
+        kryo.register(java.util.ArrayList.class);
+        kryo.register(String.class);
+
+        try (InputStream stream = KryoUtils.class.getResourceAsStream(resourceKryoPath)) {
+            if (stream == null) throw new FileNotFoundException("Resource not found: " + resourceKryoPath);
+            Input inputKryo = new Input(stream);
+            @SuppressWarnings("unchecked")
+            Map<String, List<String>> map = (Map<String, List<String>>) kryo.readObject(inputKryo, HashMap.class);
+            return map;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void freezeConceptTermsMap() {
+        ObjectMapper mapper = new ObjectMapper();
+        InputStream termStream = Objects.requireNonNull(
+                KryoUtils.class.getResourceAsStream("/requests/conceptTerms.json"));
+
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> conceptTerms = null;
+        try {
+            conceptTerms = mapper.readValue(termStream, Map.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Kryo kryo = new Kryo();
+        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+
+        kryo.register(java.util.LinkedHashMap.class);
+        kryo.register(java.util.ArrayList.class);
+        kryo.register(String.class);
+
+        try (Output output = new Output(new FileOutputStream("src/main/resources/requests/conceptTerms.kryo"))) {
+            kryo.writeObject(output, conceptTerms);
+            System.out.println("conceptTerms.kryo successfully generated!");
         } catch (IOException e) {
             e.printStackTrace();
         }

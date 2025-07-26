@@ -1,6 +1,7 @@
 package explorer.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import explorer.model.treetools.KryoUtils;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -70,16 +71,15 @@ public class AiApiService extends Service<String> {
                     filledTemplate = templateJson;
 
                     if (conceptTerms == null) {
-                        InputStream termStream = Objects.requireNonNull(
-                                getClass().getResourceAsStream("/requests/conceptTerms.json"));
-
-                        conceptTerms = mapper.readValue(termStream, Map.class);
+                        conceptTerms = KryoUtils.thawStringMapFromKryo("/requests/conceptTerms.kryo");
                     }
 
                     // replace the fields in the  template values with the actual terms and user query
                     filledTemplate = filledTemplate
                             .replace("{{terms}}", "[ " + String.join(", ", conceptTerms.get(selectedTree)) + " ]")
                             .replace("{{query}}", query);
+
+                    System.out.println(filledTemplate);
 
                     // instantiate the HTTP request
                     HttpRequest request = HttpRequest.newBuilder()
@@ -111,7 +111,9 @@ public class AiApiService extends Service<String> {
                 }
 
                 // return the regular expression
-                assert content != null;
+                if (content == null) {
+                    throw new IOException("No valid AI response received.");
+                }
                 return content.trim();
             }
         };
