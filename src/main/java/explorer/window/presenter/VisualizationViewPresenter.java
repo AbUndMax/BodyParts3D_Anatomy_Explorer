@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
@@ -121,14 +120,14 @@ public class VisualizationViewPresenter {
         subScene.setCamera(camera);
 
         // Add PointLight
-        PointLight pointLight = new PointLight(Color.DARKGREY);
+        PointLight pointLight = new PointLight(Color.rgb(110, 110, 110));
         // point Light is bound to camera position for always optimal scene illumination
         pointLight.translateXProperty().bind(camera.translateXProperty());
         pointLight.translateYProperty().bind(camera.translateYProperty());
         pointLight.translateZProperty().bind(camera.translateZProperty());
 
         // Add AmbientLight
-        AmbientLight ambientLight = new AmbientLight(Color.rgb(180, 180, 180));
+        AmbientLight ambientLight = new AmbientLight(Color.rgb(150, 150, 150));
 
         // Add lights to the root3d group
         root3d.getChildren().addAll(pointLight, ambientLight);
@@ -541,7 +540,7 @@ public class VisualizationViewPresenter {
                 if (change.wasAdded()) {
                     for (MeshView meshView : change.getAddedSubList()) {
                         PhongMaterial selectedMaterial = new PhongMaterial(colorPicker.getValue());
-                        selectedMaterial.setSpecularColor(Color.BLACK);
+                        selectedMaterial.setSpecularColor(Color.TRANSPARENT);
 
                         Platform.runLater(() -> {
                             meshView.setDrawMode(DrawMode.FILL);

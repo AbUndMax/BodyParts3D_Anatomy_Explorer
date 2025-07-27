@@ -40,8 +40,8 @@ public class HumanBodyMeshes {
     private final PhongMaterial SHARED_DEFAULT_MATERIAL = new PhongMaterial();
 
     public HumanBodyMeshes() {
-        SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.BLACK);
-        SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.DARKGREY);
+        SHARED_DEFAULT_MATERIAL.setSpecularColor(Color.TRANSPARENT);
+        SHARED_DEFAULT_MATERIAL.setDiffuseColor(Color.LIGHTGRAY);
     }
 
     public PhongMaterial getDefaultPhongMaterial() {
