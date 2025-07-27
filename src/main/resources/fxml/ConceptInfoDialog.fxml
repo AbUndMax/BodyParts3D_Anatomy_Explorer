@@ -230,7 +230,7 @@
                                                 <Font size="18.0" />
                                              </font>
                                              <HBox.margin>
-                                                <Insets bottom="5.0" top="10.0" />
+                                                <Insets top="10.0" />
                                              </HBox.margin>
                                              <tooltip>
                                                 <Tooltip text="Displays the number of nodes per depth level in the subtree." />
@@ -242,14 +242,11 @@
                                        <children>
                                           <BarChart fx:id="conceptsPerDepthBarChart" legendVisible="false" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <xAxis>
-                                              <CategoryAxis />
+                                              <CategoryAxis label="Depth" />
                                             </xAxis>
                                             <yAxis>
-                                              <NumberAxis lowerBound="1.0" prefWidth="40.0" side="RIGHT" tickLabelGap="10.0" />
+                                              <NumberAxis label="# Concepts" lowerBound="1.0" prefWidth="60.0" side="RIGHT" tickLabelGap="10.0" />
                                             </yAxis>
-                                             <padding>
-                                                <Insets right="35.0" />
-                                             </padding>
                                           </BarChart>
                                        </children>
                                     </AnchorPane>
