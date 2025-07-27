@@ -222,29 +222,62 @@
                <bottom>
                   <VBox BorderPane.alignment="CENTER">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Concepts">
+                        <Label alignment="TOP_LEFT" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Concepts">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font></Label>
-                        <Label fx:id="numberSelectedConceptsPartOfLabel" text="part-of:">
+                        <HBox>
+                           <children>
+                              <VBox alignment="CENTER_RIGHT" prefWidth="50.0">
+                                 <children>
+                                    <Label text="part-of:">
                         </Label>
-                        <Label fx:id="numberSelectedConceptsIsALabel" text="is-a:">
-                        <font>
-                           <Font name="Monospaced" />
-                        </font>
-                        </Label>
-                        <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Meshes">
+                                    <Label text="is-a:">
+                                    <font>
+                                       <Font name="Monospaced" />
+                                    </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label fx:id="numberSelectedConceptsPartOfLabel" text="Label" />
+                                    <Label fx:id="numberSelectedConceptsIsALabel" text="Label" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets left="5.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <Label alignment="TOP_LEFT" contentDisplay="CENTER" maxWidth="Infinity" text="# Selected Meshes">
                            <padding>
                               <Insets top="5.0" />
                            </padding>
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font></Label>
-                        <Label fx:id="numberSelectedMeshesLabel" text="model:">
-                        <font>
-                           <Font name="Monospaced" />
-                        </font>
-                        </Label>
+                        <HBox>
+                           <children>
+                              <VBox alignment="CENTER_RIGHT" prefWidth="50.0">
+                                 <children>
+                                    <Label text="model:">
+                                    <font>
+                                       <Font name="Monospaced" />
+                                    </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              <VBox>
+                                 <children>
+                                    <Label fx:id="numberSelectedMeshesLabel" text="Label" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets left="5.0" />
+                                 </HBox.margin>
+                              </VBox>
+                           </children>
+                        </HBox>
                      </children>
                      <BorderPane.margin>
                         <Insets />

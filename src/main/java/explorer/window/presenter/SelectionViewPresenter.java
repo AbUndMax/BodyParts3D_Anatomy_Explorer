@@ -248,27 +248,25 @@ public class SelectionViewPresenter {
         Label selectedNumberMesh = controller.getNumberSelectedMeshesLabel();
 
         selectedNumberPartOf.textProperty().bind(
-                Bindings.concat("part-of: ",
-                                Bindings.size(
-                                        controller.getTreeViewPartOf().getSelectionModel().getSelectedItems()
-                                )
+                Bindings.createStringBinding(() ->
+                     String.valueOf(controller.getTreeViewPartOf().getSelectionModel().getSelectedItems().size()),
+                        controller.getTreeViewPartOf().getSelectionModel().getSelectedItems()
                 )
         );
 
         selectedNumberIsA.textProperty().bind(
-                Bindings.concat("is-a:    ",
-                                Bindings.size(
-                                        controller.getTreeViewIsA().getSelectionModel().getSelectedItems()
-                                )
+                Bindings.createStringBinding(() ->
+                     String.valueOf(controller.getTreeViewIsA().getSelectionModel().getSelectedItems().size()),
+                         controller.getTreeViewIsA().getSelectionModel().getSelectedItems()
                 )
         );
 
         selectedNumberMesh.textProperty().bind(
-                Bindings.concat("model:   ",
-                                Bindings.size(
-                                        registry.getVisualizationViewPresenter()
-                                                .getHumanBody().getSelectionModel().getSelectedItems()
-                                ))
+                Bindings.createStringBinding(() ->
+                     String.valueOf(registry.getVisualizationViewPresenter()
+                                            .getHumanBody().getSelectionModel().getSelectedItems().size()),
+                         registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().getSelectedItems()
+                )
         );
     }
 
