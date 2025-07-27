@@ -131,11 +131,18 @@ public class SelectionBinder {
         if (root == null) return;
 
         Set<TreeItem<ConceptNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
+        TreeItem<ConceptNode> lastLeaf = null;
         if (itemsToSelect != null) {
             for (TreeItem<ConceptNode> item : itemsToSelect) {
                 // meshes are only represented DIRECTLY by leaves -> so only they get selected
-                if (item.getValue().isLeaf()) selectionModel.select(item);
+                if (item.getValue().isLeaf()) {
+                    selectionModel.select(item);
+                    lastLeaf = item;
+                }
             }
+        }
+        if (lastLeaf != null) {
+            treeView.scrollTo(treeView.getRow(lastLeaf));
         }
     }
 
