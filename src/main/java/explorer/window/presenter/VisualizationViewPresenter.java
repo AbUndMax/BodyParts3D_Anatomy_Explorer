@@ -481,7 +481,7 @@ public class VisualizationViewPresenter {
 
         // Main button action: Show selected meshes and clear running animations
         controller.getShowConceptButton().setOnAction(e -> {
-            Set<Node> meshesToShow = selectedMeshes();
+            Set<Node> meshesToShow = registry.getSelectionViewPresenter().getSelectedConceptMeshes();
             if (!meshesToShow.isEmpty()) {
                 animationManager.clearAnimations();
                 commandManager.executeCommand(
@@ -491,16 +491,18 @@ public class VisualizationViewPresenter {
 
         // Add selected meshes to the currently displayed meshes without clearing the view
         controller.getAddToCurrentShowMenuItem().setOnAction(event -> {
+            Set<Node> meshesToShow = registry.getSelectionViewPresenter().getSelectedConceptMeshes();
             commandManager.executeCommand(
-                    new ShowConceptCommand(selectedMeshes(), anatomyGroup, humanBodyMeshes, false)
+                    new ShowConceptCommand(meshesToShow, anatomyGroup, humanBodyMeshes, false)
             );
         });
 
         // Remove selected meshes from the currently displayed meshes and clear running animations
         controller.getRemoveFromCurrentShowMenuItem().setOnAction(event -> {
+            Set<Node> meshesToShow = registry.getSelectionViewPresenter().getSelectedConceptMeshes();
             animationManager.clearAnimations();
             commandManager.executeCommand(
-                    new RemoveConceptCommand(selectedMeshes(), anatomyGroup));
+                    new RemoveConceptCommand(meshesToShow, anatomyGroup));
         });
 
         // Show all human body meshes and clear running animations
@@ -518,23 +520,6 @@ public class VisualizationViewPresenter {
                     .containsAll(humanBodyMeshes.getMeshes());
             controller.getShowFullHumanBodyMenuItem().setDisable(humanBodyShown);
         });
-    }
-
-    /**
-     * Retrieves the list of meshes associated with the currently selected AnatomyNode items
-     * in the last focused TreeView.
-     *
-     * @return an ArrayList of MeshView objects to be displayed.
-     */
-    private HashSet<Node> selectedMeshes() {
-        ObservableList<TreeItem<ConceptNode>> selectedItems =
-                registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
-        HashSet<Node> meshesToDraw = new HashSet<>();
-        // Collect meshes corresponding to the selected nodes in the TreeView
-        for (TreeItem<ConceptNode> selectedItem : selectedItems) {
-            meshesToDraw.addAll(humanBodyMeshes.getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
-        }
-        return meshesToDraw;
     }
 
     /**

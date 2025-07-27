@@ -13,10 +13,12 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.TreeView;
 import javafx.util.Duration;
 
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -29,6 +31,7 @@ import java.util.regex.PatternSyntaxException;
 public class SelectionViewPresenter {
 
     private TreeView<ConceptNode> lastFocusedTreeView = null;
+    private final GuiRegistry registry;
 
     /**
      * @return The currently selected item from the last focused TreeView
@@ -53,6 +56,7 @@ public class SelectionViewPresenter {
      */
     public SelectionViewPresenter(GuiRegistry registry) {
         controller = registry.getSelectionViewController();
+        this.registry = registry;
 
         TreeView<ConceptNode> treeViewIsA = registry.getSelectionViewController().getTreeViewIsA();
         TreeView<ConceptNode> treeViewPartOf = registry.getSelectionViewController().getTreeViewPartOf();
@@ -64,9 +68,9 @@ public class SelectionViewPresenter {
         // default is partOf tree
         lastFocusedTreeView = treeViewPartOf;
 
-        setupButtons(registry);
-        setupSelectionCounterLabels(registry);
-        setupSearchBar(registry);
+        setupButtons();
+        setupSelectionCounterLabels();
+        setupSearchBar();
     }
 
     /**
@@ -104,10 +108,8 @@ public class SelectionViewPresenter {
 
     /**
      * Configures the select, expand, and collapse buttons for the selection view.
-     *
-     * @param registry the GuiRegistry providing access to controllers and selection binder
      */
-    private void setupButtons(GuiRegistry registry) {
+    private void setupButtons() {
         controller.getButtonSelectAtTreeNode().setOnAction(e -> {
             registry.getSelectionBinder().selectAllBelow(selectedItem(), lastFocusedTreeView);
         });
@@ -119,10 +121,8 @@ public class SelectionViewPresenter {
     /**
      * Sets up the search bar, AI button, Regex Button as well as
      * find buttons, and hit count label for searching AnatomyNode names.
-     *
-     * @param registry the GuiRegistry providing access to selection view controls and TreeViews
      */
-    private void setupSearchBar(GuiRegistry registry) {
+    private void setupSearchBar() {
         TextField searchBar = controller.getTextFieldSearchBar();
         Button nextButton = controller.getButtonFindNext();
         Button firstButton = controller.getButtonFindFirst();
@@ -241,9 +241,8 @@ public class SelectionViewPresenter {
 
     /**
      * Binds the Labels that show the number of selected Nodes / meshes to the respective TreeViews / selectionModels
-     * @param registry
      */
-    private void setupSelectionCounterLabels(GuiRegistry registry) {
+    private void setupSelectionCounterLabels() {
         Label selectedNumberPartOf = controller.getNumberSelectedConceptsPartOfLabel();
         Label selectedNumberIsA = controller.getNumberSelectedConceptsIsALabel();
         Label selectedNumberMesh = controller.getNumberSelectedMeshesLabel();
@@ -441,6 +440,23 @@ public class SelectionViewPresenter {
                 javafx.collections.FXCollections.observableArrayList();
 
         private final IntegerProperty currentSearchIndex = new SimpleIntegerProperty(-1);
+    }
+
+    /**
+     * Retrieves the list of meshes associated with the currently selected AnatomyNode items
+     * in the last focused TreeView.
+     *
+     * @return an ArrayList of MeshView objects to be displayed.
+     */
+    public HashSet<Node> getSelectedConceptMeshes() {
+        ObservableList<TreeItem<ConceptNode>> selectedItems =
+                lastFocusedTreeView.getSelectionModel().getSelectedItems();
+        HashSet<Node> meshesToDraw = new HashSet<>();
+        // Collect meshes corresponding to the selected nodes in the TreeView
+        for (TreeItem<ConceptNode> selectedItem : selectedItems) {
+            meshesToDraw.addAll(registry.getVisualizationViewPresenter().getHumanBody().getMeshesOfFilesIDs(selectedItem.getValue().getFileIDs()));
+        }
+        return meshesToDraw;
     }
 
     /**
