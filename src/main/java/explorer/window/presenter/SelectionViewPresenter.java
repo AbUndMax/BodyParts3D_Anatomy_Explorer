@@ -261,13 +261,9 @@ public class SelectionViewPresenter {
                 )
         );
 
-        selectedNumberMesh.textProperty().bind(
-                Bindings.createStringBinding(() ->
-                     String.valueOf(registry.getVisualizationViewPresenter()
-                                            .getHumanBody().getSelectionModel().getSelectedItems().size()),
-                         registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().getSelectedItems()
-                )
-        );
+        registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().addListener(change -> {
+            selectedNumberMesh.setText(String.valueOf(registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().getNumberOfSelectedMeshes()));
+        });
     }
 
     /**

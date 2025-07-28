@@ -41,7 +41,7 @@ public class ClearSelectionCommand implements Command {
                                  TreeView<ConceptNode> treeViewPartOf, TextField searchBar) {
 
         this.humanBodyMeshes = humanBodyMeshes;
-        previousMeshSelection.addAll(humanBodyMeshes.getSelectionModel().getSelectedItems());
+        previousMeshSelection.addAll(humanBodyMeshes.getSelectionModel().getListOfCurrentlySelectedItems());
         this.treeViewIsA = treeViewIsA;
         previousIsASelection.addAll(treeViewIsA.getSelectionModel().getSelectedItems());
         this.treeViewPartOf = treeViewPartOf;

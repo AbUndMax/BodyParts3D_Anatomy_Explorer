@@ -48,6 +48,10 @@ public class MeshSelectionManager {
         });
     }
 
+    public int getNumberOfSelectedMeshes() {
+        return selectedMeshes.size();
+    }
+
     /**
      * Adds a listener to observe changes in the selected mesh list.
      *
@@ -62,7 +66,7 @@ public class MeshSelectionManager {
      *
      * @return unmodifiable ObservableList of selected MeshView objects
      */
-    public ObservableList<MeshView> getSelectedItems() {
+    public ObservableList<MeshView> getListOfCurrentlySelectedItems() {
         return FXCollections.unmodifiableObservableList(selectedMeshes);
     }
 

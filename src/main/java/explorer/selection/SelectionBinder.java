@@ -1,9 +1,11 @@
 package explorer.selection;
 
+import com.sun.source.tree.Tree;
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBodyMeshes;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
@@ -126,23 +128,66 @@ public class SelectionBinder {
      * @param fileID the file ID associated with the TreeItem to select.
      */
     private void selectNodeInTree(TreeView<ConceptNode> treeView, String fileID) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> " + treeView.getId());
         MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
+        Set<TreeItem<ConceptNode>> previousSelection = new HashSet<>(selectionModel.getSelectedItems());
+        System.out.println(">> prev-selection" + previousSelection);
         TreeItem<ConceptNode> root = treeView.getRoot();
         if (root == null) return;
 
         Set<TreeItem<ConceptNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
+        System.out.println("items to select" + itemsToSelect);
         TreeItem<ConceptNode> lastLeaf = null;
         if (itemsToSelect != null) {
             for (TreeItem<ConceptNode> item : itemsToSelect) {
                 // meshes are only represented DIRECTLY by leaves -> so only they get selected
+
+
+                // LOOK HERE PLEASE! THANK YOU :)
                 if (item.getValue().isLeaf()) {
-                    selectionModel.select(item);
-                    lastLeaf = item;
+                    System.out.println("item to select: " + item);
+                    expandTo(item);
+                    int row = treeView.getRow(item);
+                    System.out.println("row: " + row);
+                    if (row >= 0) {
+                        selectionModel.select(item);
+                        lastLeaf = item;
+                    } else {
+                        System.out.println("[WARN] Item not visible (row -1), skipping selection: " + item.getValue().getName());
+                    }
+                    System.out.println("after item selected: " + selectionModel.getSelectedItems());
                 }
             }
         }
+
+
+
+        // ensure that previous selection stays selected:
+        // it happened that the previous selection was dismissed (which seemed to happen when the tree was fully collapsed
+        Set<TreeItem<ConceptNode>> afterSelection = new HashSet<>(selectionModel.getSelectedItems());
+        // DEBUG
+        for (TreeItem<ConceptNode> item : afterSelection) {
+            System.out.println("item: " + item + "row: " + treeView.getRow(item));
+        }
+        System.out.println(">> after-selection" + afterSelection);
+        previousSelection.removeAll(afterSelection);
+        System.out.println(">> prev-selection-Cleaned" + previousSelection);
+        System.out.println();
+        for (TreeItem<ConceptNode> item : previousSelection) {
+            selectionModel.select(item);
+        }
+
+        // scroll to the last selected item
         if (lastLeaf != null) {
             treeView.scrollTo(treeView.getRow(lastLeaf));
+        }
+    }
+
+    private void expandTo(TreeItem<?> item) {
+        TreeItem<?> parent = item.getParent();
+        while (parent != null) {
+            parent.setExpanded(true);
+            parent = parent.getParent();
         }
     }
 
@@ -281,7 +326,7 @@ public class SelectionBinder {
          */
         private void mapTree(TreeItem<ConceptNode> current) {
             if (current == null) return;
-            // Only map leaves so parents aren't selected for child fileIDs
+
             List<String> fileIDs = current.getValue().getFileIDs();
             if (fileIDs != null) {
                 for (String fileID : fileIDs) {

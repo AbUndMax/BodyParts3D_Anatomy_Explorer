@@ -110,6 +110,9 @@ public class MainViewController {
     @FXML
     private MenuItem nodeInformationsMenuItem;
 
+    @FXML
+    private MenuItem DebugWindowMenuItem;
+
     // Controller getters
     public SelectionViewController getSelectionViewController() {
         return selectionController;
@@ -229,6 +232,10 @@ public class MainViewController {
 
     public MenuItem getNodeInformationsMenuItem() {
         return nodeInformationsMenuItem;
+    }
+
+    public MenuItem getDebugWindowMenuItem() {
+        return DebugWindowMenuItem;
     }
 
     /**

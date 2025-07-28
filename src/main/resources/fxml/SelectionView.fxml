@@ -1,29 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane minHeight="250.0" minWidth="350.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.SelectionViewController">
+<BorderPane minHeight="250.0" minWidth="350.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.SelectionViewController">
    <top>
       <BorderPane BorderPane.alignment="CENTER">
          <center>
@@ -241,8 +225,8 @@
                               </VBox>
                               <VBox>
                                  <children>
-                                    <Label fx:id="numberSelectedConceptsPartOfLabel" text="Label" />
-                                    <Label fx:id="numberSelectedConceptsIsALabel" text="Label" />
+                                    <Label fx:id="numberSelectedConceptsPartOfLabel" text="0" />
+                                    <Label fx:id="numberSelectedConceptsIsALabel" text="0" />
                                  </children>
                                  <HBox.margin>
                                     <Insets left="5.0" />
@@ -270,7 +254,7 @@
                               </VBox>
                               <VBox>
                                  <children>
-                                    <Label fx:id="numberSelectedMeshesLabel" text="Label" />
+                                    <Label fx:id="numberSelectedMeshesLabel" text="0" />
                                  </children>
                                  <HBox.margin>
                                     <Insets left="5.0" />
