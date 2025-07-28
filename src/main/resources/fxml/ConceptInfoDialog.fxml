@@ -43,12 +43,20 @@
                                                             <Insets />
                                                          </VBox.margin>
                                                          <tooltip>
-                                                            <Tooltip text="Concept from which this Window was opened." />
+                                                            <Tooltip text="Concept from which this Window was opened." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Parent Concept:">
                                                          <tooltip>
-                                                            <Tooltip text="Concept Name of Direct Parent" />
+                                                            <Tooltip text="Concept Name of Direct Parent" >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                          <VBox.margin>
                                                             <Insets />
@@ -77,22 +85,38 @@
                                                    <children>
                                                       <Label text="Depth From Root:">
                                                          <tooltip>
-                                                            <Tooltip text="Distance from the root node to this concept in number of edges." />
+                                                            <Tooltip text="Distance from the root node to this concept in number of edges." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Number of Childs:">
                                                          <tooltip>
-                                                            <Tooltip text="Direct child nodes of this concept." />
+                                                            <Tooltip text="Direct child nodes of this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Number of Siblings:">
                                                          <tooltip>
-                                                            <Tooltip text="Other concepts that share the same parent node." />
+                                                            <Tooltip text="Other concepts that share the same parent node." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Number of Meshes:">
                                                          <tooltip>
-                                                            <Tooltip text="Number of mesh elements linked to this concept." />
+                                                            <Tooltip text="Number of mesh elements linked to this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -107,22 +131,38 @@
                                                    <children>
                                                       <Label fx:id="depthFromRootLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Distance from the root node to this concept in number of edges." />
+                                                            <Tooltip text="Distance from the root node to this concept in number of edges." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="numberOfChildsLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Direct child nodes of this concept." />
+                                                            <Tooltip text="Direct child nodes of this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="numberOfSiblingsLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Other concepts that share the same parent node." />
+                                                            <Tooltip text="Other concepts that share the same parent node." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="numberOfMeshesLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Number of mesh elements linked to this concept." />
+                                                            <Tooltip text="Number of mesh elements linked to this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -136,22 +176,38 @@
                                                    <children>
                                                       <Label text="Subtree Size:">
                                                          <tooltip>
-                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." />
+                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Height of Subtree:">
                                                          <tooltip>
-                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." />
+                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="Number of Leaves:">
                                                          <tooltip>
-                                                            <Tooltip text="Total Leaves of this Subtree." />
+                                                            <Tooltip text="Total Leaves of this Subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label text="\% Leaves of Total:">
                                                          <tooltip>
-                                                            <Tooltip text="Share of all leaves in the tree that are part of this concept’s subtree." />
+                                                            <Tooltip text="Share of all leaves in the tree that are part of this concept’s subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -166,22 +222,38 @@
                                                    <children>
                                                       <Label fx:id="subtreeSizeLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." />
+                                                            <Tooltip text="Total number of nodes in the subtree rooted at this concept." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="subtreeHeightLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." />
+                                                            <Tooltip text="Longest path from this node down to a leaf in the subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="numberLeavesLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Total Leaves of this Subtree." />
+                                                            <Tooltip text="Total Leaves of this Subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                       <Label fx:id="leavesBelowLabel" text="XXXXX">
                                                          <tooltip>
-                                                            <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." />
+                                                            <Tooltip text="Share of all concepts in the tree that are part of this node’s subtree." >
+                                                               <font>
+                                                                  <Font size="13.0" />
+                                                               </font>
+                                                            </Tooltip>
                                                          </tooltip>
                                                       </Label>
                                                    </children>
@@ -207,7 +279,11 @@
                                                       <Font size="18.0" />
                                                    </font>
                                                    <tooltip>
-                                                      <Tooltip text="Shows the percentage of all nodes in the tree that are part of this subtree." />
+                                                      <Tooltip text="Shows the percentage of all nodes in the tree that are part of this subtree." >
+                                                         <font>
+                                                            <Font size="13.0" />
+                                                         </font>
+                                                      </Tooltip>
                                                    </tooltip>
                                                    <HBox.margin>
                                                       <Insets bottom="5.0" top="10.0" />
@@ -233,7 +309,11 @@
                                                 <Insets top="10.0" />
                                              </HBox.margin>
                                              <tooltip>
-                                                <Tooltip text="Displays the number of nodes per depth level in the subtree." />
+                                                <Tooltip text="Displays the number of nodes per depth level in the subtree." >
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Tooltip>
                                              </tooltip>
                                           </Label>
                                        </children>

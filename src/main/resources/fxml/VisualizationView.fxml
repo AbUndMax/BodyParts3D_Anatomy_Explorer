@@ -25,9 +25,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.VisualizationViewController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.VisualizationViewController">
    <top>
       <ToolBar BorderPane.alignment="CENTER">
          <items>
@@ -37,21 +35,50 @@
                  <MenuItem fx:id="removeFromCurrentShowMenuItem" mnemonicParsing="false" text="Remove From Current Show" />
                 <MenuItem fx:id="showFullHumanBodyMenuItem" mnemonicParsing="false" text="Show Full Human Body" />
               </items>
+               <tooltip>
+                  <Tooltip text="Control which concepts are shown as 3D model. ">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip>
             </SplitMenuButton>
             <Separator orientation="VERTICAL" />
             <Button fx:id="clearSelectionButton" mnemonicParsing="false" text="Clear Selection">
                <tooltip>
-                  <Tooltip text="Clears the current Selected Meshes / Concepts" />
+                  <Tooltip text="Clears the current Selected Meshes / Concepts.">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Tooltip>
                </tooltip>
             </Button>
             <Button fx:id="resetHideButton" mnemonicParsing="false" text="Unhide All">
                <tooltip>
-                  <Tooltip text="Empty Tooltip" />
+                  <Tooltip text="Make all hidden meshes visible again.">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Tooltip>
                </tooltip>
             </Button>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="undoButton" mnemonicParsing="false" text="Undo" />
-            <Button fx:id="redoButton" mnemonicParsing="false" text="Redo" />
+            <Button fx:id="undoButton" mnemonicParsing="false" text="Undo">
+               <tooltip>
+                  <Tooltip text="Undo the last action.">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip></Button>
+            <Button fx:id="redoButton" mnemonicParsing="false" text="Redo">
+               <tooltip>
+                  <Tooltip text="Redo the last action.">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </Tooltip>
+               </tooltip></Button>
          </items>
       </ToolBar>
    </top>
@@ -97,6 +124,13 @@
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
+                           <tooltip>
+                              <Tooltip text="Reset all translations, rotations, animations and zoom.">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
                         </Button>
                         <Button fx:id="buttonCntrlRight" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="→" GridPane.columnIndex="2" GridPane.rowIndex="1">
                            <font>
@@ -141,6 +175,13 @@
                            <toggleGroup>
                               <ToggleGroup fx:id="threeDControl" />
                            </toggleGroup>
+                           <tooltip>
+                              <Tooltip text="Direction buttons control translation of 3D model.">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
                         </RadioButton>
                         <RadioButton fx:id="radioRotation" mnemonicParsing="false" selected="true" text="Rotation" toggleGroup="$threeDControl">
                            <VBox.margin>
@@ -149,6 +190,13 @@
                            <font>
                               <Font size="12.0" />
                            </font>
+                           <tooltip>
+                              <Tooltip text="Direction buttons control rotation of 3D model.">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
                         </RadioButton>
                      </children>
                      <BorderPane.margin>
@@ -169,7 +217,11 @@
                   </ColorPicker>
                   <ToggleButton fx:id="hideModeToggle" mnemonicParsing="false" prefWidth="105.0" text="Hide Mode">
                      <tooltip>
-                        <Tooltip text="Activate or deactivate a Mode that will hide clicked meshes" />
+                        <Tooltip text="Activate or deactivate a Mode that will hide clicked meshes.">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Tooltip>
                      </tooltip>
                   </ToggleButton>
                   <MenuButton fx:id="animateMenuButton" mnemonicParsing="false" text="Animate">
@@ -178,6 +230,13 @@
                       <MenuItem fx:id="explosionMenuItem" mnemonicParsing="false" text="Explosion" />
                       <MenuItem fx:id="pulseMenuItem" mnemonicParsing="false" text="Pulse" />
                     </items>
+                     <tooltip>
+                        <Tooltip text="Choose any animation to play.">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip>
                   </MenuButton>
                   <RadioButton fx:id="radioLines" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" text="Lines">
                      <font>
@@ -186,11 +245,25 @@
                      <toggleGroup>
                         <ToggleGroup fx:id="drawMode" />
                      </toggleGroup>
+                     <tooltip>
+                        <Tooltip text="Render meshes in wireframe-mode.">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip>
                   </RadioButton>
                   <RadioButton fx:id="radioFill" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" selected="true" text="Fill" toggleGroup="$drawMode">
                      <font>
                         <Font size="12.0" />
                      </font>
+                     <tooltip>
+                        <Tooltip text="Render meshes in into solid-mode. ">
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip>
                   </RadioButton>
                </children>
                <StackPane.margin>
