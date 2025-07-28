@@ -1,11 +1,12 @@
 package explorer.selection;
 
-import com.sun.source.tree.Tree;
 import explorer.model.treetools.ConceptNode;
 import explorer.model.treetools.TreeUtils;
 import explorer.window.vistools.HumanBodyMeshes;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
@@ -63,6 +64,7 @@ public class SelectionBinder {
                 // Remove mesh selections when tree nodes are deselected
                 if (change.wasRemoved()) {
                     for (TreeItem<ConceptNode> item : change.getRemoved()) {
+                        binding.selectionTracker.remove(item);
                         ArrayList<String> fileIDs = item.getValue().getFileIDs();
 
                         // collect the meshes that should be removed
@@ -83,6 +85,7 @@ public class SelectionBinder {
 
                         // same here: only leaves count as legitimate selection
                         if (fileIDs != null && item.getValue().isLeaf()) {
+                            binding.selectionTracker.add(item);
                             //System.out.println("fileID not null");
                             for (String fileID : fileIDs) {
                                 //System.out.println("try to add:" + fileID);
@@ -93,11 +96,13 @@ public class SelectionBinder {
                 }
             }
 
+
             // apply batch de-/selections
             meshSelectionModel.deselectAll(meshesToDeselect);
             meshSelectionModel.selectAll(meshesToSelect);
 
             binding.isSyncing = false;
+
         });
 
         // get changes from the SourceOfTruth
@@ -108,73 +113,42 @@ public class SelectionBinder {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (MeshView addedMesh : change.getAddedSubList()) {
-                        selectNodeInTree(treeView, addedMesh.getId());
+                        selectNodeInTree(binding, addedMesh.getId());
                     }
                 }
                 if (change.wasRemoved()) {
                     for (MeshView removedMesh : change.getRemoved()) {
-                        deselectNodeInTree(treeView, removedMesh.getId());
+                        deselectNodeInTree(binding, removedMesh.getId());
                     }
                 }
             }
+
+            cleanupTreeView(binding);
+
             binding.isSyncing = false;
         });
     }
 
     /**
-     * Selects the TreeItem in the specified TreeView that corresponds to the provided file ID.
+     * Selects the TreeItem(s) in the bound TreeView that correspond to the provided file ID.
+     * It uses the TreeViewBinding to perform the UI selection and update the internal selection tracker.
      *
-     * @param treeView the TreeView containing the TreeItem to select.
-     * @param fileID the file ID associated with the TreeItem to select.
+     * @param binding the TreeViewBinding containing the target TreeView and selection tracker
+     * @param fileID the file ID associated with the TreeItem(s) to select
      */
-    private void selectNodeInTree(TreeView<ConceptNode> treeView, String fileID) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> " + treeView.getId());
-        MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
-        Set<TreeItem<ConceptNode>> previousSelection = new HashSet<>(selectionModel.getSelectedItems());
-        System.out.println(">> prev-selection" + previousSelection);
-        TreeItem<ConceptNode> root = treeView.getRoot();
-        if (root == null) return;
+    private void selectNodeInTree(TreeViewBinding binding, String fileID) {
+        TreeView<ConceptNode> treeView = binding.treeView;
 
         Set<TreeItem<ConceptNode>> itemsToSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
-        System.out.println("items to select" + itemsToSelect);
         TreeItem<ConceptNode> lastLeaf = null;
         if (itemsToSelect != null) {
             for (TreeItem<ConceptNode> item : itemsToSelect) {
                 // meshes are only represented DIRECTLY by leaves -> so only they get selected
-
-
-                // LOOK HERE PLEASE! THANK YOU :)
                 if (item.getValue().isLeaf()) {
-                    System.out.println("item to select: " + item);
-                    expandTo(item);
-                    int row = treeView.getRow(item);
-                    System.out.println("row: " + row);
-                    if (row >= 0) {
-                        selectionModel.select(item);
-                        lastLeaf = item;
-                    } else {
-                        System.out.println("[WARN] Item not visible (row -1), skipping selection: " + item.getValue().getName());
-                    }
-                    System.out.println("after item selected: " + selectionModel.getSelectedItems());
+                    binding.selectInBoundTree(item);
+                    lastLeaf = item;
                 }
             }
-        }
-
-
-
-        // ensure that previous selection stays selected:
-        // it happened that the previous selection was dismissed (which seemed to happen when the tree was fully collapsed
-        Set<TreeItem<ConceptNode>> afterSelection = new HashSet<>(selectionModel.getSelectedItems());
-        // DEBUG
-        for (TreeItem<ConceptNode> item : afterSelection) {
-            System.out.println("item: " + item + "row: " + treeView.getRow(item));
-        }
-        System.out.println(">> after-selection" + afterSelection);
-        previousSelection.removeAll(afterSelection);
-        System.out.println(">> prev-selection-Cleaned" + previousSelection);
-        System.out.println();
-        for (TreeItem<ConceptNode> item : previousSelection) {
-            selectionModel.select(item);
         }
 
         // scroll to the last selected item
@@ -183,30 +157,63 @@ public class SelectionBinder {
         }
     }
 
-    private void expandTo(TreeItem<?> item) {
-        TreeItem<?> parent = item.getParent();
-        while (parent != null) {
-            parent.setExpanded(true);
-            parent = parent.getParent();
-        }
-    }
-
     /**
-     * Deselects the TreeItem in the specified TreeView that corresponds to the provided file ID.
+     * Deselects the TreeItem(s) in the bound TreeView that correspond to the provided file ID.
+     * It uses the TreeViewBinding to clear the UI selection and update the internal selection tracker.
      *
-     * @param treeView the TreeView containing the TreeItem to deselect.
-     * @param fileID the file ID associated with the TreeItem to deselect.
+     * @param binding the TreeViewBinding containing the target TreeView and selection tracker
+     * @param fileID the file ID associated with the TreeItem(s) to deselect
      */
-    private void deselectNodeInTree(TreeView<ConceptNode> treeView, String fileID) {
-        MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
+    private void deselectNodeInTree(TreeViewBinding binding, String fileID) {
+        TreeView<ConceptNode> treeView = binding.treeView;
         TreeItem<ConceptNode> root = treeView.getRoot();
         if (root == null) return;
 
         Set<TreeItem<ConceptNode>> itemsToDeSelect = treeViewBindings.get(treeView).fileIdToTreeItem.get(fileID);
         if (itemsToDeSelect != null) {
             for (TreeItem<ConceptNode> item : itemsToDeSelect) {
-                int index = treeView.getRow(item);
-                selectionModel.clearSelection(index);
+                binding.clearInBoundTree(item);
+            }
+        }
+    }
+
+    /**
+     * Synchronizes the TreeView selection with the canonical selection tracker.
+     * Removes any 'ghost' selections (items selected in UI but not in tracker)
+     * and re-applies any missing selections (items in tracker but not currently selected).
+     *
+     * @param binding the TreeViewBinding containing the target TreeView and selection tracker
+     */
+    private void cleanupTreeView(TreeViewBinding binding) {
+        TreeView<ConceptNode> treeView = binding.treeView;
+
+
+        Set<TreeItem<ConceptNode>> trueSelection = binding.selectionTracker;
+        Set<TreeItem<ConceptNode>> selectedItems = new HashSet<>(treeView.getSelectionModel().getSelectedItems());
+
+        Set<TreeItem<ConceptNode>> ghostSelection = new HashSet<>(selectedItems);
+        ghostSelection.removeAll(trueSelection);
+
+        Set<TreeItem<ConceptNode>> missingSelections = new HashSet<>(trueSelection);
+        missingSelections.removeAll(selectedItems);
+
+        // DEBUG
+        // System.out.println("Binding Tracker: " + trueSelection);
+        // System.out.println("Selected Items: " + selectedItems);
+        // System.out.println("Ghost Selection: " + ghostSelection);
+        // System.out.println("Missing Selection: " + missingSelections);
+
+        // clearing selections that shouldn't have happened!
+        for (TreeItem<ConceptNode> item : ghostSelection) {
+            binding.clearInBoundTree(item);
+        }
+
+        // ensure that previous selection stays selected:
+        // keeping track of previous selection and adding them back in resolved issue #35
+        // it happened that the previous selection was dismissed (which seemed to happen when the tree was fully collapsed
+        for (TreeItem<ConceptNode> item : missingSelections) {
+            if (item.getValue().isLeaf()) {
+                binding.selectInBoundTree(item);
             }
         }
     }
@@ -282,16 +289,17 @@ public class SelectionBinder {
         // Temporarily disable sync to perform batch selection
         binding.isSyncing = true;
         ArrayList<MeshView> meshesToSelect = new ArrayList<>();
-        MultipleSelectionModel<TreeItem<ConceptNode>> selModel = treeView.getSelectionModel();
-        selModel.clearSelection();
+        binding.clearSelection();
 
         // Traverse subtree to collect and select nodes and meshes
         TreeUtils.preOrderTreeViewTraversal(item, node -> {
-            selModel.select(node);
+            binding.selectInBoundTree(node);
             for (String fileID : node.getValue().getFileIDs()) {
                 meshesToSelect.add(fileIdToMeshMap.get(fileID));
             }
         });
+
+        cleanupTreeView(binding);
 
         // using Batch selection to fire only ONE event for the listeners -> Crucial for correct TreeView SelectionModel
         // selection above (receiving items from the source of truth)
@@ -305,6 +313,7 @@ public class SelectionBinder {
      */
     private static class TreeViewBinding {
         private final TreeView<ConceptNode> treeView;
+        private final ObservableSet<TreeItem<ConceptNode>> selectionTracker = FXCollections.observableSet(new HashSet<>());
         // map fileID to TreeItem -> Set of Nodes is used because one FileID can be associated with multiple Items
         private final Map<String, Set<TreeItem<ConceptNode>>> fileIdToTreeItem = new HashMap<>();
         private boolean isSyncing = false;
@@ -317,6 +326,10 @@ public class SelectionBinder {
         TreeViewBinding(TreeView<ConceptNode> treeView) {
             this.treeView = treeView;
             mapTree(treeView.getRoot());
+
+            selectionTracker.addListener((SetChangeListener<TreeItem<ConceptNode>>) change -> {
+                System.out.println(treeView.getId() + selectionTracker);
+            });
         }
 
         /**
@@ -338,6 +351,35 @@ public class SelectionBinder {
             for (TreeItem<ConceptNode> child : current.getChildren()) {
                 mapTree(child);
             }
+        }
+
+        /**
+         * Selects the given TreeItem in the bound TreeView and adds it to the selection tracker.
+         *
+         * @param item the TreeItem to select in the TreeView
+         */
+        private void selectInBoundTree(TreeItem<ConceptNode> item) {
+            treeView.getSelectionModel().select(item);
+            selectionTracker.add(item);
+        }
+
+        /**
+         * Clears the selection of the given TreeItem in the bound TreeView and removes it from the selection tracker.
+         *
+         * @param item the TreeItem to deselect in the TreeView
+         */
+        private void clearInBoundTree(TreeItem<ConceptNode> item) {
+            int index = treeView.getRow(item);
+            treeView.getSelectionModel().clearSelection(index);
+            selectionTracker.remove(item);
+        }
+
+        /**
+         * Clears all selections in the bound TreeView and resets the internal selection tracker.
+         */
+        private void clearSelection() {
+            treeView.getSelectionModel().clearSelection();
+            selectionTracker.clear();
         }
     }
 }
