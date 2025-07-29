@@ -1,10 +1,7 @@
 package explorer.window.vistools;
 
-import explorer.model.treetools.ConceptNode;
-import explorer.model.treetools.TreeUtils;
 import explorer.selection.MeshSelectionManager;
 import javafx.application.Platform;
-import javafx.scene.control.TreeItem;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
@@ -143,37 +140,5 @@ public class HumanBodyMeshes {
                 Platform.runLater(() -> progressCallback.accept(counter.incrementAndGet(), total));
             }
         });
-    }
-
-    /**
-     * Associates anatomy node names with their corresponding meshes by traversing two anatomy trees.
-     * Processes both 'part-of' and 'is-a' hierarchies to populate mesh userData sets.
-     *
-     * @param isATreeRoot the root of the 'is-a' anatomy tree
-     * @param partOfTreeRoot the root of the 'part-of' anatomy tree
-     */
-    public void mapFileIDsToMeshes(TreeItem<ConceptNode> isATreeRoot, TreeItem<ConceptNode> partOfTreeRoot) {
-        TreeUtils.preOrderTreeViewTraversal(partOfTreeRoot, this::mapFileIDsToMeshes);
-        TreeUtils.preOrderTreeViewTraversal(isATreeRoot, this::mapFileIDsToMeshes);
-    }
-
-    /**
-     * Helper method that processes a single AnatomyNode TreeItem.
-     * If the node is a leaf, adds its name to the MeshView userData set for each of its file IDs.
-     *
-     * @param anatomyNodeTreeItem the TreeItem to process
-     */
-    private void mapFileIDsToMeshes(TreeItem<ConceptNode> anatomyNodeTreeItem) {
-        if (anatomyNodeTreeItem.isLeaf()) {
-            ConceptNode conceptNode = anatomyNodeTreeItem.getValue();
-            for (String fileID : conceptNode.getFileIDs()) {
-                MeshView mesh = fileIdToMeshMap.get(fileID);
-                if (mesh.getUserData() instanceof HashSet<?> userData) {
-                    @SuppressWarnings("unchecked") // not ideal, but since we won't reuse the userData it suffices
-                    HashSet<String> conceptNames = (HashSet<String>) userData;
-                    conceptNames.add(conceptNode.getName());
-                }
-            }
-        }
     }
 }

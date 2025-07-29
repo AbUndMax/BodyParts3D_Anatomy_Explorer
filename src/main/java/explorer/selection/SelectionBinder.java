@@ -6,7 +6,6 @@ import explorer.window.vistools.HumanBodyMeshes;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
@@ -49,6 +48,7 @@ public class SelectionBinder {
     public void bindTreeView(TreeView<ConceptNode> treeView) {
         TreeViewBinding binding = new TreeViewBinding(treeView);
         treeViewBindings.put(treeView, binding);
+        mapConceptNamesIntoMeshUserData(treeView);
 
         MultipleSelectionModel<TreeItem<ConceptNode>> multipleSelectionModel = treeView.getSelectionModel();
 
@@ -305,6 +305,40 @@ public class SelectionBinder {
         // selection above (receiving items from the source of truth)
         meshSelectionModel.selectAll(meshesToSelect);
         binding.isSyncing = false;
+    }
+
+    /**
+     * Maps concept node names into the userData of their associated MeshView objects.
+     *
+     * This method traverses all leaf nodes in the provided TreeView. For each leaf node,
+     * it retrieves the associated file IDs from the ConceptNode, then uses these IDs to
+     * look up corresponding MeshView objects. If a MeshView already contains a HashSet of
+     * concept names in its userData, the current ConceptNode's name is added to that set.
+     *
+     * I consider only leaves since I interprete Meshes as leaf concepts even though
+     * internal Nodes may be associated with it.
+     * But since I also only select Meshes if a leaf is selected in TreeView it is unnecessary
+     * to list the internal names also.
+     *
+     * This allows the MeshView to store references to all anatomical concept names it represents.
+     *
+     * @param treeRoot the TreeView containing ConceptNode items whose names will be mapped
+     *                 into the userData of their corresponding MeshView instances
+     */
+    private void mapConceptNamesIntoMeshUserData(TreeView<ConceptNode> treeRoot) {
+        TreeUtils.preOrderTreeViewTraversal(treeRoot.getRoot(), node -> {
+            if (node.isLeaf()) {
+                ConceptNode conceptNode = node.getValue();
+                for (String fileID : conceptNode.getFileIDs()) {
+                    MeshView mesh = fileIdToMeshMap.get(fileID);
+                    if (mesh.getUserData() instanceof HashSet<?> userData) {
+                        @SuppressWarnings("unchecked") // not ideal, but since we won't reuse the userData it suffices
+                        HashSet<String> conceptNames = (HashSet<String>) userData;
+                        conceptNames.add(conceptNode.getName());
+                    }
+                }
+            }
+        });
     }
 
     /**

@@ -430,8 +430,6 @@ public class VisualizationViewPresenter {
                 TreeView<ConceptNode> isATreeView = registry.getSelectionViewController().getTreeViewIsA();
                 TreeView<ConceptNode> partOfTreeView = registry.getSelectionViewController().getTreeViewPartOf();
                 ListView<Label> listView = registry.getSelectionViewController().getSelectionListView();
-                // map FileIDs to Meshes
-                humanBodyMeshes.mapFileIDsToMeshes(isATreeView.getRoot(), partOfTreeView.getRoot());
                 // actual binding
                 SelectionBinder binder = registry.getSelectionBinder();
                 binder.bindTreeView(isATreeView);
