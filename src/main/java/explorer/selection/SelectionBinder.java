@@ -326,10 +326,6 @@ public class SelectionBinder {
         TreeViewBinding(TreeView<ConceptNode> treeView) {
             this.treeView = treeView;
             mapTree(treeView.getRoot());
-
-            selectionTracker.addListener((SetChangeListener<TreeItem<ConceptNode>>) change -> {
-                System.out.println(treeView.getId() + selectionTracker);
-            });
         }
 
         /**
