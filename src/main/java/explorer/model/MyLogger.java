@@ -1,6 +1,7 @@
 package explorer.model;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,8 +16,8 @@ public class MyLogger {
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
 
     static {
-
         try {
+            redirectSystemOutAndErr();
             Files.createDirectories(logDir);
 
             Path currentLog = logDir.resolve("app_current.log");
@@ -40,5 +41,33 @@ public class MyLogger {
 
     public static Logger getLogger() {
         return logger;
+    }
+
+    private static void redirectSystemOutAndErr() {
+        // Originalstreams sichern
+        PrintStream originalOut = System.out;
+        PrintStream originalErr = System.err;
+
+        // System.out umleiten
+        System.setOut(new PrintStream(originalOut) {
+            @Override
+            public void println(String x) {
+                // In Konsole
+                originalOut.println(x);
+                // In Logger
+                MyLogger.getLogger().info(x);
+            }
+        });
+
+        // System.err umleiten
+        System.setErr(new PrintStream(originalErr) {
+            @Override
+            public void println(String x) {
+                // In Konsole
+                originalErr.println(x);
+                // In Logger
+                MyLogger.getLogger().severe(x);
+            }
+        });
     }
 }

@@ -1,5 +1,6 @@
 package explorer.window.vistools;
 
+import explorer.model.MyLogger;
 import explorer.selection.MeshSelectionManager;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 /**
  * Manages loading, mapping, and visibility of 3D meshes representing human anatomy.
@@ -123,7 +125,7 @@ public class HumanBodyMeshes {
             try {
                 mesh = ObjParser.load(objFile.getPath());
             } catch (IOException e) {
-                e.printStackTrace();
+                MyLogger.getLogger().log(Level.SEVERE, "Couldn't load .obj files", e.getMessage());
                 return;
             }
 

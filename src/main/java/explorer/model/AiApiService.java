@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class AiApiService extends Service<String> {
 
@@ -91,8 +92,9 @@ public class AiApiService extends Service<String> {
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                     if (response.statusCode() != 200) {
-                        // TODO: need better logging
-                        throw new IOException("INVALID API RESPONSE: " + response.body());
+                        MyLogger.getLogger().log(Level.SEVERE,
+                                                 "Error Status: " + response.statusCode() + "at AI-API call",
+                                                 response.body());
                     }
 
                     // parse the output
@@ -103,8 +105,7 @@ public class AiApiService extends Service<String> {
                     Map<String, Object> message = (Map<String, Object>) choices.getFirst().get("message");
                     content = (String) message.get("content");
                 } catch (Exception e) {
-                    // TODO: better logging
-                    e.printStackTrace();
+                    MyLogger.getLogger().log(Level.WARNING, "AI-API request failed", e.getMessage());
                 }
 
                 // return the regular expression

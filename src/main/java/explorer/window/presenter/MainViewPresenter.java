@@ -1,6 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.AppConfig;
+import explorer.model.MyLogger;
 import explorer.model.treetools.ConceptNode;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
@@ -23,6 +24,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Presenter for the main application view, managing UI interactions,
@@ -157,7 +159,7 @@ public class MainViewPresenter {
             aboutHandler();
         });
         mainController.getDebugWindowMenuItem().setOnAction(event -> {
-            openDebugWindow(registry);
+            openLoggerWindow(registry);
         });
     }
 
@@ -272,7 +274,7 @@ public class MainViewPresenter {
             infoStage.show();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            MyLogger.getLogger().log(Level.WARNING, "Couldn't open ConceptInfoDialog", e.getMessage());
         }
     }
 
@@ -296,7 +298,7 @@ public class MainViewPresenter {
         alert.showAndWait();
     }
 
-    private void openDebugWindow(GuiRegistry registry) {
+    private void openLoggerWindow(GuiRegistry registry) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoggerWindow.fxml"));
             Parent root = loader.load();
@@ -325,7 +327,7 @@ public class MainViewPresenter {
             infoStage.show();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            MyLogger.getLogger().log(Level.WARNING, "Couldn't open LoggerWindow",e.getMessage());
         }
     }
 }
