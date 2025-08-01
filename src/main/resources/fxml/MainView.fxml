@@ -141,8 +141,9 @@
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
+                  <MenuItem fx:id="DebugWindowMenuItem" mnemonicParsing="false" text="Open Logger" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="menuButtonAbout" mnemonicParsing="false" text="About" />
-                  <MenuItem fx:id="DebugWindowMenuItem" mnemonicParsing="false" text="DebugWindow" />
             </items>
           </Menu>
         </menus>

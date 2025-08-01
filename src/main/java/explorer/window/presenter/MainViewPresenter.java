@@ -5,13 +5,11 @@ import explorer.model.treetools.ConceptNode;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
-import explorer.window.controller.DebugWindowController;
+import explorer.window.controller.LoggerWindowController;
 import explorer.window.controller.MainViewController;
 import explorer.window.controller.ConceptInfoDialogController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -300,61 +298,15 @@ public class MainViewPresenter {
 
     private void openDebugWindow(GuiRegistry registry) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DebugWindow.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoggerWindow.fxml"));
             Parent root = loader.load();
 
-            DebugWindowController debugWindowController = loader.getController();
+            LoggerWindowController loggerWindowController = loader.getController();
 
-            ListView<String> isAList = debugWindowController.getIsAList();
-            ListView<String> partOfList = debugWindowController.getPartOfList();
-            ListView<String> sourceOfTruth = debugWindowController.getSourceOfTruthList();
-
-            ObservableList<TreeItem<ConceptNode>> selectedIsAItems =
-                    registry.getSelectionViewController().getTreeViewIsA().getSelectionModel().getSelectedItems();
-            ObservableList<TreeItem<ConceptNode>> selectedPartOfItems =
-                    registry.getSelectionViewController().getTreeViewPartOf().getSelectionModel().getSelectedItems();
-
-            ObservableList<String> isAStrings = FXCollections.observableArrayList();
-            selectedIsAItems.addListener((ListChangeListener<TreeItem<ConceptNode>>) change -> {
-                isAStrings.setAll(
-                        selectedIsAItems.stream()
-                                .map(item -> item.getValue().getName())
-                                .toList()
-                );
-            });
-            isAList.setItems(isAStrings);
-
-            ObservableList<String> partOfStrings = FXCollections.observableArrayList();
-            selectedPartOfItems.addListener((ListChangeListener<TreeItem<ConceptNode>>) change -> {
-                partOfStrings.setAll(
-                        selectedPartOfItems.stream()
-                                .map(item -> item.getValue().getName())
-                                .toList()
-                );
-            });
-            partOfList.setItems(partOfStrings);
-
-            ObservableList<String> meshStrings = FXCollections.observableArrayList();
-            registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().addListener(change -> {
-                System.out.println("meshes changed");
-                meshStrings.setAll(
-                        registry.getVisualizationViewPresenter().getHumanBody().getSelectionModel().getListOfCurrentlySelectedItems().stream()
-                                .map(mesh -> {
-                                    Object userData = mesh.getUserData();
-                                    return userData != null ? userData.toString() : "[unnamed]";
-                                })
-                                .toList()
-                );
-            });
-            sourceOfTruth.setItems(meshStrings);
-
-
-
-
-
+            LoggerWindowPresenter loggerWindowPresenter = new LoggerWindowPresenter(loggerWindowController, registry);
 
             Stage infoStage = new Stage();
-            infoStage.setTitle("Debug Window");
+            infoStage.setTitle("Logger");
             infoStage.setAlwaysOnTop(true);
             Scene scene = new Scene(root);
             infoStage.setScene(scene);
