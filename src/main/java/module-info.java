@@ -8,6 +8,7 @@ module explorer {
     requires jdk.compiler;
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
+    requires java.logging;
 
     opens explorer.window to javafx.fxml;
     exports explorer;
