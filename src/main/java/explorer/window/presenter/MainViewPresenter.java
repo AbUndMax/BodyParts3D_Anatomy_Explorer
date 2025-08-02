@@ -105,18 +105,21 @@ public class MainViewPresenter {
         mainController.getMenuButtonCollapseIsA().setOnAction(event -> {
             registry.getSelectionViewPresenter().collapseIsATree();
         });
+
         mainController.getMenuButtonExpandPartOf().setOnAction(event -> {
             registry.getSelectionViewPresenter().expandPartOfTree();
         });
         mainController.getMenuButtonCollapsePartOf().setOnAction(event -> {
             registry.getSelectionViewPresenter().collapsePartOfTree();
         });
+
         mainController.getMenuButtonExpandConcept().setOnAction(event -> {
             registry.getSelectionViewPresenter().expandAtSelectedNode();
         });
         mainController.getMenuButtonCollapseConcept().setOnAction(event -> {
             registry.getSelectionViewPresenter().collapseAtSelectedNode();
         });
+
         mainController.getNodeInformationsMenuItem().setOnAction(event -> {
             openConceptInformationDialog(registry);
         });
