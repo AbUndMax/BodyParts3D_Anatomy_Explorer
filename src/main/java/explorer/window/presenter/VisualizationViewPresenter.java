@@ -319,7 +319,7 @@ public class VisualizationViewPresenter {
 
         controller.getContRotateMenuItem().setOnAction(event -> {
             animationManager.contRotation(contentGroup,
-                                          1,
+                                          0.5,
                                           new Affine(contentGroup.getTransforms().getFirst()),
                                           new Point3D(0, 1, 0));
         });

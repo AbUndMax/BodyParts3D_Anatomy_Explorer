@@ -34,7 +34,7 @@ public class ContRotationAnimation implements Animation {
                                  Affine initialTransform, Point3D rotationAxis) {
 
         this.groupToAnimate = groupToAnimate;
-        this.rotationSpeed = rotationChange * 2; // speed factor, can be tuned
+        this.rotationSpeed = rotationChange * 2; // *2 is just some finetuning in the speed
         this.initialTransform = initialTransform;
         this.rotationAxis = rotationAxis;
     }
