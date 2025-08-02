@@ -250,7 +250,7 @@ public class SelectionBinder {
                             label.setGraphicTextGap(8);
 
                             if (!alreadyExists) {
-                                selectionList.getItems().add(label);
+                                selectionList.getItems().addFirst(label);
 
                             } else { // if it already exists, update its color to the new selected color
                                 selectionList.getItems().removeIf(existingLabel -> existingLabel.getText().equals(name));
