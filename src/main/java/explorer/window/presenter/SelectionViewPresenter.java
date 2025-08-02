@@ -114,10 +114,10 @@ public class SelectionViewPresenter {
             registry.getSelectionBinder().selectAllBelow(selectedItem(), lastFocusedTreeView);
         });
 
-        controller.getExpandMenuItem().setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));
-        controller.getCollapseMenuItem().setOnAction(e -> TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
+        controller.getExpandMenuItem().setOnAction(e -> expandAtSelectedNode());
+        controller.getCollapseMenuItem().setOnAction(e -> collapseAtSelectedNode());
         controller.getConceptInfroamtionMenuItem().setOnAction(
-                e -> registry.getMainViewPresenter().nodeInformationHandler(registry));
+                e -> registry.getMainViewPresenter().openConceptInformationDialog(registry));
     }
 
     /**
@@ -463,7 +463,7 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Collapses all nodes in the 'is-a' TreeView up to the given node.
+     * Collapses all nodes in the 'is-a' TreeView up to the root.
      */
     public void collapseIsATree() {
         TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewIsA().getRoot());
@@ -477,9 +477,23 @@ public class SelectionViewPresenter {
     }
 
     /**
-     * Collapses all nodes in the 'part-of' TreeView up to the given node.
+     * Collapses all nodes in the 'part-of' TreeView up to the root.
      */
     public void collapsePartOfTree() {
         TreeUtils.collapseAllNodesUptToGivenNode(controller.getTreeViewPartOf().getRoot());
+    }
+
+    /**
+     * Expands all nodes starting at the selected node.
+     */
+    public void expandAtSelectedNode() {
+        TreeUtils.expandAllBelowGivenNode(selectedItem());
+    }
+
+    /**
+     * Collapses all nodes up to the selected node.
+     */
+    public void collapseAtSelectedNode() {
+        TreeUtils.collapseAllNodesUptToGivenNode(selectedItem());
     }
 }

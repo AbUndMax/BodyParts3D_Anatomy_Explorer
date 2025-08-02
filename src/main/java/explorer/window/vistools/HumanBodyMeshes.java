@@ -1,6 +1,6 @@
 package explorer.window.vistools;
 
-import explorer.model.MyLogger;
+import explorer.model.apptools.AppLogger;
 import explorer.selection.MeshSelectionManager;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -125,7 +125,7 @@ public class HumanBodyMeshes {
             try {
                 mesh = ObjParser.load(objFile.getPath());
             } catch (IOException e) {
-                MyLogger.getLogger().log(Level.SEVERE, "Couldn't load .obj files", e);
+                AppLogger.getLogger().log(Level.SEVERE, "Couldn't load .obj files", e);
                 return;
             }
 

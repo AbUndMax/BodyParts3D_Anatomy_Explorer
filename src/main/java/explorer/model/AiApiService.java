@@ -1,6 +1,7 @@
 package explorer.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import explorer.model.apptools.AppLogger;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -92,9 +93,9 @@ public class AiApiService extends Service<String> {
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                     if (response.statusCode() != 200) {
-                        MyLogger.getLogger().log(Level.SEVERE,
-                                                 "Error Status: " + response.statusCode() + "at AI-API call",
-                                                 response.body());
+                        AppLogger.getLogger().log(Level.SEVERE,
+                                                  "Error Status: " + response.statusCode() + "at AI-API call",
+                                                  response.body());
                     }
 
                     // parse the output
@@ -105,7 +106,7 @@ public class AiApiService extends Service<String> {
                     Map<String, Object> message = (Map<String, Object>) choices.getFirst().get("message");
                     content = (String) message.get("content");
                 } catch (Exception e) {
-                    MyLogger.getLogger().log(Level.WARNING, "AI-API request failed", e);
+                    AppLogger.getLogger().log(Level.WARNING, "AI-API request failed", e);
                 }
 
                 // return the regular expression

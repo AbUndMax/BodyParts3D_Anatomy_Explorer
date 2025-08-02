@@ -1,7 +1,8 @@
 package explorer.window.presenter;
 
+import explorer.model.apptools.AppLogger;
 import explorer.model.treetools.ConceptNode;
-import explorer.model.AppConfig;
+import explorer.model.apptools.AppConfig;
 import explorer.model.IO;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
@@ -36,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 
 
 /**
@@ -409,6 +411,8 @@ public class VisualizationViewPresenter {
 
         // use a task for save load handling -> visualize progress via progressBar
         String finalWavefrontPath = wavefrontPath.get();
+        AppLogger.getLogger().info("Loading .obj files from: " + AppConfig.loadLastPath());
+
         Task<Void> loadTask = new Task<>() {
             @Override
             protected Void call() {
@@ -435,13 +439,15 @@ public class VisualizationViewPresenter {
                 binder.bindTreeView(isATreeView);
                 binder.bindTreeView(partOfTreeView);
                 binder.bindListView(listView, controller.getSelectionColorPicker());
+
+                AppLogger.getLogger().info("Successfully created Meshes");
             }
 
             @Override
             protected void failed() {
                 super.failed();
                 visualizationStack.getChildren().remove(progressBar);
-                getException().printStackTrace();
+                AppLogger.getLogger().log(Level.SEVERE, "Couldn't load the .obj files", getException());
             }
         };
 

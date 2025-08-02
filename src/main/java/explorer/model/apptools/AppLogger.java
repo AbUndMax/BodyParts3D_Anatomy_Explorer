@@ -1,4 +1,4 @@
-package explorer.model;
+package explorer.model.apptools;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,13 +27,13 @@ import java.util.logging.SimpleFormatter;
  * and formats them using {@link SimpleFormatter}.
  * </p>
  */
-public class MyLogger {
+public class AppLogger {
 
     /** Path to the directory where log files are stored. */
     private static final Path logDir = Paths.get(System.getProperty("user.home"), ".anatomyExplorer", "logs");
 
     /** The singleton {@link Logger} instance for the application. */
-    private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
+    private static final Logger logger = Logger.getLogger(AppLogger.class.getName());
 
     /** Path to the current log file for this session. */
     private static Path currentLog = null;

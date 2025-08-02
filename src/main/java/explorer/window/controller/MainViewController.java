@@ -2,7 +2,6 @@ package explorer.window.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SplitPane;
@@ -46,6 +45,12 @@ public class MainViewController {
 
     @FXML
     private MenuItem menuButtonCollapsePartOf;
+
+    @FXML
+    private MenuItem menuButtonExpandConcept;
+
+    @FXML
+    private MenuItem menuButtonCollapseConcept;
 
     @FXML
     private MenuItem menuButtonResetPosition;
@@ -148,6 +153,14 @@ public class MainViewController {
 
     public MenuItem getMenuButtonCollapsePartOf() {
         return menuButtonCollapsePartOf;
+    }
+
+    public MenuItem getMenuButtonExpandConcept() {
+        return menuButtonExpandConcept;
+    }
+
+    public MenuItem getMenuButtonCollapseConcept() {
+        return menuButtonCollapseConcept;
     }
 
     public MenuItem getMenuButtonResetPosition() {

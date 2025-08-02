@@ -1,6 +1,6 @@
 package explorer;
 
-import explorer.model.MyLogger;
+import explorer.model.apptools.AppLogger;
 import explorer.window.GuiRegistry;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -10,10 +10,10 @@ import java.util.logging.Level;
 public class AnatomyExplorer extends Application {
 
     public void start(Stage primaryStage) throws Exception {
-        MyLogger.getLogger().info("Logger initialized");
+        AppLogger.getLogger().info("Logger initialized");
         // set local exception handler since FXExceptions cannot be caught in catch phrases!
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            MyLogger.getLogger().log(Level.SEVERE, "Uncaught exception in thread " + thread.getName(), throwable);
+            AppLogger.getLogger().log(Level.SEVERE, "Uncaught exception in thread " + thread.getName(), throwable);
         });
 
         var registry = new GuiRegistry();

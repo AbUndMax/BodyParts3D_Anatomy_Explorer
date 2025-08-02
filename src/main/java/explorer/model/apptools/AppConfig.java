@@ -1,4 +1,4 @@
-package explorer.model;
+package explorer.model.apptools;
 
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -24,7 +24,7 @@ public class AppConfig {
         try {
             PREFS.flush();
         } catch (BackingStoreException e) {
-            MyLogger.getLogger().log(Level.SEVERE, "Couldn't save the .obj Folder path", e);
+            AppLogger.getLogger().log(Level.SEVERE, "Couldn't save the .obj Folder path", e);
         }
     }
 

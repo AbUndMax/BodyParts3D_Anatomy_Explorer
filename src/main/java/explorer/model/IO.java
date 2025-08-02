@@ -1,5 +1,6 @@
 package explorer.model;
 
+import explorer.model.apptools.AppLogger;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -56,9 +57,9 @@ public class IO {
         if (selectedFile != null) {
             try {
                 Files.copy(path, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                MyLogger.getLogger().log(Level.INFO, "Log file exported to: " + selectedFile.getAbsolutePath());
+                AppLogger.getLogger().log(Level.INFO, "Log file exported to: " + selectedFile.getAbsolutePath());
             } catch (IOException e) {
-                MyLogger.getLogger().log(Level.SEVERE, "Failed to export log file", e);
+                AppLogger.getLogger().log(Level.SEVERE, "Failed to export log file", e);
             }
         }
     }

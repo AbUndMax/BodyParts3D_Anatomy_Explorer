@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.IO;
-import explorer.model.MyLogger;
+import explorer.model.apptools.AppLogger;
 import explorer.window.controller.LoggerWindowController;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
@@ -46,7 +46,7 @@ public class LoggerWindowPresenter {
 
         // Export log file to user-selected location
         exportButton.setOnAction(event -> {
-            Path currentPath = MyLogger.getCurrentLogPath();
+            Path currentPath = AppLogger.getCurrentLogPath();
             if (currentPath != null) {
                 IO.exportLogger(exportButton.getScene().getWindow(), currentPath);
             }
@@ -54,7 +54,7 @@ public class LoggerWindowPresenter {
 
         // Export log file to user-selected location for previous session
         exportPrevious.setOnAction(event -> {
-            Path previousPath = MyLogger.getPreviousLogPath();
+            Path previousPath = AppLogger.getPreviousLogPath();
             if (previousPath != null) {
                 IO.exportLogger(exportButton.getScene().getWindow(), previousPath);
             }
@@ -63,10 +63,10 @@ public class LoggerWindowPresenter {
         // Clear the contents of the current log file
         clearButton.setOnAction(event -> {
             try {
-                Files.writeString(MyLogger.getCurrentLogPath(), "");
-                MyLogger.getLogger().log(Level.INFO, "Log file cleared");
+                Files.writeString(AppLogger.getCurrentLogPath(), "");
+                AppLogger.getLogger().log(Level.INFO, "Log file cleared");
             } catch (IOException e) {
-                MyLogger.getLogger().log(Level.SEVERE, "Failed to clear log file", e);
+                AppLogger.getLogger().log(Level.SEVERE, "Failed to clear log file", e);
             }
         });
     }
@@ -84,16 +84,16 @@ public class LoggerWindowPresenter {
 
         Runnable updateLog = () -> {
             try {
-                String content = Files.readString(MyLogger.getCurrentLogPath());
+                String content = Files.readString(AppLogger.getCurrentLogPath());
                 javafx.application.Platform.runLater(() -> logOut.setText(content));
             } catch (IOException e) {
-                MyLogger.getLogger().log(Level.WARNING, "Couldn't set LogWatcher", e);
+                AppLogger.getLogger().log(Level.WARNING, "Couldn't set LogWatcher", e);
             }
         };
 
         updateLog.run();
 
-        Thread watcherThread = new Thread(new LogWatcher(MyLogger.getCurrentLogPath(), updateLog));
+        Thread watcherThread = new Thread(new LogWatcher(AppLogger.getCurrentLogPath(), updateLog));
         watcherThread.setDaemon(true);
         watcherThread.start();
     }
@@ -134,7 +134,7 @@ public class LoggerWindowPresenter {
                     key.reset();
                 }
             } catch (IOException | InterruptedException e) {
-                MyLogger.getLogger().log(Level.WARNING, "Couldn't run LogWatcher", e);
+                AppLogger.getLogger().log(Level.WARNING, "Couldn't run LogWatcher", e);
             }
         }
     }

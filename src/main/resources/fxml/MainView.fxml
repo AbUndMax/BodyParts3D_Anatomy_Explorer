@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="820.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.MainViewController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="820.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.MainViewController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -78,6 +85,17 @@
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
                      </accelerator></MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="menuButtonExpandConcept" mnemonicParsing="false" text="Expand Selected Concept">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="menuButtonCollapseConcept" mnemonicParsing="false" text="Collapse Selected Concept">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="nodeInformationsMenuItem" mnemonicParsing="false" text="Concept Informations">
                      <accelerator>
