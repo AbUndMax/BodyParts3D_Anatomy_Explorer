@@ -10,6 +10,7 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
@@ -38,7 +39,7 @@
                         </TextField>
                         <ToggleButton fx:id="regexToggleButton" mnemonicParsing="false" text=".*">
                            <tooltip>
-                              <Tooltip text="Use regex to search the trees." >
+                              <Tooltip text="Use regex to search the trees.">
                                  <font>
                                     <Font size="13.0" />
                                  </font>
@@ -47,7 +48,7 @@
                         </ToggleButton>
                         <Button fx:id="aiButton" maxWidth="30.0" minWidth="30.0" mnemonicParsing="false" prefWidth="30.0" text="AI">
                            <tooltip>
-                              <Tooltip text="Use the Searchbar as a prompt-box and let an AI select concepts based on your prompt." >
+                              <Tooltip text="Use the Searchbar as a prompt-box and let an AI select concepts based on your prompt.">
                                  <font>
                                     <Font size="13.0" />
                                  </font>
@@ -71,7 +72,7 @@
                            <Insets />
                         </HBox.margin>
                         <tooltip>
-                           <Tooltip text="Select the ontology tree to search in." >
+                           <Tooltip text="Select the ontology tree to search in.">
                               <font>
                                  <Font size="13.0" />
                               </font>
@@ -111,13 +112,15 @@
          <top>
             <ToolBar BorderPane.alignment="CENTER">
               <items>
-                  <MenuButton fx:id="toggleMenuButton" mnemonicParsing="false" text="Toggle">
+                  <MenuButton fx:id="toggleMenuButton" mnemonicParsing="false" text="Concept">
                     <items>
                       <MenuItem fx:id="expandMenuItem" mnemonicParsing="false" text="Expand" />
                       <MenuItem fx:id="CollapseMenuItem" mnemonicParsing="false" text="Collapse" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="conceptInfroamtionMenuItem" mnemonicParsing="false" text="Information" />
                     </items>
                      <tooltip>
-                        <Tooltip text="Expand or Collapse all Nodes below the selected one." >
+                        <Tooltip text="Perform actions on your currently selected Concepts.">
                            <font>
                               <Font size="13.0" />
                            </font>
@@ -126,7 +129,7 @@
                   </MenuButton>
                   <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select">
                      <tooltip>
-                        <Tooltip text="Selects all Nodes below the selected one." >
+                        <Tooltip text="Selects all Nodes below the selected one.">
                            <font>
                               <Font size="13.0" />
                            </font>
@@ -136,7 +139,7 @@
                   <Separator orientation="VERTICAL" />
                   <ToggleButton fx:id="findConceptsToggle" mnemonicParsing="false" text="Find Concepts">
                      <tooltip>
-                        <Tooltip text="Opens the search tools and allows to search for specific words in either tree." >
+                        <Tooltip text="Opens the search tools and allows to search for specific words in either tree.">
                            <font>
                               <Font size="13.0" />
                            </font>
@@ -145,7 +148,7 @@
                   <Region HBox.hgrow="ALWAYS" />
                   <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection">
                      <tooltip>
-                        <Tooltip text="Opens a Panel that shows all concepts associated with the selected meshes." >
+                        <Tooltip text="Opens a Panel that shows all concepts associated with the selected meshes.">
                            <font>
                               <Font size="13.0" />
                            </font>

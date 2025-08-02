@@ -242,7 +242,7 @@ public class MainViewPresenter {
      *
      * @param registry the GuiRegistry providing access to controllers and styles
      */
-    private void nodeInformationHandler(GuiRegistry registry) {
+    public void nodeInformationHandler(GuiRegistry registry) {
         ObservableList<TreeItem<ConceptNode>> selectedItems =
                 registry.getSelectionViewPresenter().getLastFocusedTreeView().getSelectionModel().getSelectedItems();
 
@@ -269,6 +269,7 @@ public class MainViewPresenter {
             }
             infoStage.setScene(scene);
             infoStage.initModality(Modality.APPLICATION_MODAL);
+            infoStage.setAlwaysOnTop(true);
             infoStage.setMinWidth(660);
             infoStage.setMinHeight(450);
             infoStage.show();

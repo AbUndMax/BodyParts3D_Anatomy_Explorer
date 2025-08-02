@@ -43,6 +43,9 @@ public class SelectionViewController {
     private MenuItem expandMenuItem;
 
     @FXML
+    private MenuItem conceptInfroamtionMenuItem;
+
+    @FXML
     private Button expandPartOfView;
 
     @FXML
@@ -135,6 +138,10 @@ public class SelectionViewController {
 
     public MenuItem getExpandMenuItem() {
         return expandMenuItem;
+    }
+
+    public MenuItem getConceptInfroamtionMenuItem() {
+        return conceptInfroamtionMenuItem;
     }
 
     public Button getExpandPartOfView() {

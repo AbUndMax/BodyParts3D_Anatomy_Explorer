@@ -116,6 +116,8 @@ public class SelectionViewPresenter {
 
         controller.getExpandMenuItem().setOnAction(e -> TreeUtils.expandAllBelowGivenNode(selectedItem()));
         controller.getCollapseMenuItem().setOnAction(e -> TreeUtils.collapseAllNodesUptToGivenNode(selectedItem()));
+        controller.getConceptInfroamtionMenuItem().setOnAction(
+                e -> registry.getMainViewPresenter().nodeInformationHandler(registry));
     }
 
     /**
