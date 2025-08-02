@@ -2,7 +2,7 @@ package explorer.window.presenter;
 
 import explorer.model.treetools.ConceptNode;
 import explorer.model.AppConfig;
-import explorer.model.ObjIO;
+import explorer.model.IO;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;
 import explorer.window.command.CommandManager;
@@ -392,7 +392,7 @@ public class VisualizationViewPresenter {
 
             Button openButton = new Button("Select 'isa_BP3D_4.0_obj_99' folder to load model");
             openButton.setOnAction(e -> {
-                File path = ObjIO.openDirectoryChooser();
+                File path = IO.openDirectoryChooser();
                 AppConfig.saveLastPath(path.getAbsolutePath());
                 controller.getVisualizationStackPane().getChildren().remove(overlay);
                 loadHumanBody();

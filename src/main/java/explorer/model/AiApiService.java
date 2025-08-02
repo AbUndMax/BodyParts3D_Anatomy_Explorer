@@ -105,7 +105,7 @@ public class AiApiService extends Service<String> {
                     Map<String, Object> message = (Map<String, Object>) choices.getFirst().get("message");
                     content = (String) message.get("content");
                 } catch (Exception e) {
-                    MyLogger.getLogger().log(Level.WARNING, "AI-API request failed", e.getMessage());
+                    MyLogger.getLogger().log(Level.WARNING, "AI-API request failed", e);
                 }
 
                 // return the regular expression

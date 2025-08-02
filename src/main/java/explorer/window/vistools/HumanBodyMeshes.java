@@ -125,7 +125,7 @@ public class HumanBodyMeshes {
             try {
                 mesh = ObjParser.load(objFile.getPath());
             } catch (IOException e) {
-                MyLogger.getLogger().log(Level.SEVERE, "Couldn't load .obj files", e.getMessage());
+                MyLogger.getLogger().log(Level.SEVERE, "Couldn't load .obj files", e);
                 return;
             }
 

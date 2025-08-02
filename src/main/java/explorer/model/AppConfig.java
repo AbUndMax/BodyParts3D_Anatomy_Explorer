@@ -24,7 +24,7 @@ public class AppConfig {
         try {
             PREFS.flush();
         } catch (BackingStoreException e) {
-            MyLogger.getLogger().log(Level.SEVERE, "Couldn't save the .obj Folder path", e.getMessage());
+            MyLogger.getLogger().log(Level.SEVERE, "Couldn't save the .obj Folder path", e);
         }
     }
 

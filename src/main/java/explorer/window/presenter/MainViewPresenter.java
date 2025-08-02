@@ -274,7 +274,7 @@ public class MainViewPresenter {
             infoStage.show();
 
         } catch (IOException e) {
-            MyLogger.getLogger().log(Level.WARNING, "Couldn't open ConceptInfoDialog", e.getMessage());
+            MyLogger.getLogger().log(Level.WARNING, "Couldn't open ConceptInfoDialog", e);
         }
     }
 
@@ -304,30 +304,37 @@ public class MainViewPresenter {
             Parent root = loader.load();
 
             LoggerWindowController loggerWindowController = loader.getController();
+            new LoggerWindowPresenter(loggerWindowController);
 
-            LoggerWindowPresenter loggerWindowPresenter = new LoggerWindowPresenter(loggerWindowController, registry);
+            Stage loggerStage = new Stage();
+            loggerWindowController.getCloseWindowButton().setOnAction(event -> loggerStage.close());
 
-            Stage infoStage = new Stage();
-            infoStage.setTitle("Logger");
-            infoStage.setAlwaysOnTop(true);
+            loggerStage.setTitle("Logger");
+            loggerStage.setAlwaysOnTop(true);
             Scene scene = new Scene(root);
-            infoStage.setScene(scene);
 
-            infoStage.initModality(Modality.NONE);
+            if (mainController.getDarkModeMenuItem().isSelected()) {
+                scene.getStylesheets().add(Objects.requireNonNull(
+                        getClass().getResource("/themes/darkMode.css")).toExternalForm());
+            }
+
+            loggerStage.setScene(scene);
+
+            loggerStage.initModality(Modality.NONE);
 
             Screen screen = Screen.getPrimary();
             Rectangle2D bounds = screen.getVisualBounds();
-            double x = bounds.getMaxX() - infoStage.getWidth() - 20;
+            double x = bounds.getMaxX() - loggerStage.getWidth() - 20;
             double y = bounds.getMinY() + 20;
-            infoStage.setX(x);
-            infoStage.setY(y);
+            loggerStage.setX(x);
+            loggerStage.setY(y);
 
-            infoStage.setMinWidth(400);
-            infoStage.setMinHeight(300);
-            infoStage.show();
+            loggerStage.setMinWidth(400);
+            loggerStage.setMinHeight(300);
+            loggerStage.show();
 
         } catch (IOException e) {
-            MyLogger.getLogger().log(Level.WARNING, "Couldn't open LoggerWindow",e.getMessage());
+            MyLogger.getLogger().log(Level.WARNING, "Couldn't open LoggerWindow", e);
         }
     }
 }

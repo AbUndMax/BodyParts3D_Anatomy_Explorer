@@ -1,7 +1,6 @@
 package explorer.model;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,13 +13,13 @@ import java.util.logging.SimpleFormatter;
 public class MyLogger {
     private static final Path logDir = Paths.get(System.getProperty("user.home"), ".anatomyExplorer", "logs");
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
+    private static Path currentLog;
 
     static {
         try {
-            redirectSystemOutAndErr();
             Files.createDirectories(logDir);
 
-            Path currentLog = logDir.resolve("app_current.log");
+            currentLog = logDir.resolve("app_current.log");
             Path previousLog = logDir.resolve("app_previous.log");
 
             // log rotation: delete previous log, replace currentLog into previousLog and use currentLog in this session
@@ -43,31 +42,7 @@ public class MyLogger {
         return logger;
     }
 
-    private static void redirectSystemOutAndErr() {
-        // Originalstreams sichern
-        PrintStream originalOut = System.out;
-        PrintStream originalErr = System.err;
-
-        // System.out umleiten
-        System.setOut(new PrintStream(originalOut) {
-            @Override
-            public void println(String x) {
-                // In Konsole
-                originalOut.println(x);
-                // In Logger
-                MyLogger.getLogger().info(x);
-            }
-        });
-
-        // System.err umleiten
-        System.setErr(new PrintStream(originalErr) {
-            @Override
-            public void println(String x) {
-                // In Konsole
-                originalErr.println(x);
-                // In Logger
-                MyLogger.getLogger().severe(x);
-            }
-        });
+    public static Path getCurrentLogPath() {
+        return currentLog;
     }
 }
