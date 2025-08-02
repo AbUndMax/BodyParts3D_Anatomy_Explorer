@@ -4,6 +4,8 @@ import explorer.model.IO;
 import explorer.model.MyLogger;
 import explorer.window.controller.LoggerWindowController;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 
 import java.io.IOException;
@@ -38,12 +40,24 @@ public class LoggerWindowPresenter {
      * </p>
      */
     private void setupButtons() {
-        Button exportButton = controller.getExportLogButton();
+        SplitMenuButton exportButton = controller.getExportLogButton();
+        MenuItem exportPrevious = controller.getExportPreviousSessionMenuItem();
         Button clearButton = controller.getClearLogButton();
 
         // Export log file to user-selected location
         exportButton.setOnAction(event -> {
-            IO.exportLogger(exportButton.getScene().getWindow());
+            Path currentPath = MyLogger.getCurrentLogPath();
+            if (currentPath != null) {
+                IO.exportLogger(exportButton.getScene().getWindow(), currentPath);
+            }
+        });
+
+        // Export log file to user-selected location for previous session
+        exportPrevious.setOnAction(event -> {
+            Path previousPath = MyLogger.getPreviousLogPath();
+            if (previousPath != null) {
+                IO.exportLogger(exportButton.getScene().getWindow(), previousPath);
+            }
         });
 
         // Clear the contents of the current log file

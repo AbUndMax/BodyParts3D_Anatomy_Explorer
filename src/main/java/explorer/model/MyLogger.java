@@ -36,7 +36,10 @@ public class MyLogger {
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
 
     /** Path to the current log file for this session. */
-    private static Path currentLog;
+    private static Path currentLog = null;
+
+    /** Path to the log file for the previous session. */
+    private static Path previousLog = null;
 
     static {
         try {
@@ -44,7 +47,7 @@ public class MyLogger {
             Files.createDirectories(logDir);
 
             currentLog = logDir.resolve("app_current.log");
-            Path previousLog = logDir.resolve("app_previous.log");
+            previousLog = logDir.resolve("app_previous.log");
 
             // Perform log rotation: move current log to previous, if it exists
             if (Files.exists(currentLog)) {
@@ -78,5 +81,14 @@ public class MyLogger {
      */
     public static Path getCurrentLogPath() {
         return currentLog;
+    }
+
+    /**
+     * Returns the path to the previous session's log file.
+     *
+     * @return {@link Path} to the active log file
+     */
+    public static Path getPreviousLogPath() {
+        return previousLog;
     }
 }

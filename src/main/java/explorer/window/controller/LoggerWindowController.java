@@ -2,6 +2,8 @@ package explorer.window.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 
 public class LoggerWindowController {
@@ -13,7 +15,10 @@ public class LoggerWindowController {
     private Button closeWindowButton;
 
     @FXML
-    private Button exportLogButton;
+    private SplitMenuButton exportLogButton;
+
+    @FXML
+    private MenuItem exportPreviousSessionMenuItem;
 
     @FXML
     private TextArea logTextArea;
@@ -26,8 +31,12 @@ public class LoggerWindowController {
         return closeWindowButton;
     }
 
-    public Button getExportLogButton() {
+    public SplitMenuButton getExportLogButton() {
         return exportLogButton;
+    }
+
+    public MenuItem getExportPreviousSessionMenuItem() {
+        return exportPreviousSessionMenuItem;
     }
 
     public TextArea getLogTextArea() {

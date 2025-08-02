@@ -7,6 +7,7 @@ import javafx.stage.Window;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 
@@ -43,17 +44,18 @@ public class IO {
      *
      * @param owner the owner {@link Window} for the file chooser dialog,
      *              ensuring it appears in front of the main application window
+     * @param path the path to current or previous session log file
      */
-    public static void exportLogger(Window owner) {
+    public static void exportLogger(Window owner, Path path) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Log File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Log Files", "*.log"));
-        fileChooser.setInitialFileName(MyLogger.getCurrentLogPath().getFileName().toString());
+        fileChooser.setInitialFileName(path.getFileName().toString());
 
         File selectedFile = fileChooser.showSaveDialog(owner);
         if (selectedFile != null) {
             try {
-                Files.copy(MyLogger.getCurrentLogPath(), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(path, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 MyLogger.getLogger().log(Level.INFO, "Log file exported to: " + selectedFile.getAbsolutePath());
             } catch (IOException e) {
                 MyLogger.getLogger().log(Level.SEVERE, "Failed to export log file", e);
