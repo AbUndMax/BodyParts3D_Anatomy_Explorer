@@ -159,7 +159,7 @@ public class MainViewPresenter {
             aboutHandler();
         });
         mainController.getDebugWindowMenuItem().setOnAction(event -> {
-            openLoggerWindow(registry);
+            openLoggerWindow();
         });
     }
 
@@ -298,7 +298,24 @@ public class MainViewPresenter {
         alert.showAndWait();
     }
 
-    private void openLoggerWindow(GuiRegistry registry) {
+    /**
+     * Opens the Logger window to display application log messages.
+     * <p>
+     * This method loads the LoggerWindow.fxml layout, initializes its controller,
+     * and creates a new stage that is always kept on top of other application windows.
+     * The logger window allows the user to view log messages during runtime,
+     * and provides a close button to dismiss it.
+     * </p>
+     * The logger window:
+     * <ul>
+     *   <li>Is non-modal (does not block interaction with the main UI).</li>
+     *   <li>Is positioned at the top-right corner of the primary screen.</li>
+     *   <li>Uses dark mode styling if currently enabled in the main view.</li>
+     *   <li>Is resizable, with a minimum size of 400x300 pixels.</li>
+     * </ul>
+     * If the LoggerWindow.fxml cannot be loaded, a warning is logged.
+     */
+    private void openLoggerWindow() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoggerWindow.fxml"));
             Parent root = loader.load();
