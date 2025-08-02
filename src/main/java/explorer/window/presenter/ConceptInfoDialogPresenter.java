@@ -168,12 +168,20 @@ public class ConceptInfoDialogPresenter {
     private void drawCoveragePie(int subTreeSize) {
         int totalTreeSize = TreeUtils.calculateTreeSize(treeView.getRoot());
         PieChart coveragePie = controller.getSubtreeCoveragePieChart();
-        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
+        ObservableList<PieChart.Data> pieData = coveragePie.getData();
+
+        if (pieData.size() == 2) {
+            // update existing slices for smooth animation
+            pieData.get(0).setPieValue(subTreeSize);
+            pieData.get(1).setPieValue(totalTreeSize - subTreeSize);
+        } else {
+            // initial setup
+            pieData.clear();
+            pieData.addAll(
                 new PieChart.Data("Subtree", subTreeSize),
                 new PieChart.Data("Rest", totalTreeSize - subTreeSize)
-        );
-
-        coveragePie.setData(pieData);
+            );
+        }
 
         for (PieChart.Data data : pieData) {
             double pct = data.getPieValue() / totalTreeSize * 100;
