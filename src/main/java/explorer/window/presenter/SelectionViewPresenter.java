@@ -413,7 +413,7 @@ public class SelectionViewPresenter {
             selectionModel.clearSelection();
 
             for (TreeItem<ConceptNode> item : searchResults) {
-                TreeUtils.collapseAllNodesUptToGivenNode(item);
+                // TreeUtils.collapseAllNodesUptToGivenNode(item);
                 selectionModel.select(item);
             }
 

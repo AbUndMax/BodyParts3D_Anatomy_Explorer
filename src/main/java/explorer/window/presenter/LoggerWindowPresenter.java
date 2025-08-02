@@ -1,7 +1,7 @@
 package explorer.window.presenter;
 
 import explorer.model.IO;
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import explorer.window.controller.LoggerWindowController;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;

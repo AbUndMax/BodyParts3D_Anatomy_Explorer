@@ -1,8 +1,8 @@
 package explorer.window.presenter;
 
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import explorer.model.treetools.ConceptNode;
-import explorer.model.apptools.AppConfig;
+import explorer.apptools.AppConfig;
 import explorer.model.IO;
 import explorer.window.GuiRegistry;
 import explorer.window.command.Command;

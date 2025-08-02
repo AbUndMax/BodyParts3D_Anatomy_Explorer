@@ -1,7 +1,7 @@
 package explorer.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 

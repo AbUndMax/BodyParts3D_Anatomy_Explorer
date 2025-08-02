@@ -1,4 +1,4 @@
-package explorer.model.apptools;
+package explorer.apptools;
 
 import java.util.logging.Level;
 import java.util.prefs.Preferences;

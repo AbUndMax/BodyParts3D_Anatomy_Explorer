@@ -1,6 +1,6 @@
 package explorer.window.vistools;
 
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import explorer.selection.MeshSelectionManager;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;

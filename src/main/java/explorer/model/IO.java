@@ -1,6 +1,6 @@
 package explorer.model;
 
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;

@@ -1,6 +1,6 @@
 package explorer;
 
-import explorer.model.apptools.AppLogger;
+import explorer.apptools.AppLogger;
 import explorer.window.GuiRegistry;
 import javafx.application.Application;
 import javafx.stage.Stage;
