@@ -1,5 +1,6 @@
 package explorer.selection;
 
+import explorer.apptools.AppLogger;
 import javafx.collections.*;
 import javafx.scene.shape.MeshView;
 
@@ -25,27 +26,30 @@ public class MeshSelectionManager {
      */
     public MeshSelectionManager(List<MeshView> allMeshes) {
         this.allMeshes = allMeshes;
-        activateDebug();
     }
 
     /**
-     * Enables debug logging for selection changes, printing added and removed mesh IDs to the console.
+     * Enables debug logging for selection changes, printing added and removed mesh IDs to the log.
      */
-    public void activateDebug() {
-        //DEBUG
+    public void logSourceOfTruthState() {
         selectedMeshes.addListener((ListChangeListener<MeshView>) change -> {
-            System.out.println("\n" + "----------".repeat(10));
+            StringBuilder infoBuilder = new StringBuilder();
+            infoBuilder.append("\n").append("----------".repeat(10)).append("\n");
             while (change.next()) {
                 if (change.wasAdded()) {
-                    change.getAddedSubList().forEach(mesh -> System.out.println("added: " + mesh.getId()));
+                    change.getAddedSubList().forEach(
+                            mesh -> infoBuilder.append("added: ").append(mesh.getId()).append("\n"));
                 }
                 if (change.wasRemoved()) {
-                    change.getRemoved().forEach(mesh -> System.out.println("removed: " + mesh.getId()));
+                    change.getRemoved().forEach(
+                            mesh -> infoBuilder.append("removed: ").append(mesh.getId()).append("\n"));
                 }
             }
-            System.out.println("Current sourceOfTruth content:");
-            selectedMeshes.forEach(mesh -> System.out.println(mesh.getId()));
-            System.out.println("----------".repeat(10) + "\n");
+            infoBuilder.append("Current sourceOfTruth content:\n");
+            selectedMeshes.forEach(mesh -> infoBuilder.append(mesh.getId()).append("\n"));
+            infoBuilder.append("----------".repeat(10)).append("\n");
+
+            AppLogger.getLogger().info(infoBuilder.toString());
         });
     }
 

@@ -80,12 +80,15 @@ public class LoggerWindowPresenter {
      * </p>
      */
     private void setupTextArea() {
-        TextArea logOut = controller.getLogTextArea();
+        TextArea logTextArea = controller.getLogTextArea();
 
         Runnable updateLog = () -> {
             try {
                 String content = Files.readString(AppLogger.getCurrentLogPath());
-                javafx.application.Platform.runLater(() -> logOut.setText(content));
+                javafx.application.Platform.runLater(() -> {
+                    logTextArea.setText(content);
+                    logTextArea.positionCaret(content.length());
+                });
             } catch (IOException e) {
                 AppLogger.getLogger().log(Level.WARNING, "Couldn't set LogWatcher", e);
             }
