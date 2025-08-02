@@ -409,15 +409,9 @@ public class SelectionViewPresenter {
         public void selectAllResults(TreeView<ConceptNode> treeView) {
             if (searchResults.isEmpty()) return;
 
-            MultipleSelectionModel<TreeItem<ConceptNode>> selectionModel = treeView.getSelectionModel();
-            selectionModel.clearSelection();
+            registry.getSelectionBinder().selectItems(searchResults, treeView);
 
-            for (TreeItem<ConceptNode> item : searchResults) {
-                // TreeUtils.collapseAllNodesUptToGivenNode(item);
-                selectionModel.select(item);
-            }
-
-            treeView.scrollTo(treeView.getRow(searchResults.get(0)));
+            treeView.scrollTo(treeView.getRow(searchResults.getFirst()));
         }
 
         /**

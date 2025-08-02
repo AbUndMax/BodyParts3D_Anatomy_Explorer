@@ -9,6 +9,8 @@ import javafx.collections.ObservableSet;
 import javafx.scene.control.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.MeshView;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -275,6 +277,36 @@ public class SelectionBinder {
         selectionList.setFocusTraversable(false);
     }
 
+    public void selectItems(List<TreeItem<ConceptNode>> itemsToSelect, TreeView<ConceptNode> treeView) {
+        if (itemsToSelect == null) return;
+
+        TreeViewBinding binding = treeViewBindings.get(treeView);
+        binding.isSyncing = true;
+
+        binding.clearSelection();
+
+        // Collect meshes to select
+        List<MeshView> meshesToSelect = new ArrayList<>();
+        for (TreeItem<ConceptNode> item : itemsToSelect) {
+            // Select each tree item and track it
+            binding.selectInBoundTree(item);
+            // Gather associated meshes
+            List<String> fileIDs = item.getValue().getFileIDs();
+            if (fileIDs != null) {
+                for (String fileID : fileIDs) {
+                    MeshView mesh = fileIdToMeshMap.get(fileID);
+                    if (mesh != null) {
+                        meshesToSelect.add(mesh);
+                    }
+                }
+            }
+        }
+
+        meshSelectionModel.selectAll(meshesToSelect);
+
+        binding.isSyncing = false;
+    }
+
     /**
      * Selects all anatomy nodes and corresponding meshes under a given tree item.
      * Updates both TreeView selection and mesh selection model in batch.
@@ -284,10 +316,12 @@ public class SelectionBinder {
      */
     public void selectAllBelow(TreeItem<ConceptNode> item, TreeView<ConceptNode> treeView) {
         if (item == null) return;
+
         TreeViewBinding binding = treeViewBindings.get(treeView);
 
         // Temporarily disable sync to perform batch selection
         binding.isSyncing = true;
+
         ArrayList<MeshView> meshesToSelect = new ArrayList<>();
         binding.clearSelection();
 

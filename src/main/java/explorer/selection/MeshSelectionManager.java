@@ -25,6 +25,7 @@ public class MeshSelectionManager {
      */
     public MeshSelectionManager(List<MeshView> allMeshes) {
         this.allMeshes = allMeshes;
+        activateDebug();
     }
 
     /**
