@@ -234,7 +234,7 @@ three-step process (apply, cleanup, restore), it is guaranteed that:
 The basic Command principle is shown in the flow-chart down below. The principle is the standard idea of an command implementation:
 
 <p align="center">
-  <img src="img/UndoRedo.png" alt="UndoRedoFlowChart" width="400" />
+  <img src="img/UndoRedo.jpg" alt="UndoRedoFlowChart" width="400" />
 </p>
 <p align="center"><em>Self-made flowchart ©N.M.G</em></p>
 
