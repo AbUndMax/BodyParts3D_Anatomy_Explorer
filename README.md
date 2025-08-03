@@ -230,6 +230,14 @@ three-step process (apply, cleanup, restore), it is guaranteed that:
 
 
 ### The idea of Commands - Undo / Redo
+
+The basic Command principle is shown in the flow-chart down below. The principle is the standard idea of an command implementation:
+
+<p align="center">
+  <img src="img/UndoRedo.png" alt="UndoRedoFlowChart" width="400" />
+</p>
+<em>Self-made flowchart ©N.M.G</em></p>
+
 I applied the Command Pattern by encapsulating each user or system action into its own command class implementing the `Command` interface.  
 This approach gives me clear visibility into what each command does and allows the `CommandManager` to execute, undo, and redo actions cleanly.  
 By isolating each operation in a dedicated class, I can:
