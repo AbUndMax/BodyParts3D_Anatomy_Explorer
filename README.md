@@ -236,7 +236,7 @@ The basic Command principle is shown in the flow-chart down below. The principle
 <p align="center">
   <img src="img/UndoRedo.png" alt="UndoRedoFlowChart" width="400" />
 </p>
-<em>Self-made flowchart ©N.M.G</em></p>
+<p align="center"><em>Self-made flowchart ©N.M.G</em></p>
 
 I applied the Command Pattern by encapsulating each user or system action into its own command class implementing the `Command` interface.  
 This approach gives me clear visibility into what each command does and allows the `CommandManager` to execute, undo, and redo actions cleanly.  
