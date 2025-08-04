@@ -1,5 +1,6 @@
-# Advanced Java for Bioinformatics: Closing Project - Anatomy Explorer
-> Repository of Niklas M. Gerbes
+# BodyParts3D Anatomy Explorer
+
+> This Program was originally implemented as part of the course "Advanced Java for Bioinformatics" by Prof. Huson in the summer semester 2025 at university of Tübingen.
 
 ![Milestone_3_Release.png](img/Milestone3/MainWindow.png)
 
