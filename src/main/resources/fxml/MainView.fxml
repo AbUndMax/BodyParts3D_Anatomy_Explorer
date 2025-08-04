@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="600.0" minWidth="820.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.MainViewController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="menuButtonClose" mnemonicParsing="false" text="Close">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem fx:id="menuButtonResetSelection" mnemonicParsing="false" text="Reset Selection">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="BACK_SPACE" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="View">
+              <items>
+                  <MenuItem fx:id="menuButtonExpandPartOf" mnemonicParsing="false" text="Expand part-of">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonExpandIsA" mnemonicParsing="false" text="Expand is-a">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="I" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonShowSelectionList" mnemonicParsing="false" text="Show Selection List">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="L" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Transformations">
+               <items>
+                  <MenuItem fx:id="menuButtonRotateLeft" mnemonicParsing="false" text="Rotate Left">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="LEFT" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonRotateRight" mnemonicParsing="false" text="Rotate Right">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="RIGHT" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonRotateUp" mnemonicParsing="false" text="Rotate Up">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="UP" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonRotateDown" mnemonicParsing="false" text="Rotate Down">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="DOWN" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="menuButtonTranslateLeft" mnemonicParsing="false" text="Translate Left">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="LEFT" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="menuButtonTranslateRight" mnemonicParsing="false" text="Translate Right">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="RIGHT" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="menuButtonTranslateUp" mnemonicParsing="false" text="Translate Up">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="UP" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="menuButtonTranslateDown" mnemonicParsing="false" text="Translate Down">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="DOWN" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="menuButtonResetPosition" mnemonicParsing="false" text="Reset Position">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonZoomIn" mnemonicParsing="false" text="Zoom In">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="PLUS" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="menuButtonZoomOut" mnemonicParsing="false" text="Zoom Out">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="MINUS" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator></MenuItem>
+               </items>
+            </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem fx:id="menuButtonAbout" mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <SplitPane fx:id="mainSplitPane" dividerPositions="0.35" BorderPane.alignment="CENTER">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="350.0">
+               <children>
+                  <fx:include fx:id="selection" source="SelectionView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children></AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="450.0">
+               <children>
+                  <fx:include fx:id="visualization" source="VisualizationView.fxml" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+               </children></AnchorPane>
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>

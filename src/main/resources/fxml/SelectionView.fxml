@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane minHeight="250.0" minWidth="350.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.SelectionViewController">
+   <top>
+      <ToolBar BorderPane.alignment="CENTER">
+        <items>
+            <Button fx:id="buttonExpandAtTreeNode" mnemonicParsing="false" text="Expand" />
+            <Button fx:id="buttonCollapseAtTreeNode" mnemonicParsing="false" text="Collapse" />
+            <Region HBox.hgrow="ALWAYS" />
+            <ToggleButton fx:id="selectionListToggle" mnemonicParsing="false" text="Selection List" />
+        </items>
+      </ToolBar>
+   </top>
+   <bottom>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+            <Button fx:id="buttonSelectAtTreeNode" mnemonicParsing="false" text="Select" />
+            <Button fx:id="buttonInvertSelection" mnemonicParsing="false" text="Invert Select" />
+            <Button fx:id="buttonDeselect" mnemonicParsing="false" text="Deselect" />
+            <Separator orientation="VERTICAL" />
+            <VBox spacing="2.0">
+               <children>
+                  <RadioButton fx:id="radioShowSelection" mnemonicParsing="false" selected="true" text="Show Selection">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                     <toggleGroup>
+                        <ToggleGroup fx:id="selectionVisibility" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="radioHideSelection" mnemonicParsing="false" text="Hide Selection" toggleGroup="$selectionVisibility">
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </RadioButton>
+               </children>
+            </VBox>
+        </items>
+      </ToolBar>
+   </bottom>
+   <center>
+      <SplitPane fx:id="selectionListSplitPane" dividerPositions="1.0" BorderPane.alignment="CENTER">
+         <items>
+            <SplitPane fx:id="treeViewSplitPane" dividerPositions="0.5" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="100.0" minWidth="175.0" orientation="VERTICAL" prefWidth="200.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                     <children>
+                        <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <center>
+                              <BorderPane>
+                                 <center>
+                                    <TreeView fx:id="treeViewPartOf" BorderPane.alignment="CENTER" />
+                                 </center>
+                                 <top>
+                                    <Label alignment="CENTER" text="part-of" textAlignment="CENTER" BorderPane.alignment="CENTER">
+                                       <BorderPane.margin>
+                                          <Insets bottom="5.0" top="5.0" />
+                                       </BorderPane.margin>
+                                    </Label>
+                                 </top>
+                              </BorderPane>
+                           </center>
+                           <bottom>
+                              <HBox alignment="CENTER" maxHeight="12.0" minHeight="12.0" prefHeight="12.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <Button fx:id="expandIsAView" maxHeight="12.0" maxWidth="Infinity" minHeight="12.0" mnemonicParsing="false" prefHeight="12.0" prefWidth="0.0" text="▲▲▲" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="7.0" />
+                                       </font>
+                                    </Button>
+                                    <Button fx:id="centerDivider1" maxHeight="12.0" maxWidth="Infinity" minHeight="12.0" mnemonicParsing="false" prefHeight="12.0" prefWidth="0.0" text="●" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="7.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </bottom>
+                        </BorderPane>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                     <children>
+                        <BorderPane layoutY="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <center>
+                              <BorderPane>
+                                 <center>
+                                    <TreeView fx:id="treeViewIsA" BorderPane.alignment="CENTER" />
+                                 </center>
+                                 <top>
+                                    <Label alignment="CENTER" text="is-a" textAlignment="CENTER" BorderPane.alignment="CENTER">
+                                       <BorderPane.margin>
+                                          <Insets bottom="5.0" top="5.0" />
+                                       </BorderPane.margin>
+                                    </Label>
+                                 </top>
+                              </BorderPane>
+                           </center>
+                           <top>
+                              <HBox alignment="CENTER" maxHeight="12.0" minHeight="12.0" prefHeight="12.0" BorderPane.alignment="CENTER">
+                                 <children>
+                                    <Button fx:id="centerDivider2" maxHeight="12.0" maxWidth="Infinity" minHeight="12.0" mnemonicParsing="false" prefHeight="12.0" prefWidth="0.0" text="●" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="7.0" />
+                                       </font>
+                                    </Button>
+                                    <Button fx:id="expandPartOfView" maxHeight="12.0" maxWidth="Infinity" minHeight="12.0" mnemonicParsing="false" prefHeight="12.0" prefWidth="0.0" text="▼▼▼" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="7.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </top>
+                        </BorderPane>
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
+            <BorderPane fx:id="selectionListPane" minHeight="200.0" minWidth="150.0" prefWidth="150.0" SplitPane.resizableWithParent="false">
+               <center>
+                  <ListView fx:id="selectionListView" minHeight="150.0" minWidth="175.0" />
+               </center>
+               <top>
+                  <Label text="Selected Parts" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets bottom="5.0" top="6.0" />
+                     </BorderPane.margin>
+                  </Label>
+               </top>
+            </BorderPane>
+         </items>
+      </SplitPane>
+   </center>
+</BorderPane>

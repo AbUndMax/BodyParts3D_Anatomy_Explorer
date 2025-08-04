@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="explorer.window.controller.VisualizationViewController">
+   <top>
+      <ToolBar BorderPane.alignment="CENTER">
+         <items>
+            <TextField fx:id="textFieldSearchBar" prefWidth="200.0" promptText="Search for anatomy parts" />
+            <ChoiceBox fx:id="searchChoice" prefWidth="100.0">
+               <items>
+                  <FXCollections fx:factory="observableArrayList">
+                     <String fx:value="3D viewer" />
+                     <String fx:value="part-of" />
+                     <String fx:value="is-a" />
+                  </FXCollections>
+               </items>
+            </ChoiceBox>
+            <Button fx:id="buttonFindNext" disable="true" mnemonicParsing="false" text="Next" />
+            <Button fx:id="buttonFindFirst" disable="true" mnemonicParsing="false" text="First" />
+            <Button fx:id="buttonFindAll" disable="true" mnemonicParsing="false" text="All" />
+            <Label fx:id="searchHitLabel" disable="true" text="0 / 0 hits" />
+         </items>
+      </ToolBar>
+   </top>
+   <center>
+      <StackPane BorderPane.alignment="CENTER">
+         <children>
+            <Pane fx:id="visualizationPane" />
+            <BorderPane maxHeight="100.0" maxWidth="100.0" prefHeight="100.0" prefWidth="100.0" StackPane.alignment="TOP_LEFT">
+               <center>
+                  <GridPane BorderPane.alignment="CENTER">
+                    <columnConstraints>
+                      <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                        <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="BOTTOM" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Button fx:id="buttonCntrlLeftUp" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="↖">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlUp" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="↑" GridPane.columnIndex="1">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlRightUp" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="↗" GridPane.columnIndex="2">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlLeft" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="←" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlReset" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="O" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlRight" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="→" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlLeftDown" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="↙" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlDown" maxHeight="30.0" maxWidth="30.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="↓" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="buttonCntrlRightDown" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="25.0" text="↘" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </GridPane>
+               </center>
+               <right>
+                  <Slider fx:id="zoomSlider" maxHeight="100.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" rotate="180.0" BorderPane.alignment="CENTER" />
+               </right>
+               <bottom>
+                  <VBox spacing="4.0">
+                     <children>
+                        <RadioButton fx:id="radioRotation" mnemonicParsing="false" selected="true" text="Rotation">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="threeDControl" />
+                           </toggleGroup>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="12.0" />
+                           </font>
+                        </RadioButton>
+                        <RadioButton fx:id="radioTranslation" mnemonicParsing="false" text="Translation" toggleGroup="$threeDControl">
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="12.0" />
+                           </font>
+                        </RadioButton>
+                     </children>
+                     <BorderPane.margin>
+                        <Insets top="10.0" />
+                     </BorderPane.margin>
+                  </VBox>
+               </bottom>
+               <StackPane.margin>
+                  <Insets left="5.0" top="10.0" />
+               </StackPane.margin>
+            </BorderPane>
+            <Pane fx:id="tripodPane" disable="true" maxHeight="75.0" maxWidth="75.0" prefHeight="75.0" prefWidth="75.0" StackPane.alignment="BOTTOM_LEFT">
+               <StackPane.margin>
+                  <Insets bottom="10.0" left="10.0" />
+               </StackPane.margin>
+            </Pane>
+         </children>
+      </StackPane>
+   </center>
+</BorderPane>
